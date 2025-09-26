@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <!-- Top Row Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <!-- Cars Available -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 16v3H5v-3m14 0v-3a2 2 0 00-2-2h-1v-2a2 2 0 00-2-2H7a2 2 0 00-2 2v2H4a2 2 0 00-2 2v3"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-gray-600 text-sm">Cars Available</h2>
+                    <p class="text-2xl font-semibold text-gray-800">24</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cars Sold -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-full">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-gray-600 text-sm">Cars Sold</h2>
+                    <p class="text-2xl font-semibold text-gray-800">12</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Repairs -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-yellow-100 rounded-full">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-gray-600 text-sm">Pending Repairs</h2>
+                    <p class="text-2xl font-semibold text-gray-800">8</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents Awaiting -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-red-100 rounded-full">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h2 class="text-gray-600 text-sm">Documents Awaiting</h2>
+                    <p class="text-2xl font-semibold text-gray-800">5</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle Section - Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Sales Trend</h2>
+            <div class="h-64">
+                <!-- Add your chart component here -->
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Inventory Turnover</h2>
+            <div class="h-64">
+                <!-- Add your chart component here -->
+                <canvas id="inventoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section - Recent Activities -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
+        <div class="space-y-4">
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <div class="p-2 bg-green-100 rounded-full">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">Car Sold - BMW M3</p>
+                    <p class="text-sm text-gray-500">2 hours ago</p>
+                </div>
+            </div>
+
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <div class="p-2 bg-blue-100 rounded-full">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">Repair Completed - Mercedes C200</p>
+                    <p class="text-sm text-gray-500">5 hours ago</p>
+                </div>
+            </div>
+
+            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                <div class="p-2 bg-yellow-100 rounded-full">
+                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-900">New Document Uploaded - Sales Invoice #1234</p>
+                    <p class="text-sm text-gray-500">1 day ago</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sample charts setup
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
+    const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+
+    new Chart(salesCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Sales',
+                data: [12, 19, 3, 5, 2, 3],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        }
+    });
+
+    new Chart(inventoryCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Inventory Turnover',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgb(153, 102, 255)',
+                borderWidth: 1
+            }]
+        }
+    });
+</script>
+{% endblock %}
