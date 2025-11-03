@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 5px; }
+        th { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <p>Generated on: {{ exportDate|date('F j, Y') }}</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Price</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales|slice(0, 5) %}
+            <tr>
+                <td>{{ sale.id }}</td>
+                <td>{{ sale.customer ? sale.customer.firstName ~ ' ' ~ sale.customer.lastName : 'N/A' }}</td>
+                <td>₱{{ sale.salePrice|number_format(2, '.', ',') }}</td>
+                <td>{{ sale.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

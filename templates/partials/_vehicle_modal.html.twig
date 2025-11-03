@@ -1,0 +1,31 @@
+{# Reusable Vehicle Modal for Add/Edit #}
+<div id="{{ modalId }}" class="hidden fixed inset-0 z-40">
+    <!-- Overlay -->
+    <div id="{{ modalId }}Overlay" class="fixed inset-0 bg-black bg-opacity-50"></div>
+    
+    <!-- Modal Container -->
+    <div class="fixed inset-0 z-40 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <!-- Modal Content -->
+            <div id="{{ modalId }}Content" class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all opacity-0 scale-95">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ modalTitle }}</h3>
+                    <button type="button" onclick="close{{ modalFunction }}()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6">
+                    <div id="{{ modalId }}FormContainer">
+                        {{ include('main/_form.html.twig', {'form': form, 'car': car|default(null)}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,544 @@
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Sales Management{% endblock %}
+
+{% block body %}
+
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">Sales Management</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Search Form -->
+                <form method="GET" action="{{ path('app_sales_search') }}" class="flex items-center gap-2" id="salesSearchForm">
+                    <div class="relative">
+                        <input type="text" name="q" value="{{ searchQuery ?? '' }}" 
+                               placeholder="Search sales by customer, vehicle, or ID..." 
+                               class="w-64 px-4 py-3 pl-10 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                               id="searchInput">
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        {% if searchQuery is defined and searchQuery %}
+                        <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 font-medium shadow-sm hover:shadow-md">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Search
+                    </button>
+                </form>
+                
+                <!-- Add Sale Button -->
+                <a href="{{ path('app_sales_new') }}" 
+                   class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Record Sale
+                </a>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <form method="GET" action="{{ path('app_sales_export_csv') }}" data-turbo="false" style="display: inline;">
+                        <button type="submit" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-3 rounded-xl flex items-center gap-2 font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </form>
+                    <form method="GET" action="{{ path('app_sales_export_pdf') }}" data-turbo="false" style="display: inline;">
+                        <button type="submit" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-3 rounded-xl flex items-center gap-2 font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Export PDF
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Revenue -->
+        <div class="bg-gradient-to-br from-green-500 to-green-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl min-h-[140px]">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between mb-4">
+                    <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Total Revenue</p>
+                    <div class="bg-green-500 bg-opacity-20 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-2xl font-bold leading-tight overflow-hidden text-ellipsis">₱{{ statistics.total_revenue|number_format(2, '.', ',') }}</p>
+                    <p class="text-green-100 text-xs mt-2">All time</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl min-h-[140px]">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between mb-4">
+                    <p class="text-blue-100 text-sm font-medium uppercase tracking-wide">This Month</p>
+                    <div class="bg-blue-500 bg-opacity-20 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-2xl font-bold leading-tight overflow-hidden text-ellipsis">₱{{ statistics.monthly_revenue|number_format(2, '.', ',') }}</p>
+                    <p class="text-blue-100 text-xs mt-2 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        {{ statistics.revenue_growth|number_format(1) }}% growth
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Sales -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl min-h-[140px]">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between mb-4">
+                    <p class="text-purple-100 text-sm font-medium uppercase tracking-wide">Total Sales</p>
+                    <div class="bg-purple-500 bg-opacity-20 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-2xl font-bold leading-tight overflow-hidden text-ellipsis">{{ statistics.total_sales }}</p>
+                    <p class="text-purple-100 text-xs mt-2">Completed transactions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Sales -->
+        <div class="bg-gradient-to-br from-amber-500 to-amber-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl min-h-[140px]">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between mb-4">
+                    <p class="text-amber-100 text-sm font-medium uppercase tracking-wide">Pending</p>
+                    <div class="bg-amber-500 bg-opacity-20 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <p class="text-2xl font-bold leading-tight overflow-hidden text-ellipsis">{{ statistics.pending_sales }}</p>
+                    <p class="text-amber-100 text-xs mt-2">Awaiting completion</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Analytics Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Average Sale Price -->
+        <div class="bg-gradient-to-br from-indigo-500 to-indigo-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-indigo-100 text-sm font-medium uppercase tracking-wide">Avg Sale Price</p>
+                <div class="bg-indigo-500 bg-opacity-20 rounded-full p-3">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col justify-center">
+                <p class="text-2xl font-bold leading-tight">₱{{ statistics.average_sale_price|number_format(2, '.', ',') }}</p>
+                <p class="text-indigo-100 text-xs mt-2">Per transaction</p>
+            </div>
+        </div>
+
+        <!-- Conversion Rate -->
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-cyan-100 text-sm font-medium uppercase tracking-wide">Conversion Rate</p>
+                <div class="bg-cyan-500 bg-opacity-20 rounded-full p-3">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col justify-center">
+                <p class="text-2xl font-bold leading-tight">{{ statistics.conversion_rate|number_format(1) }}%</p>
+                <p class="text-cyan-100 text-xs mt-2">Sales success rate</p>
+            </div>
+        </div>
+
+        <!-- Top Vehicle Brand -->
+        <div class="bg-gradient-to-br from-green-500 to-green-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-red-100 text-sm font-medium uppercase tracking-wide">Top Brand</p>
+                <div class="bg-green-500 bg-opacity-20 rounded-full p-3">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col justify-center">
+                <p class="text-2xl font-bold leading-tight">{{ statistics.top_brand ?? 'N/A' }}</p>
+                <p class="text-red-100 text-xs mt-2">Most sold brand</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    {% if error is defined and error %}
+    <div class="mb-6 bg-red-900/20 border border-red-500 rounded-lg p-4">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="text-red-300 font-medium">{{ error }}</span>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search Results Indicator -->
+    {% if searchQuery is defined and searchQuery %}
+    <div class="mb-6 bg-blue-900/20 border border-white rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span class="text-white font-medium">
+                    Search results for "{{ searchQuery }}"
+                    {% if sales|length > 0 %}
+                        - {{ sales|length }} {{ sales|length == 1 ? 'sale found' : 'sales found' }}
+                    {% else %}
+                        - No sales found
+                    {% endif %}
+                </span>
+            </div>
+            <a href="{{ path('app_sales_index') }}" class="text-blue-300 hover:text-blue-200 text-sm font-medium">
+                Clear Search
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters Section -->
+    <div class="mb-6 bg-gray-800 rounded-xl shadow-lg p-2 border border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"/>
+                </svg>
+                Filters
+            </h3>
+            <button onclick="toggleFilters()" class="text-gray-400 hover:text-gray-200 text-sm font-medium">
+                <span id="filterToggleText">Show Filters</span>
+            </button>
+        </div>
+        
+        <div id="filterContent" class="hidden">
+            <form method="GET" action="{{ path('app_sales_filter') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                    <select name="status" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Status</option>
+                        <option value="completed" {{ (filterStatus ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="pending" {{ (filterStatus ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="cancelled" {{ (filterStatus ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    </select>
+                </div>
+                
+                <!-- Date Range Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">From Date</label>
+                    <input type="date" name="date_from" value="{{ filterDateFrom ?? '' }}" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">To Date</label>
+                    <input type="date" name="date_to" value="{{ filterDateTo ?? '' }}" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                </div>
+                
+                <!-- Payment Method Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Payment Method</label>
+                    <select name="payment_method" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Methods</option>
+                        <option value="cash" {{ (filterPaymentMethod ?? '') == 'cash' ? 'selected' : '' }}>Cash</option>
+                        <option value="financing" {{ (filterPaymentMethod ?? '') == 'financing' ? 'selected' : '' }}>Financing</option>
+                        <option value="bank_transfer" {{ (filterPaymentMethod ?? '') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
+                        <option value="check" {{ (filterPaymentMethod ?? '') == 'check' ? 'selected' : '' }}>Check</option>
+                    </select>
+                </div>
+                
+                <!-- Filter Actions -->
+                <div class="lg:col-span-4 flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
+                    <a href="{{ path('app_sales_index') }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors duration-200">
+                        Clear Filters
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>   
+
+    <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h3 class="text-lg font-semibold text-white">
+                {% if searchQuery is defined and searchQuery %}
+                    Search Results for "{{ searchQuery }}"
+                {% else %}
+                    Recent Sales
+                {% endif %}
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700" id="salesResultsTable">
+                <thead class="bg-gray-900">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Vehicle</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Sale Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Payment</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                    {% for sale in sales %}
+                    <tr class="hover:bg-gray-700 transition-colors duration-200">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                {% if sale.vehicle.images is not empty %}
+                                    <div class="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 mr-4">
+                                        <img src="{{ asset('uploads/cars/' ~ sale.vehicle.images[0]) }}" 
+                                             alt="{{ sale.vehicle.brand }}" 
+                                             class="w-full h-full object-cover">
+                                    </div>
+                                {% else %}
+                                    <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <div class="text-sm font-medium text-gray-100">{{ sale.vehicle.brand }} {{ sale.vehicle.year }}</div>
+                                    <div class="text-xs text-gray-400">{{ sale.vehicle.mileage }}km</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-100">{{ sale.customer.fullName }}</div>
+                            {% if sale.customer.email %}
+                                <div class="text-xs text-gray-400">{{ sale.customer.email }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-[#B32224] font-semibold">₱{{ sale.salePrice|number_format(2, '.', ',') }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-400">
+                            {% if sale.paymentMethod %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                                    {{ sale.paymentMethod|title }}
+                                </span>
+                            {% else %}
+                                <span class="text-gray-500">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ sale.saleDate|date('M d, Y') }}</td>
+                        <td class="px-6 py-4">
+                            {% if sale.status == 'completed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                    Completed
+                                </span>
+                            {% elseif sale.status == 'pending' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                    Pending
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <svg class="w-2 h-2 mr-1" fill="currentColor" viewBox="0 0 8 8">
+                                        <circle cx="4" cy="4" r="3"/>
+                                    </svg>
+                                    Cancelled
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium space-x-2">
+                            <a href="{{ path('app_sales_show', {'id': sale.id}) }}" 
+                               class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
+                            <a href="{{ path('app_sales_edit', {'id': sale.id}) }}" 
+                               class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</a>
+                            <button onclick="handleDelete('{{ sale.id }}', '{{ csrf_token('delete' ~ sale.id) }}')" 
+                                    class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                        {% if searchQuery is defined and searchQuery %}
+                        <tr class="bg-gray-800">
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="text-gray-400">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                    <p class="text-lg font-medium">No sales found</p>
+                                    <p class="text-sm">No sales match your search criteria for "{{ searchQuery }}"</p>
+                                    <div class="mt-4">
+                                        <a href="{{ path('app_sales_index') }}" class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                                            View all sales
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="text-gray-400">
+                                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    <p class="text-lg font-medium">No sales recorded yet</p>
+                                    <p class="text-sm">Start by recording your first sale</p>
+                                    <div class="mt-4">
+                                        <a href="{{ path('app_sales_new') }}" class="bg-[#B32224] hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            Record Sale
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Prevent Turbo.js parsing errors
+    document.addEventListener('turbo:before-cache', function() {
+        // Clean up any problematic elements before caching
+        console.log('Turbo: cleaning up before cache');
+    });
+    
+    document.addEventListener('turbo:before-render', function() {
+        // Ensure clean state before rendering
+        console.log('Turbo: preparing to render');
+    });
+    // Handle delete sale with global modal
+    window.handleDelete = function(saleId, token) {
+        showGlobalResultModal('warning', 'Confirm Delete', 'Are you sure you want to delete this sale? This action cannot be undone.', {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    class: 'px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                    }
+                },
+                {
+                    text: 'Delete Sale',
+                    class: 'px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium border border-transparent hover:bg-[#B32224] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700',
+                    action: function() {
+                        closeGlobalResultModal();
+                        
+                        // Show loading modal
+                        showGlobalResultModal('warning', 'Deleting...', 'Please wait while we delete the sale.');
+                        
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/sales/${saleId}`;
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = token;
+                        
+                        form.appendChild(tokenInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            ]
+        });
+    };
+
+    // Search functionality
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        window.location.href = '{{ path('app_sales_index') }}';
+    }
+
+    // Auto-submit search on Enter key
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('salesSearchForm').submit();
+                }
+            });
+        }
+    });
+
+    // Focus search input on page load if there's a search query
+    {% if searchQuery is defined and searchQuery %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+    });
+    {% endif %}
+
+    // Filter toggle functionality
+    function toggleFilters() {
+        const filterContent = document.getElementById('filterContent');
+        const toggleText = document.getElementById('filterToggleText');
+        
+        if (filterContent && toggleText) {
+            if (filterContent.classList.contains('hidden')) {
+                filterContent.classList.remove('hidden');
+                toggleText.textContent = 'Hide Filters';
+            } else {
+                filterContent.classList.add('hidden');
+                toggleText.textContent = 'Show Filters';
+            }
+        }
+    }
+</script>
+{% endblock %}
+

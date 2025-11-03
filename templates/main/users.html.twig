@@ -1,0 +1,324 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Management{% endblock %}
+
+{% block body %}
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">User Management</h1>
+                <p class="mt-2 text-gray-400">Manage system users and their roles</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Search Form -->
+                <form method="GET" action="{{ path('app_users_search') }}" class="flex items-center gap-2" id="userSearchForm">
+                    <div class="relative">
+                        <input type="text" name="q" value="{{ searchQuery ?? '' }}" 
+                               placeholder="Search users by name or email..." 
+                               class="w-64 px-4 py-3 pl-10 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                               id="searchInput">
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        {% if searchQuery is defined and searchQuery %}
+                        <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="bg-[#B32224] hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Search
+                    </button>
+                </form>
+                <!-- Add User Button -->
+                <a href="{{ path('app_users_new') }}" 
+                   class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add User
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Users -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Total Users</p>
+                        <p class="text-white text-xl font-bold">{{ statistics.total_users }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Users -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Active Users</p>
+                        <p class="text-white text-xl font-bold">{{ statistics.active_users }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mechanics -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-purple-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                    </svg>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Mechanics</p>
+                        <p class="text-white text-xl font-bold">{{ statistics.mechanics }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Administrators -->
+        <div class="bg-gray-800 rounded-lg shadow-lg p-4 border border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-amber-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Administrators</p>
+                        <p class="text-white text-xl font-bold">{{ statistics.admins }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Indicator -->
+    {% if searchQuery is defined and searchQuery %}
+    <div class="mb-6 bg-blue-900/20 border border-white rounded-lg p-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span class="text-white font-medium">
+                    Search results for "{{ searchQuery }}"
+                    {% if users|length > 0 %}
+                        - {{ users|length }} user{{ users|length != 1 ? 's' : '' }} found
+                    {% else %}
+                        - No users found
+                    {% endif %}
+                </span>
+            </div>
+            <a href="{{ path('app_users_index') }}" class="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                Clear search
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Users Table -->
+    <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h3 class="text-lg font-semibold text-white">
+                {% if searchQuery is defined and searchQuery %}
+                    Search Results
+                {% else %}
+                    User Directory
+                {% endif %}
+            </h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-900">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Last Login</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                    {% for user in users %}
+                    <tr class="hover:bg-gray-700 transition-colors duration-200">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#B32224] to-red-700 flex items-center justify-center text-white font-semibold text-sm mr-4">
+                                    {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-100">{{ user.getFullName() }}</div>
+                                    <div class="text-xs text-gray-400">ID: {{ user.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-100">
+                                <div class="flex items-center mb-1">
+                                    <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    {{ user.email }}
+                                </div>
+                                {% if user.phone %}
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                        </svg>
+                                        +63 {{ user.phone }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% set roleColors = {
+                                'admin': 'bg-red-100 text-red-800',
+                                'manager': 'bg-blue-100 text-blue-800',
+                                'mechanic': 'bg-purple-100 text-purple-800',
+                                'staff': 'bg-gray-100 text-gray-800'
+                            } %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ roleColors[user.role] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ user.getRoleDisplayName() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% set statusColors = {
+                                'active': 'bg-green-100 text-green-800',
+                                'inactive': 'bg-gray-100 text-gray-800',
+                                'suspended': 'bg-red-100 text-red-800'
+                            } %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ statusColors[user.status] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ user.getStatusDisplayName() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400">
+                            {% if user.lastLoginAt %}
+                                <div>{{ user.lastLoginAt|date('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ user.lastLoginAt|date('h:i A') }}</div>
+                            {% else %}
+                                <span class="text-gray-500">Never</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium space-x-2">
+                            <a href="{{ path('app_users_show', {'id': user.id}) }}" 
+                               class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
+                            <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
+                               class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</a>
+                            <a href="{{ path('app_users_change_password', {'id': user.id}) }}" 
+                               class="text-blue-400 hover:text-blue-300 transition-colors duration-200">Password</a>
+                            <button onclick="handleDelete('{{ user.id }}', '{{ csrf_token('delete' ~ user.id) }}')" 
+                                    class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="text-gray-400">
+                                <svg class="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                <p class="text-lg font-medium">No users found</p>
+                                <p class="text-sm">Start by adding your first user</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Handle delete user with global modal
+    window.handleDelete = function(userId, token) {
+        showGlobalResultModal('warning', 'Confirm Delete', 'Are you sure you want to delete this user? This action cannot be undone.', {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    class: 'px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                    }
+                },
+                {
+                    text: 'Delete User',
+                    class: 'px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium border border-transparent hover:bg-[#B32224] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700',
+                    action: function() {
+                        closeGlobalResultModal();
+                        
+                        // Show loading modal
+                        showGlobalResultModal('warning', 'Deleting...', 'Please wait while we delete the user.');
+                        
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/users/${userId}`;
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = token;
+                        
+                        form.appendChild(tokenInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            ]
+        });
+    };
+
+    // Search functionality
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        window.location.href = '{{ path('app_users_index') }}';
+    }
+
+    // Auto-submit search on Enter key
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('userSearchForm').submit();
+                }
+            });
+        }
+    });
+
+    // Focus search input on page load if there's a search query
+    {% if searchQuery is defined and searchQuery %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select(); // Select all text for easy replacement
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

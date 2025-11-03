@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Export Report</title>
+    <style>
+        @font-face {
+            font-family: 'DejaVu Sans';
+            src: url('/var/fonts/DejaVuSans.ttf') format('truetype');
+        }
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #000000;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 2px solid #000000;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+        }
+        .stats-summary {
+            margin-bottom: 30px;
+        }
+        .stats-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .stat-item {
+            display: table-cell;
+            width: 33.33%;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #000000;
+        }
+        .stat-item h3 {
+            margin: 0 0 5px 0;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .stat-item .value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #f0f0f0;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid #000000;
+        }
+        td {
+            padding: 8px;
+            font-size: 12px;
+            border: 1px solid #000000;
+        }
+        .status {
+            padding: 2px 5px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .status.completed {
+            background-color: #e0e0e0;
+        }
+        .status.pending {
+            background-color: #f0f0f0;
+        }
+        .status.cancelled {
+            background-color: #d0d0d0;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Sales Export Report</h1>
+        <p>Generated on {{ exportDate|date('F j, Y \a\t g:i A') }}</p>
+    </div>
+
+    <div class="stats-summary">
+        <div class="stats-row">
+            <div class="stat-item">
+                <h3>Total Revenue</h3>
+                <div class="value">₱{{ statistics.total_revenue|number_format(2, '.', ',') }}</div>
+            </div>
+            <div class="stat-item">
+                <h3>Monthly Revenue</h3>
+                <div class="value">₱{{ statistics.monthly_revenue|number_format(2, '.', ',') }}</div>
+            </div>
+            <div class="stat-item">
+                <h3>Total Sales</h3>
+                <div class="value">{{ statistics.total_sales }}</div>
+            </div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <h3>Pending Sales</h3>
+                <div class="value">{{ statistics.pending_sales }}</div>
+            </div>
+            <div class="stat-item">
+                <h3>Average Sale Price</h3>
+                <div class="value">₱{{ statistics.average_sale_price|number_format(2, '.', ',') }}</div>
+            </div>
+            <div class="stat-item">
+                <h3>Conversion Rate</h3>
+                <div class="value">{{ statistics.conversion_rate|number_format(1) }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Customer</th>
+                    <th>Vehicle</th>
+                    <th>Sale Date</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Payment Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>#{{ sale.id }}</td>
+                    <td>
+                        {% if sale.customer %}
+                            {{ sale.customer.firstName }} {{ sale.customer.lastName }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sale.vehicle %}
+                            {{ sale.vehicle.brand }} {{ sale.vehicle.model }} ({{ sale.vehicle.year }})
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                    <td>{{ sale.saleDate|date('M d, Y') }}</td>
+                    <td>₱{{ sale.salePrice|number_format(2, '.', ',') }}</td>
+                    <td>
+                        <span class="status {{ sale.status }}">
+                            {{ sale.status|title }}
+                        </span>
+                    </td>
+                    <td>{{ sale.paymentMethod ?? 'N/A' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 20px; color: #6b7280;">
+                        No sales data available
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <p>This report was generated by Ramle Wheels Sales Management System</p>
+        <p>For questions about this report, please contact the sales department</p>
+    </div>
+</body>
+</html>

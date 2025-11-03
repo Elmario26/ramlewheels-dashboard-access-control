@@ -1,0 +1,155 @@
+{{ form_start(form, {
+    'attr': {
+        'class': 'space-y-4',
+        'id': 'carForm',
+        'data-turbo': 'false',
+        'enctype': 'multipart/form-data'
+    }
+}) }}
+    <div class="grid grid-cols-2 gap-4">
+        <!-- Left Column -->
+        <div class="space-y-4">
+            {{ form_row(form.brand, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter brand name'
+                }
+            }) }}
+            
+            {{ form_row(form.make, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter make/model'
+                }
+            }) }}
+            
+            {{ form_row(form.year, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter year'
+                }
+            }) }}
+            
+            {{ form_row(form.color, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter color'
+                }
+            }) }}
+            
+            {{ form_row(form.mileage, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter mileage'
+                }
+            }) }}
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-4">
+            {{ form_row(form.conditions, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Select condition'
+                }
+            }) }}
+            
+            {{ form_row(form.plateNumber, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter plate number'
+                }
+            }) }}
+            
+            {{ form_row(form.engineNumber, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter engine number'
+                }
+            }) }}
+            
+            {{ form_row(form.price, {
+                'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+                'attr': {
+                    'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                    'placeholder': 'Enter price'
+                }
+            }) }}
+        </div>
+    </div>
+
+    <!-- Damage Description - Full Width -->
+    <div class="mt-4">
+        {{ form_row(form.damageDescription, {
+            'label_attr': {'class': 'block text-sm font-medium text-gray-700'},
+            'attr': {
+                'class': 'mt-1 block w-full px-3 py-2 rounded-md bg-white border border-gray-300 shadow-sm focus:border-[#B32224] focus:ring focus:ring-[#B32224] focus:ring-opacity-50',
+                'placeholder': 'Enter damage description (optional)',
+                'rows': 3
+            }
+        }) }}
+    </div>
+
+    <div class="mt-6" data-controller="image-preview">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
+        
+        {# Hidden file input #}
+        {{ form_widget(form.images, {
+            'attr': {
+                'class': 'hidden',
+                'accept': 'image/*',
+                'multiple': 'multiple'
+            }
+        }) }}
+
+        {# Drag & Drop Upload Zone #}
+        <div id="dropZone" 
+             class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#B32224] transition-colors duration-200 cursor-pointer">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p class="mt-2 text-sm text-gray-600">
+                <span class="font-medium text-[#B32224]">Click to upload</span> or drag and drop
+            </p>
+            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+        </div>
+
+        {# Image preview container #}
+        <div id="imagePreviewContainer" class="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% if car is defined and car.images is not empty %}
+                {% for image in car.images %}
+                    <div class="relative group" data-image="{{ image }}">
+                        <img src="{{ asset('uploads/cars/' ~ image) }}" 
+                             alt="Vehicle image" 
+                             class="w-full h-32 object-cover rounded-lg">
+                        <button type="button" 
+                                onclick="removeExistingImage('{{ image }}', this)"
+                                class="absolute -top-1 -right-1 bg-white hover:bg-red-700 text-black hover:text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors duration-200 opacity-0 group-hover:opacity-100">
+                            X
+                        </button>
+                        <input type="hidden" name="existing_images[]" value="{{ image }}">
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+        <button type="button" onclick="closeAddModal(); closeEditModal();" 
+            class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]">
+            Cancel
+        </button>
+        <button type="submit" 
+            class="px-4 py-2 bg-[#B32224] border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]">
+            {% if car is defined and car.id is defined %}Update Vehicle{% else %}Save Vehicle{% endif %}
+        </button>
+    </div>
+{{ form_end(form) }}

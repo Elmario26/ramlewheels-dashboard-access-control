@@ -1,0 +1,1404 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inventory Management{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Dual Thumb Range Slider Styles */
+    .range-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+        outline: none;
+        height: 8px;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* WebKit browsers (Chrome, Safari, Edge) */
+    .range-slider::-webkit-slider-track {
+        background: transparent;
+        height: 8px;
+        border-radius: 4px;
+        border: none;
+    }
+
+    .range-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        background: #B32224;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin-top: -6px;
+        position: relative;
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+        transition: all 0.2s ease;
+    }
+
+    /* Firefox */
+    .range-slider::-moz-range-track {
+        background: transparent;
+        height: 8px;
+        border-radius: 4px;
+        border: none;
+    }
+
+    .range-slider::-moz-range-thumb {
+        background: #B32224;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        border: none;
+    }
+
+    .range-slider::-moz-range-thumb:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+        transition: all 0.2s ease;
+    }
+
+    /* Internet Explorer / Edge */
+    .range-slider::-ms-track {
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+        height: 8px;
+        border: none;
+    }
+
+    .range-slider::-ms-thumb {
+        background: #B32224;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .range-slider::-ms-fill-lower,
+    .range-slider::-ms-fill-upper {
+        background: transparent;
+    }
+
+    /* Focus styles */
+    .range-slider:focus {
+        outline: none;
+    }
+
+    .range-slider:focus::-webkit-slider-thumb {
+        box-shadow: 0 0 0 3px rgba(179, 34, 36, 0.3);
+    }
+
+    .range-slider:focus::-moz-range-thumb {
+        box-shadow: 0 0 0 3px rgba(179, 34, 36, 0.3);
+    }
+
+    /* Dual slider specific styles */
+    #price-min-slider {
+        z-index: 10;
+    }
+
+    #price-max-slider {
+        z-index: 20;
+    }
+
+    #price-range-active {
+        transition: all 0.2s ease;
+        pointer-events: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">Vehicle Inventory</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- View Toggle -->
+                <div class="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-600" x-data="{ view: localStorage.getItem('inventoryView') || 'grid' }" x-init="toggleView(view)">
+                    <button id="gridViewBtn" @click="view = 'grid'; toggleView('grid')" 
+                            :class="view === 'grid' ? 'bg-gray-600 text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-200'"
+                            class="view-toggle-btn px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                        </svg>
+                    </button>
+                    <button id="listViewBtn" @click="view = 'list'; toggleView('list')" 
+                            :class="view === 'list' ? 'bg-gray-600 text-gray-100 shadow-sm' : 'text-gray-400 hover:text-gray-200'"
+                            class="view-toggle-btn px-3 py-2 rounded-md text-sm font-medium transition-all duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Add Vehicle Button -->
+                <button onclick="openAddModal()" 
+                        class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add Vehicle
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="mb-6 bg-gray-800 rounded-xl shadow-lg p-2 border border-gray-700">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"/>
+                </svg>
+                Filters
+            </h3>
+            <button onclick="toggleFilters()" class="text-gray-400 hover:text-gray-200 text-sm font-medium">
+                <span id="filterToggleText">Show Filters</span>
+            </button>
+        </div>
+        
+        <div id="filterContent" class="hidden">
+            <form method="GET" action="{{ path('app_cars_index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Brand Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Brand</label>
+                    <select name="brand" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Brands</option>
+                        {% set brands = [] %}
+                        {% for vehicle in vehicles %}
+                            {% if vehicle.brand not in brands %}
+                                {% set brands = brands|merge([vehicle.brand]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for brand in brands|sort %}
+                            <option value="{{ brand }}" {{ (filterBrand ?? '') == brand ? 'selected' : '' }}>{{ brand }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Year Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Year</label>
+                    <select name="year" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Years</option>
+                        {% set years = [] %}
+                        {% for vehicle in vehicles %}
+                            {% if vehicle.year not in years %}
+                                {% set years = years|merge([vehicle.year]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for year in years|sort|reverse %}
+                            <option value="{{ year }}" {{ (filterYear ?? '') == year ? 'selected' : '' }}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                    <select name="status" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Status</option>
+                        <option value="available" {{ (filterStatus ?? '') == 'available' ? 'selected' : '' }}>Available</option>
+                        <option value="reserved" {{ (filterStatus ?? '') == 'reserved' ? 'selected' : '' }}>Reserved</option>
+                        <option value="sold" {{ (filterStatus ?? '') == 'sold' ? 'selected' : '' }}>Sold</option>
+                        <option value="repair" {{ (filterStatus ?? '') == 'repair' ? 'selected' : '' }}>Under Repair</option>
+                    </select>
+                </div>
+                
+                <!-- Condition Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Condition</label>
+                    <select name="condition" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Conditions</option>
+                        {% set conditions = [] %}
+                        {% for vehicle in vehicles %}
+                            {% if vehicle.conditions not in conditions %}
+                                {% set conditions = conditions|merge([vehicle.conditions]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for condition in conditions|sort %}
+                            <option value="{{ condition }}" {{ (filterCondition ?? '') == condition ? 'selected' : '' }}>{{ condition }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Color Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Color</label>
+                    <select name="color" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+                        <option value="">All Colors</option>
+                        {% set colors = [] %}
+                        {% for vehicle in vehicles %}
+                            {% if vehicle.color and vehicle.color not in colors %}
+                                {% set colors = colors|merge([vehicle.color]) %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for color in colors|sort %}
+                            <option value="{{ color }}" {{ (filterColor ?? '') == color ? 'selected' : '' }}>{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Dual Thumb Price Range Slider -->
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-gray-300 mb-4">Price Range</label>
+                    <div class="relative">
+                        <!-- Hidden inputs for form submission -->
+                        <input type="hidden" name="price_min" id="price-min-input" value="{{ filterPriceMin ?? '' }}">
+                        <input type="hidden" name="price_max" id="price-max-input" value="{{ filterPriceMax ?? '' }}">
+                        
+                        <!-- Dual Range Slider Container -->
+                        <div class="relative h-8 flex items-center" id="dual-range-container">
+                            <!-- Track Background -->
+                            <div class="absolute w-full h-2 bg-gray-600 rounded-lg"></div>
+                            
+                            <!-- Active Range -->
+                            <div id="price-range-active" class="absolute h-2 bg-[#B32224] rounded-lg"></div>
+                            
+                            <!-- Min Price Thumb -->
+                            <div id="min-thumb" class="absolute w-5 h-5 bg-[#B32224] border-2 border-white rounded-full cursor-pointer shadow-lg z-30 transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform duration-200"></div>
+                            
+                            <!-- Max Price Thumb -->
+                            <div id="max-thumb" class="absolute w-5 h-5 bg-[#B32224] border-2 border-white rounded-full cursor-pointer shadow-lg z-30 transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform duration-200"></div>
+                            
+                            <!-- Hidden inputs for form submission -->
+                            <input type="hidden" id="min-value" value="{{ filterPriceMin ?? 0 }}">
+                            <input type="hidden" id="max-value" value="{{ filterPriceMax ?? 2000000 }}">
+                        </div>
+                        
+                        <!-- Price Labels -->
+                        <div class="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>₱0</span>
+                            <span>₱500,000</span>
+                            <span>₱1,000,000</span>
+                            <span>₱1,500,000</span>
+                            <span>₱2,000,000</span>
+                        </div>
+                        
+                        <!-- Current Values Display -->
+                        <div class="flex justify-between mt-3">
+                            <div class="text-center">
+                                <span class="text-xs text-gray-400 block">Min Price</span>
+                                <span class="text-sm text-gray-300 font-medium" id="min-price-display">₱{{ (filterPriceMin ?? 0)|number_format(0, '.', ',') }}</span>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-xs text-gray-400 block">Max Price</span>
+                                <span class="text-sm text-gray-300 font-medium" id="max-price-display">₱{{ (filterPriceMax ?? 2000000)|number_format(0, '.', ',') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mileage Range -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Max Mileage</label>
+                    <input type="number" name="mileage_max" value="{{ filterMileageMax ?? '' }}" placeholder="100,000 km" 
+                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 placeholder-gray-400 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                </div>
+                
+                <!-- Filter Actions -->
+                <div class="lg:col-span-4 flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
+                    <a href="{{ path('app_cars_index') }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors duration-200">
+                        Clear Filters
+                    </a>
+                    <button type="submit" class="px-4 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grid View -->
+    <div id="gridView" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for vehicle in vehicles %}
+        <div class="bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group border border-gray-700">
+            <!-- Image Carousel -->
+            <div class="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800">
+                {% if vehicle.images is not empty %}
+                    <div class="carousel-container relative w-full h-full" data-vehicle-id="{{ vehicle.id }}">
+                        {% for image in vehicle.images %}
+                            <div class="carousel-slide {% if loop.first %}active opacity-100{% else %}opacity-0{% endif %} absolute inset-0 transition-opacity duration-300">
+                                <img src="{{ asset('uploads/cars/' ~ image) }}" 
+                                     alt="{{ vehicle.brand }} - Image {{ loop.index }}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Gradient Overlay (bottom) -->
+                        <div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+                        
+                        <!-- Status Badge (top-left) -->
+                        <div class="absolute top-3 left-3">
+                            {% if vehicle.status == 'sold' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500 text-white shadow-lg backdrop-blur-sm">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Sold
+                                </span>
+                            {% elseif vehicle.status == 'reserved' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500 text-white shadow-lg backdrop-blur-sm">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Reserved
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500 text-white shadow-lg backdrop-blur-sm">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Available
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        
+                        <!-- Navigation Arrows -->
+                        {% if vehicle.images|length > 1 %}
+                            <button class="carousel-prev absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-xl hover:scale-110">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </button>
+                            <button class="carousel-next absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-xl hover:scale-110">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </button>
+                        {% endif %}
+                        
+                        <!-- Image Counter -->
+                        {% if vehicle.images|length > 1 %}
+                            <div class="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg">
+                                <svg class="w-3 h-3 inline-block mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="current-slide">1</span>/{{ vehicle.images|length }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800">
+                        <div class="text-center text-gray-500">
+                            <svg class="w-16 h-16 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-sm font-medium">No images</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Vehicle Info - Compact Visual Hierarchy -->
+            <div class="p-4">
+                <!-- Header Section - Combined Brand & Model -->
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xl font-bold text-gray-100 group-hover:text-[#B32224] transition-colors duration-200">
+                        {{ vehicle.brand }}{% if vehicle.make %} {{ vehicle.make }}{% endif %}
+                    </h3>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {% if vehicle.conditions|lower == 'excellent' %}bg-[#B32224] text-white{% elseif vehicle.conditions|lower == 'good' %}bg-yellow-500 text-gray-900{% else %}bg-gray-600 text-gray-100{% endif %}">
+                        {{ vehicle.conditions }}
+                    </span>
+                </div>
+
+                <!-- Compact Specifications Row -->
+                <div class="flex items-center gap-4 mb-4 text-sm text-gray-300">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        {{ vehicle.year }}
+                    </div>
+                    {% if vehicle.color %}
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
+                        </svg>
+                        {{ vehicle.color }}
+                    </div>
+                    {% endif %}
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        {{ vehicle.mileage|number_format(0, '.', ',') }} km
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-4">
+                    <p class="text-xs text-gray-400 font-medium mb-1">Price</p>
+                    <p class="text-2xl font-bold text-gray-100">₱{{ vehicle.price|number_format(2, '.', ',') }}</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2">
+                    <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" 
+                       class="flex-1 flex items-center justify-center px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border border-gray-600">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        View
+                    </a>
+                    {% if vehicle.status == 'available' %}
+                        <a href="{{ path('app_sales_new') }}?vehicle={{ vehicle.id }}" 
+                           class="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+                    <button onclick="openEditModal('{{ vehicle.id }}')" 
+                            class="flex items-center justify-center px-4 py-2.5 bg-gradient-to-r from-[#B32224] to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- No Cars Found Message -->
+        {% if vehicles is empty %}
+        <div class="col-span-full flex flex-col items-center justify-center py-16 px-4">
+            <div class="text-center">
+                <svg class="w-24 h-24 mx-auto mb-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <h3 class="text-2xl font-bold text-gray-300 mb-3">No Vehicles Found</h3>
+                <p class="text-gray-400 mb-6 max-w-md mx-auto">
+                    {% if filterBrand or filterYear or filterStatus or filterCondition or filterColor or filterPriceMax or filterMileageMax %}
+                        No vehicles match your current filter criteria. Try adjusting your filters to see more results.
+                    {% else %}
+                        No vehicles are currently available in the inventory. Add your first vehicle to get started.
+                    {% endif %}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    {% if filterBrand or filterYear or filterStatus or filterCondition or filterColor or filterPriceMax or filterMileageMax %}
+                        <a href="{{ path('app_cars_index') }}" 
+                           class="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors duration-200 font-medium">
+                            Clear All Filters
+                        </a>
+                    {% endif %}
+                    <button onclick="openAddModal()" 
+                            class="px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-colors duration-200 font-medium">
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add Vehicle
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- List View -->
+    <div id="listView" class="hidden bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-700">
+                <thead class="bg-gray-900">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Image</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Brand</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Make</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Year</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Color</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Mileage</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Conditions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                    {% for vehicle in vehicles %}
+                    <tr class="hover:bg-gray-700 transition-colors duration-200">
+                        <td class="px-6 py-4">
+                            {% if vehicle.images is not empty %}
+                                <div class="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                                    <img src="{{ asset('uploads/cars/' ~ vehicle.images[0]) }}" 
+                                         alt="{{ vehicle.brand }}" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                            {% else %}
+                                <div class="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-100 font-medium">
+                            <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" class="text-gray-100 hover:text-[#B32224] transition-colors duration-200">{{ vehicle.brand }}</a>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.make ?: '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.year }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.color ?: '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.mileage }}km</td>
+                        <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.conditions }}</td>
+                        <td class="px-6 py-4 text-sm text-[#B32224] font-semibold">₱{{ vehicle.price|number_format(2, '.', ',') }}</td>
+                        <td class="px-6 py-4 text-sm font-medium space-x-2">
+                            <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
+                            <button onclick="openEditModal('{{ vehicle.id }}')" class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</button>
+                            <button onclick="handleDelete('{{ vehicle.id }}', '{{ csrf_token('delete' ~ vehicle.id) }}')" class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- No Cars Found Message for List View -->
+                    {% if vehicles is empty %}
+                    <tr>
+                        <td colspan="9" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <h3 class="text-xl font-bold text-gray-300 mb-2">No Vehicles Found</h3>
+                                <p class="text-gray-400 mb-4 max-w-md">
+                                    {% if filterBrand or filterYear or filterStatus or filterCondition or filterColor or filterPriceMax or filterMileageMax %}
+                                        No vehicles match your current filter criteria. Try adjusting your filters to see more results.
+                                    {% else %}
+                                        No vehicles are currently available in the inventory. Add your first vehicle to get started.
+                                    {% endif %}
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                                    {% if filterBrand or filterYear or filterStatus or filterCondition or filterColor or filterPriceMax or filterMileageMax %}
+                                        <a href="{{ path('app_cars_index') }}" 
+                                           class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors duration-200 text-sm font-medium">
+                                            Clear All Filters
+                                        </a>
+                                    {% endif %}
+                                    <button onclick="openAddModal()" 
+                                            class="px-4 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium">
+                                        <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                        </svg>
+                                        Add Vehicle
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div id="imageLightbox" class="hidden fixed inset-0 z-40">
+        <div class="fixed inset-0 bg-black bg-opacity-75" onclick="closeImageLightbox()"></div>
+        <div class="fixed inset-0 flex items-center justify-center p-4">
+            <div class="relative max-w-4xl max-h-full">
+                <button onclick="closeImageLightbox()" 
+                        class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors duration-200">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                <img id="lightboxImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+                <div id="lightboxCaption" class="text-center text-white mt-4 text-lg font-medium"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // View Toggle Functionality - Make it globally available
+        window.toggleView = function(viewType) {
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            
+            // Return early if elements don't exist yet
+            if (!gridView || !listView || !gridBtn || !listBtn) {
+                return;
+            }
+            
+            if (viewType === 'grid') {
+                gridView.classList.remove('hidden');
+                listView.classList.add('hidden');
+                gridBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                gridBtn.classList.remove('text-gray-500');
+                listBtn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                listBtn.classList.add('text-gray-500');
+                localStorage.setItem('inventoryView', 'grid');
+            } else {
+                // Update all list view images to match current carousel states
+                if (window.carouselStates) {
+                    Object.keys(window.carouselStates).forEach(vehicleId => {
+                        updateListViewImage(vehicleId, window.carouselStates[vehicleId]);
+                    });
+                }
+                
+                gridView.classList.add('hidden');
+                listView.classList.remove('hidden');
+                listBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+                listBtn.classList.remove('text-gray-500');
+                gridBtn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+                gridBtn.classList.add('text-gray-500');
+                localStorage.setItem('inventoryView', 'list');
+            }
+        }
+
+        // Image Lightbox Functions
+        function openImageLightbox(imageSrc, caption) {
+            const lightbox = document.getElementById('imageLightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            const lightboxCaption = document.getElementById('lightboxCaption');
+            
+            lightboxImage.src = imageSrc;
+            lightboxImage.alt = caption;
+            lightboxCaption.textContent = caption;
+            
+            lightbox.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageLightbox() {
+            const lightbox = document.getElementById('imageLightbox');
+            lightbox.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Store carousel states globally
+        window.carouselStates = window.carouselStates || {};
+
+        // Carousel Functionality
+        function initCarousels() {
+            document.querySelectorAll('.carousel-container').forEach(container => {
+                const slides = container.querySelectorAll('.carousel-slide');
+                const prevBtn = container.querySelector('.carousel-prev');
+                const nextBtn = container.querySelector('.carousel-next');
+                const currentSlideSpan = container.querySelector('.current-slide');
+                const vehicleId = container.getAttribute('data-vehicle-id');
+                
+                if (slides.length <= 1) return;
+                
+                // Restore saved state or start at 0
+                let currentSlide = window.carouselStates[vehicleId] || 0;
+                
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        if (i === index) {
+                            slide.classList.add('active');
+                            slide.classList.remove('opacity-0');
+                            slide.classList.add('opacity-100');
+                        } else {
+                            slide.classList.remove('active');
+                            slide.classList.remove('opacity-100');
+                            slide.classList.add('opacity-0');
+                        }
+                    });
+                    if (currentSlideSpan) {
+                        currentSlideSpan.textContent = index + 1;
+                    }
+                    // Save the current state
+                    window.carouselStates[vehicleId] = index;
+                    
+                    // Update list view image if it exists
+                    updateListViewImage(vehicleId, index);
+                }
+                
+                function nextSlide(e) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    showSlide(currentSlide);
+                }
+                
+                function prevSlide(e) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                    showSlide(currentSlide);
+                }
+                
+                // Show initial slide
+                showSlide(currentSlide);
+                
+                if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+                if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+                
+                // Touch/swipe support
+                let startX = 0;
+                container.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+                
+                container.addEventListener('touchend', (e) => {
+                    const endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    
+                    if (Math.abs(diff) > 50) { // Minimum swipe distance
+                        if (diff > 0) {
+                            nextSlide();
+                        } else {
+                            prevSlide();
+                        }
+                    }
+                });
+            });
+        }
+
+        function updateListViewImage(vehicleId, slideIndex) {
+            // Find the corresponding row in list view
+            const listViewRows = document.querySelectorAll('#listView tbody tr');
+            listViewRows.forEach(row => {
+                const link = row.querySelector('a[href*="/' + vehicleId + '"]');
+                if (link) {
+                    const imgContainer = row.querySelector('td:first-child img');
+                    if (imgContainer) {
+                        // Get the carousel to find the correct image
+                        const carousel = document.querySelector(`.carousel-container[data-vehicle-id="${vehicleId}"]`);
+                        if (carousel) {
+                            const slides = carousel.querySelectorAll('.carousel-slide img');
+                            if (slides[slideIndex]) {
+                                imgContainer.src = slides[slideIndex].src;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize function
+        function initializePage() {
+            // Initialize carousels
+            initCarousels();
+            
+            // Small delay to ensure Alpine has initialized, then apply view
+            // Alpine's x-init will handle the initial toggle, but we ensure it's called
+            setTimeout(() => {
+                const savedView = localStorage.getItem('inventoryView') || 'grid';
+                toggleView(savedView);
+            }, 100);
+        }
+
+        // Initialize on page load (regular page load)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            initializePage();
+        }
+        
+        // Initialize on Turbo load (when navigating via Turbo)
+        document.addEventListener('turbo:load', initializePage);
+        
+        // Re-initialize when coming back from cache
+        document.addEventListener('turbo:render', initializePage);
+    </script>
+
+    <!-- Add Vehicle Modal -->
+    <div id="addModal" class="hidden fixed inset-0 z-40">
+        <!-- Overlay - increase opacity and ensure it covers everything -->
+        <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-50"></div>
+        
+        <!-- Modal Container - adjust z-index and positioning -->
+        <div class="fixed inset-0 z-40 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <!-- Modal Content -->
+                <div id="modalContent" class="relative bg-white rounded-lg shadow-xl w-full max-w-md transform transition-all opacity-0 scale-95">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Add New Vehicle</h3>
+                        <button type="button" onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="p-6">
+                        <div id="addFormContent">
+                            <!-- Form will be loaded here via AJAX -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Vehicle Modal -->
+    <div id="editModal" class="hidden fixed inset-0 z-40">
+        <!-- Overlay -->
+        <div id="editModalOverlay" class="fixed inset-0 bg-black bg-opacity-50"></div>
+        
+        <!-- Modal Container -->
+        <div class="fixed inset-0 z-40 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-2">
+                <!-- Modal Content -->
+                <div id="editModalContent" class="relative bg-white rounded-lg shadow-xl w-full max-w-2xl transform transition-all opacity-0 scale-95">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Edit Vehicle</h3>
+                        <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="p-4">
+                        <div id="editFormContent">
+                            <!-- Form will be loaded here via AJAX -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    window.openAddModal = function() {
+        const modal = document.getElementById('addModal');
+        const overlay = document.getElementById('modalOverlay');
+        const content = document.getElementById('modalContent');
+        const formContainer = document.getElementById('addFormContent');
+
+        if (modal && overlay && content && formContainer) {
+            // Show loading state
+            formContainer.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B32224]"></div>
+                    <span class="ml-2 text-gray-600">Loading...</span>
+                </div>
+            `;
+
+            // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            
+            // Fade in content with slight delay for smooth animation
+            requestAnimationFrame(() => {
+                overlay.classList.add('opacity-50');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            });
+
+            // Load form via AJAX
+            fetch('/cars/new')
+                .then(response => response.text())
+                .then(html => {
+                    formContainer.innerHTML = html;
+                    
+                    // Update form action and add new-specific attributes
+                    const form = formContainer.querySelector('#carForm');
+                    if (form) {
+                        form.action = '/cars/new';
+                        form.setAttribute('data-new-mode', 'true');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading form:', error);
+                    formContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-red-600">Error loading form. Please try again.</p>
+                            <button onclick="closeAddModal()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg">
+                                Close
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+    }
+
+    window.closeAddModal = function() {
+        const modal = document.getElementById('addModal');
+        const overlay = document.getElementById('modalOverlay');
+        const content = document.getElementById('modalContent');
+
+        if (modal && overlay && content) {
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+
+            // Add fade-out transition to overlay
+            overlay.style.transition = 'opacity 200ms ease-out';
+            overlay.style.opacity = '0';
+
+            // Hide modal after animation completes
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                // Reset overlay styles
+                overlay.style.transition = '';
+                overlay.style.opacity = '';
+                // Clear form content
+                document.getElementById('addFormContent').innerHTML = '';
+            }, 200);
+        }
+    }
+
+    // Edit Modal Functions
+    window.openEditModal = function(vehicleId) {
+        const modal = document.getElementById('editModal');
+        const overlay = document.getElementById('editModalOverlay');
+        const content = document.getElementById('editModalContent');
+        const formContainer = document.getElementById('editFormContent');
+
+        if (modal && overlay && content && formContainer) {
+            // Show loading state
+            formContainer.innerHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B32224]"></div>
+                    <span class="ml-2 text-gray-600">Loading...</span>
+                </div>
+            `;
+
+            // Prevent background scrolling
+            document.body.style.overflow = 'hidden';
+            
+            // Show modal
+            modal.classList.remove('hidden');
+            
+            // Fade in content with slight delay for smooth animation
+            requestAnimationFrame(() => {
+                overlay.classList.add('opacity-50');
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            });
+
+            // Load form via AJAX
+            fetch(`/inventory/${vehicleId}/edit`)
+                .then(response => response.text())
+                .then(html => {
+                    formContainer.innerHTML = html;
+                    
+                    // Update form action and add edit-specific attributes
+                    const form = formContainer.querySelector('#carForm');
+                    if (form) {
+                        form.action = `/inventory/${vehicleId}/edit`;
+                        form.setAttribute('data-edit-mode', 'true');
+                        form.setAttribute('data-vehicle-id', vehicleId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading edit form:', error);
+                    formContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-red-600">Error loading form. Please try again.</p>
+                            <button onclick="closeEditModal()" class="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg">
+                                Close
+                            </button>
+                        </div>
+                    `;
+                });
+        }
+    }
+
+    window.closeEditModal = function() {
+        const modal = document.getElementById('editModal');
+        const overlay = document.getElementById('editModalOverlay');
+        const content = document.getElementById('editModalContent');
+
+        if (modal && overlay && content) {
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95');
+
+            // Add fade-out transition to overlay
+            overlay.style.transition = 'opacity 200ms ease-out';
+            overlay.style.opacity = '0';
+
+            // Hide modal after animation completes
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                // Reset overlay styles
+                overlay.style.transition = '';
+                overlay.style.opacity = '';
+                // Clear form content
+                document.getElementById('editFormContent').innerHTML = '';
+            }, 200);
+        }
+    }
+
+    // Function to show flash messages using global modal
+    window.showFlashMessage = function(type, message) {
+        showGlobalResultModal(type, type === 'success' ? 'Success!' : 'Error!', message, {
+            buttons: [
+                {
+                    text: 'Add New',
+                    class: 'px-4 py-2 bg-[#B32224] border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                        setTimeout(() => {
+                            document.getElementById('carForm').reset();
+                            openAddModal();
+                        }, 200);
+                    }
+                },
+                {
+                    text: 'OK',
+                    class: 'px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                        window.location.reload();
+                    }
+                }
+            ]
+        });
+    }
+
+    window.closeResultModal = function() {
+        closeGlobalResultModal();
+    }
+
+    window.handleAddNew = function() {
+        closeGlobalResultModal();
+        setTimeout(() => {
+            document.getElementById('carForm').reset();
+            openAddModal();
+        }, 200);
+    }
+
+    // Handle form submission for both add and edit modes
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form.id === 'carForm') {
+            // Don't close modal immediately - let the form submit naturally
+            // The page will redirect/reload after successful submission
+            // which will automatically close the modal
+            
+            // Show a loading state instead
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+            }
+        }
+    });
+
+
+    // Function to attach overlay click handlers
+    function attachOverlayHandlers() {
+        const modalOverlay = document.getElementById('modalOverlay');
+        const editModalOverlay = document.getElementById('editModalOverlay');
+        
+        if (modalOverlay) {
+            modalOverlay.removeEventListener('click', closeAddModal);
+            modalOverlay.addEventListener('click', closeAddModal);
+        }
+        if (editModalOverlay) {
+            editModalOverlay.removeEventListener('click', closeEditModal);
+            editModalOverlay.addEventListener('click', closeEditModal);
+        }
+    }
+
+    // Initialize on both DOMContentLoaded and Turbo events
+    function initializeInventoryPage() {
+        attachOverlayHandlers();
+        initializePriceSlider();
+        
+        // Check for auto-open modal parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('openModal') === 'add') {
+            // Small delay to ensure page is fully loaded
+            setTimeout(() => {
+                openAddModal();
+                // Clean up URL parameter without page reload
+                const url = new URL(window.location);
+                url.searchParams.delete('openModal');
+                window.history.replaceState({}, '', url);
+            }, 300);
+        }
+    }
+
+    // Check if document is already loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeInventoryPage);
+    } else {
+        initializeInventoryPage();
+    }
+    
+    document.addEventListener('turbo:load', initializeInventoryPage);
+    document.addEventListener('turbo:render', initializeInventoryPage);
+
+    // Handle delete vehicle
+    window.handleDelete = function(vehicleId, token) {
+        if (!confirm('Are you sure you want to delete this vehicle?')) {
+            return;
+        }
+        
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/inventory/${vehicleId}`;
+        
+        const tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '_token';
+        tokenInput.value = token;
+        
+        form.appendChild(tokenInput);
+        document.body.appendChild(form);
+        form.submit();
+    };
+
+    // Image deletion function
+    window.removeExistingImage = function(imageName, button) {
+        if (confirm('Are you sure you want to remove this image?')) {
+            const preview = button.closest('[data-image]');
+            if (preview) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'images_to_delete[]';
+                hiddenInput.value = imageName;
+                preview.appendChild(hiddenInput);
+                
+                preview.style.transition = 'opacity 0.3s ease-out';
+                preview.style.opacity = '0';
+                setTimeout(() => {
+                    preview.style.display = 'none';
+                }, 300);
+            }
+        }
+    };
+
+    // Enhanced Image Lightbox with Navigation
+    window.openImageLightbox = function(imageSrc, caption) {
+        const lightbox = document.getElementById('imageLightbox');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxCaption = document.getElementById('lightboxCaption');
+        
+        lightboxImage.src = imageSrc;
+        lightboxImage.alt = caption;
+        lightboxCaption.textContent = caption;
+        
+        lightbox.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Add fade-in animation
+        requestAnimationFrame(() => {
+            lightbox.style.opacity = '1';
+        });
+    };
+
+    window.closeImageLightbox = function() {
+        const lightbox = document.getElementById('imageLightbox');
+        lightbox.style.opacity = '0';
+        setTimeout(() => {
+            lightbox.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }, 300);
+    };
+
+    // Filter toggle functionality
+    function toggleFilters() {
+        const filterContent = document.getElementById('filterContent');
+        const toggleText = document.getElementById('filterToggleText');
+        
+        if (filterContent && toggleText) {
+            if (filterContent.classList.contains('hidden')) {
+                filterContent.classList.remove('hidden');
+                toggleText.textContent = 'Hide Filters';
+            } else {
+                filterContent.classList.add('hidden');
+                toggleText.textContent = 'Show Filters';
+            }
+        }
+    }
+
+    // Custom dual thumb price range slider functionality
+    function initializePriceSlider() {
+        const container = document.getElementById('dual-range-container');
+        const minThumb = document.getElementById('min-thumb');
+        const maxThumb = document.getElementById('max-thumb');
+        const minInput = document.getElementById('price-min-input');
+        const maxInput = document.getElementById('price-max-input');
+        const minDisplay = document.getElementById('min-price-display');
+        const maxDisplay = document.getElementById('max-price-display');
+        const activeRange = document.getElementById('price-range-active');
+        const minValueInput = document.getElementById('min-value');
+        const maxValueInput = document.getElementById('max-value');
+        
+        if (!container || !minThumb || !maxThumb || !minInput || !maxInput || !minDisplay || !maxDisplay || !activeRange) {
+            return;
+        }
+        
+        let minValue = parseInt(minValueInput.value) || 0;
+        let maxValue = parseInt(maxValueInput.value) || 2000000;
+        let isDragging = false;
+        let activeThumb = null;
+        
+        function updateDisplay() {
+            // Update hidden inputs for form submission
+            minInput.value = minValue;
+            maxInput.value = maxValue;
+            minValueInput.value = minValue;
+            maxValueInput.value = maxValue;
+            
+            // Update displays
+            minDisplay.textContent = '₱' + minValue.toLocaleString();
+            maxDisplay.textContent = '₱' + maxValue.toLocaleString();
+            
+            // Update thumb positions
+            const minPercent = (minValue / 2000000) * 100;
+            const maxPercent = (maxValue / 2000000) * 100;
+            
+            minThumb.style.left = minPercent + '%';
+            maxThumb.style.left = maxPercent + '%';
+            
+            // Update active range visual
+            activeRange.style.left = minPercent + '%';
+            activeRange.style.width = (maxPercent - minPercent) + '%';
+        }
+        
+        function getValueFromPosition(x) {
+            const rect = container.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(100, ((x - rect.left) / rect.width) * 100));
+            return Math.round((percent / 100) * 2000000 / 50000) * 50000;
+        }
+        
+        function startDrag(e, thumb) {
+            isDragging = true;
+            activeThumb = thumb;
+            e.preventDefault();
+            
+            if (thumb === minThumb) {
+                minThumb.style.zIndex = '40';
+                maxThumb.style.zIndex = '30';
+            } else {
+                maxThumb.style.zIndex = '40';
+                minThumb.style.zIndex = '30';
+            }
+        }
+        
+        function drag(e) {
+            if (!isDragging || !activeThumb) return;
+            
+            const newValue = getValueFromPosition(e.clientX);
+            
+            if (activeThumb === minThumb) {
+                if (newValue < maxValue - 50000) {
+                    minValue = newValue;
+                } else {
+                    minValue = maxValue - 50000;
+                }
+            } else {
+                if (newValue > minValue + 50000) {
+                    maxValue = newValue;
+                } else {
+                    maxValue = minValue + 50000;
+                }
+            }
+            
+            updateDisplay();
+        }
+        
+        function stopDrag() {
+            isDragging = false;
+            activeThumb = null;
+            minThumb.style.zIndex = '30';
+            maxThumb.style.zIndex = '30';
+        }
+        
+        // Mouse events
+        minThumb.addEventListener('mousedown', (e) => startDrag(e, minThumb));
+        maxThumb.addEventListener('mousedown', (e) => startDrag(e, maxThumb));
+        
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        // Touch events for mobile
+        minThumb.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrag(e.touches[0], minThumb);
+        });
+        
+        maxThumb.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDrag(e.touches[0], maxThumb);
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            drag(e.touches[0]);
+        });
+        
+        document.addEventListener('touchend', stopDrag);
+        
+        // Click on track to move nearest thumb
+        container.addEventListener('click', (e) => {
+            if (e.target === container || e.target.classList.contains('bg-gray-600')) {
+                const clickValue = getValueFromPosition(e.clientX);
+                const minDistance = Math.abs(clickValue - minValue);
+                const maxDistance = Math.abs(clickValue - maxValue);
+                
+                if (minDistance < maxDistance) {
+                    if (clickValue < maxValue - 50000) {
+                        minValue = clickValue;
+                    } else {
+                        minValue = maxValue - 50000;
+                    }
+                } else {
+                    if (clickValue > minValue + 50000) {
+                        maxValue = clickValue;
+                    } else {
+                        maxValue = minValue + 50000;
+                    }
+                }
+                
+                updateDisplay();
+            }
+        });
+        
+        // Initialize on page load
+        updateDisplay();
+    }
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const addModal = document.getElementById('addModal');
+            const editModal = document.getElementById('editModal');
+            const imageLightbox = document.getElementById('imageLightbox');
+            
+            if (!addModal.classList.contains('hidden')) {
+                closeAddModal();
+            } else if (!editModal.classList.contains('hidden')) {
+                closeEditModal();
+            } else if (!imageLightbox.classList.contains('hidden')) {
+                closeImageLightbox();
+            }
+        }
+    });
+</script>
+{% endblock %}

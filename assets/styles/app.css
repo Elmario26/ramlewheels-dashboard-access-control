@@ -1,2 +1,6 @@
 @import "tailwindcss";
-@source not "../../public";
+
+/* remove any invalid @source lines that break CSS build */
+/* optional helper:
+.modal-open { overflow: hidden; }
+*/

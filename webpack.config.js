@@ -11,6 +11,8 @@ Encore
     .setOutputPath('public/build/')
     // public path used by the web server to access the output path
     .setPublicPath('/build')
+    // ensure that missing files don't break development
+    .disableSingleRuntimeChunk()
     // only needed for CDN's or subdirectory deploy
     //.setManifestKeyPrefix('build/')
 
@@ -55,7 +57,7 @@ Encore
 
     // enables and configure @babel/preset-env polyfills
     .configureBabelPresetEnv((config) => {
-        config.useBuiltIns = 'usage';
+        config.useBuiltIns = false;
         config.corejs = '3.38';
     })
 
@@ -75,6 +77,9 @@ Encore
     // uncomment if you're having problems with a jQuery plugin
     //.autoProvidejQuery()
     .enablePostCssLoader()
+    .configureWatchOptions((watchOptions) => {
+        watchOptions.ignored = /node_modules|public\/build/;
+    })
 ;
 
 module.exports = Encore.getWebpackConfig();

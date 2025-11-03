@@ -1,0 +1,268 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Details{% endblock %}
+
+{% block body %}
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">User Details</h1>
+                <p class="mt-2 text-gray-400">View and manage user information</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_users_index') }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Users
+                </a>
+                <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
+                   class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit User
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main User Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- User Overview -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">User Overview</h3>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center mb-6">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#B32224] to-red-700 flex items-center justify-center text-white font-semibold text-xl mr-4">
+                            {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                        </div>
+                        <div>
+                            <div class="text-2xl font-semibold text-white">{{ user.getFullName() }}</div>
+                            <div class="text-sm text-gray-400">User ID: {{ user.id }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
+                            <div class="text-lg text-white">{{ user.email }}</div>
+                        </div>
+                        {% if user.phone %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
+                            <div class="text-lg text-white">+63 {{ user.phone }}</div>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Role</label>
+                            {% set roleColors = {
+                                'admin': 'bg-red-100 text-red-800',
+                                'manager': 'bg-blue-100 text-blue-800',
+                                'mechanic': 'bg-purple-100 text-purple-800',
+                                'staff': 'bg-gray-100 text-gray-800'
+                            } %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ roleColors[user.role] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ user.getRoleDisplayName() }}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Status</label>
+                            {% set statusColors = {
+                                'active': 'bg-green-100 text-green-800',
+                                'inactive': 'bg-gray-100 text-gray-800',
+                                'suspended': 'bg-red-100 text-red-800'
+                            } %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ statusColors[user.status] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ user.getStatusDisplayName() }}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Created</label>
+                            <div class="text-lg text-white">{{ user.createdAt|date('F d, Y \a\t h:i A') }}</div>
+                        </div>
+                        {% if user.lastLoginAt %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Last Login</label>
+                            <div class="text-lg text-white">{{ user.lastLoginAt|date('F d, Y \a\t h:i A') }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user.notes %}
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Notes</label>
+                        <div class="text-gray-100 bg-gray-700 rounded-lg p-4">{{ user.notes|nl2br }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Assigned Services (for mechanics) -->
+            {% if user.role == 'mechanic' and user.assignedServices|length > 0 %}
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Assigned Services</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for service in user.assignedServices %}
+                        <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
+                            <div>
+                                <div class="text-white font-medium">{{ service.serviceType|replace({'_': ' '})|title }}</div>
+                                <div class="text-sm text-gray-400">{{ service.customer.getFullName() }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% set statusColors = {
+                                    'pending': 'bg-yellow-100 text-yellow-800',
+                                    'in_progress': 'bg-blue-100 text-blue-800',
+                                    'completed': 'bg-green-100 text-green-800',
+                                    'cancelled': 'bg-red-100 text-red-800'
+                                } %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ statusColors[service.status] ?? 'bg-gray-100 text-gray-800' }}">
+                                    {{ service.status|replace({'_': ' '})|title }}
+                                </span>
+                                <a href="{{ path('app_services_show', {'id': service.id}) }}" 
+                                   class="text-[#B32224] hover:text-red-600 text-sm font-medium transition-colors duration-200">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Quick Actions</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
+                       class="w-full bg-[#B32224] hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit User
+                    </a>
+                    
+                    <a href="{{ path('app_users_change_password', {'id': user.id}) }}" 
+                       class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        Change Password
+                    </a>
+                    
+                    <form method="POST" action="{{ path('app_users_toggle_status', {'id': user.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ user.id) }}">
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+                            </svg>
+                            {% if user.status == 'active' %}
+                                Deactivate User
+                            {% else %}
+                                Activate User
+                            {% endif %}
+                        </button>
+                    </form>
+                    
+                    <button onclick="handleDelete('{{ user.id }}', '{{ csrf_token('delete' ~ user.id) }}')" 
+                            class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete User
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Summary -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">User Summary</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">User ID:</span>
+                            <span class="text-white font-medium">#{{ user.id }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Created:</span>
+                            <span class="text-white">{{ user.createdAt|date('M d, Y') }}</span>
+                        </div>
+                        {% if user.updatedAt and user.updatedAt != user.createdAt %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Last Updated:</span>
+                            <span class="text-white">{{ user.updatedAt|date('M d, Y') }}</span>
+                        </div>
+                        {% endif %}
+                        {% if user.role == 'mechanic' %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Assigned Services:</span>
+                            <span class="text-white">{{ user.assignedServices|length }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Handle delete user with global modal
+    window.handleDelete = function(userId, token) {
+        showGlobalResultModal('warning', 'Confirm Delete', 'Are you sure you want to delete this user? This action cannot be undone.', {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    class: 'px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                    }
+                },
+                {
+                    text: 'Delete User',
+                    class: 'px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium border border-transparent hover:bg-[#B32224] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700',
+                    action: function() {
+                        closeGlobalResultModal();
+                        
+                        // Show loading modal
+                        showGlobalResultModal('warning', 'Deleting...', 'Please wait while we delete the user.');
+                        
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/users/${userId}`;
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = token;
+                        
+                        form.appendChild(tokenInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            ]
+        });
+    };
+</script>
+{% endblock %}
+
