@@ -1,0 +1,489 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Service Details{% endblock %}
+
+{% block body %}
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">Service Details</h1>
+                <p class="mt-2 text-gray-400">View and manage service information</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_services_index') }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Services
+                </a>
+                <a href="{{ path('app_services_edit', {'id': service.id}) }}" 
+                   class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit Service
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Timeline (Horizontal) -->
+    <div class="mb-8">
+        <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-700">
+                <h3 class="text-lg font-semibold text-white">Service Progress Timeline</h3>
+            </div>
+            <div class="p-6">
+                <div class="relative">
+                    <!-- Timeline Line -->
+                    <div class="absolute top-8 left-0 right-0 h-0.5 bg-gray-600"></div>
+                    
+                    <!-- Timeline Steps -->
+                    <div class="flex justify-between items-center">
+                        <!-- Step 1: Service Created -->
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-white">Service Created</div>
+                                <div class="text-xs text-gray-400">{{ service.createdAt|date('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ service.createdAt|date('h:i A') }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Service Started -->
+                        {% if service.status != 'pending' %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-white">Service Started</div>
+                                <div class="text-xs text-gray-400">{{ service.updatedAt|date('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ service.updatedAt|date('h:i A') }}</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-400">Service Started</div>
+                                <div class="text-xs text-gray-500">Pending</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Step 3: Work in Progress -->
+                        {% if service.status == 'in_progress' or service.status == 'completed' %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-white">Work in Progress</div>
+                                <div class="text-xs text-gray-400">Mechanic Working</div>
+                                <div class="text-xs text-gray-500">Active</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-400">Work in Progress</div>
+                                <div class="text-xs text-gray-500">Pending</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Step 4: Quality Check -->
+                        {% if service.status == 'completed' %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-white">Quality Check</div>
+                                <div class="text-xs text-gray-400">Inspection Done</div>
+                                <div class="text-xs text-gray-500">Passed</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-400">Quality Check</div>
+                                <div class="text-xs text-gray-500">Pending</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Step 5: Service Completed -->
+                        {% if service.status == 'completed' %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-white">Service Completed</div>
+                                <div class="text-xs text-gray-400">{{ service.completionDate|date('M d, Y') }}</div>
+                                <div class="text-xs text-gray-500">{{ service.completionDate|date('h:i A') }}</div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex flex-col items-center relative z-10">
+                            <div class="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mb-2 shadow-lg">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-400">Service Completed</div>
+                                <div class="text-xs text-gray-500">Pending</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Service Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Service Overview -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Service Overview</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Service Type</label>
+                            <div class="text-lg font-semibold text-white">{{ service.serviceType|replace({'_': ' '})|title }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Status</label>
+                            {% set statusColors = {
+                                'pending': 'bg-yellow-100 text-yellow-800',
+                                'in_progress': 'bg-blue-100 text-blue-800',
+                                'completed': 'bg-green-100 text-green-800',
+                                'cancelled': 'bg-red-100 text-red-800'
+                            } %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ statusColors[service.status] ?? 'bg-gray-100 text-gray-800' }}">
+                                {{ service.status|replace({'_': ' '})|title }}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Service Cost</label>
+                            <div class="text-2xl font-bold text-[#B32224]">₱{{ service.cost|number_format(2, '.', ',') }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Service Date</label>
+                            <div class="text-lg text-white">{{ service.serviceDate|date('F d, Y \a\t h:i A') }}</div>
+                        </div>
+                        {% if service.completionDate %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Completion Date</label>
+                            <div class="text-lg text-white">{{ service.completionDate|date('F d, Y \a\t h:i A') }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.getDuration() %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Duration</label>
+                            <div class="text-lg text-white">{{ service.getDuration() }} day{{ service.getDuration() != 1 ? 's' : '' }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.assignedMechanic %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Assigned Mechanic</label>
+                            <div class="text-lg text-white">{{ service.assignedMechanic.getFullName() }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if service.description %}
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                        <div class="text-gray-100 bg-gray-700 rounded-lg p-4">{{ service.description|nl2br }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if service.notes %}
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Notes</label>
+                        <div class="text-gray-100 bg-gray-700 rounded-lg p-4">{{ service.notes|nl2br }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Customer Information</h3>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#B32224] to-red-700 flex items-center justify-center text-white font-semibold text-lg mr-4">
+                            {{ service.customer.firstName|first|upper }}{{ service.customer.lastName|first|upper }}
+                        </div>
+                        <div>
+                            <div class="text-xl font-semibold text-white">{{ service.customer.getFullName() }}</div>
+                            <div class="text-sm text-gray-400">Customer ID: {{ service.customer.id }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% if service.customer.email %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                            <div class="text-white">{{ service.customer.email }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.customer.phone %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Phone</label>
+                            <div class="text-white">+63 {{ service.customer.phone }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.customer.city %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">City</label>
+                            <div class="text-white">{{ service.customer.city }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.customer.address %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Address</label>
+                            <div class="text-white">{{ service.customer.address }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 flex gap-2">
+                        <a href="{{ path('app_customers_show', {'id': service.customer.id}) }}" 
+                           class="text-[#B32224] hover:text-red-600 text-sm font-medium transition-colors duration-200">
+                            View Customer Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Information -->
+            {% if service.vehicle %}
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Vehicle Information</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Brand</label>
+                            <div class="text-white">{{ service.vehicle.brand }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Year</label>
+                            <div class="text-white">{{ service.vehicle.year }}</div>
+                        </div>
+                        {% if service.vehicle.plateNumber %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Plate Number</label>
+                            <div class="text-white">{{ service.vehicle.plateNumber }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.vehicle.color %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Color</label>
+                            <div class="text-white">{{ service.vehicle.color }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.vehicle.mileage %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Mileage</label>
+                            <div class="text-white">{{ service.vehicle.mileage }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.vehicle.conditions %}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-1">Condition</label>
+                            <div class="text-white">{{ service.vehicle.conditions }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4 flex gap-2">
+                        <a href="{{ path('app_inventory') }}?vehicle={{ service.vehicle.id }}" 
+                           class="text-[#B32224] hover:text-red-600 text-sm font-medium transition-colors duration-200">
+                            View Vehicle Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Quick Actions</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    {% if service.status == 'pending' %}
+                        <form method="POST" action="{{ path('app_services_start', {'id': service.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('start' ~ service.id) }}">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h1m4 0h1m-6-8h8a2 2 0 012 2v8a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+                                </svg>
+                                Start Service
+                            </button>
+                        </form>
+                    {% elseif service.status == 'in_progress' %}
+                        <form method="POST" action="{{ path('app_services_complete', {'id': service.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ service.id) }}">
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Complete Service
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <a href="{{ path('app_services_edit', {'id': service.id}) }}" 
+                       class="w-full bg-[#B32224] hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit Service
+                    </a>
+                    
+                    <button onclick="handleDelete('{{ service.id }}', '{{ csrf_token('delete' ~ service.id) }}')" 
+                            class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete Service
+                    </button>
+                </div>
+            </div>
+
+            <!-- Service Summary -->
+            <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Service Summary</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Service ID:</span>
+                            <span class="text-white font-medium">#{{ service.id }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Created:</span>
+                            <span class="text-white">{{ service.createdAt|date('M d, Y \a\t h:i A') }}</span>
+                        </div>
+                        {% if service.updatedAt and service.updatedAt != service.createdAt %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Last Updated:</span>
+                            <span class="text-white">{{ service.updatedAt|date('M d, Y \a\t h:i A') }}</span>
+                        </div>
+                        {% endif %}
+                        {% if service.getDuration() %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Duration:</span>
+                            <span class="text-white">{{ service.getDuration() }} day{{ service.getDuration() != 1 ? 's' : '' }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-400">Current Status:</span>
+                            {% set statusColors = {
+                                'pending': 'text-yellow-400',
+                                'in_progress': 'text-blue-400',
+                                'completed': 'text-green-400',
+                                'cancelled': 'text-red-400'
+                            } %}
+                            <span class="font-medium {{ statusColors[service.status] ?? 'text-gray-400' }}">
+                                {{ service.status|replace({'_': ' '})|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Handle delete service with global modal
+    window.handleDelete = function(serviceId, token) {
+        showGlobalResultModal('warning', 'Confirm Delete', 'Are you sure you want to delete this service? This action cannot be undone.', {
+            buttons: [
+                {
+                    text: 'Cancel',
+                    class: 'px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]',
+                    action: function() {
+                        closeGlobalResultModal();
+                    }
+                },
+                {
+                    text: 'Delete Service',
+                    class: 'px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium border border-transparent hover:bg-[#B32224] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-700',
+                    action: function() {
+                        closeGlobalResultModal();
+                        
+                        // Show loading modal
+                        showGlobalResultModal('warning', 'Deleting...', 'Please wait while we delete the service.');
+                        
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/services/${serviceId}`;
+                        
+                        const tokenInput = document.createElement('input');
+                        tokenInput.type = 'hidden';
+                        tokenInput.name = '_token';
+                        tokenInput.value = token;
+                        
+                        form.appendChild(tokenInput);
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }
+            ]
+        });
+    };
+</script>
+{% endblock %}

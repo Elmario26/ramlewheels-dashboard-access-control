@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">{{ title }}</h1>
+                <p class="mt-2 text-gray-400">
+                    {% if service.id %}
+                        Edit service details and information
+                    {% else %}
+                        Add a new service to the system
+                    {% endif %}
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_services_index') }}" 
+                   class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back to Services
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-700">
+            <h3 class="text-lg font-semibold text-white">Service Information</h3>
+        </div>
+        
+        <div class="p-6">
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+            
+            <!-- Customer and Vehicle Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    {{ form_row(form.customer) }}
+                </div>
+                <div>
+                    {{ form_row(form.vehicle) }}
+                </div>
+            </div>
+
+            <!-- Service Type and Cost Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    {{ form_row(form.serviceType) }}
+                </div>
+                <div>
+                    {{ form_row(form.cost) }}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                {{ form_row(form.description) }}
+            </div>
+
+            <!-- Status and Dates Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div>
+                    {{ form_row(form.status) }}
+                </div>
+                <div>
+                    {{ form_row(form.serviceDate) }}
+                </div>
+                <div>
+                    {{ form_row(form.completionDate) }}
+                </div>
+            </div>
+
+            <!-- Mechanic Assignment -->
+            <div>
+                {{ form_row(form.assignedMechanic) }}
+            </div>
+
+            <!-- Notes -->
+            <div>
+                {{ form_row(form.notes) }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-700">
+                <a href="{{ path('app_services_index') }}" 
+                   class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors duration-200">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    {% if service.id %}
+                        Update Service
+                    {% else %}
+                        Create Service
+                    {% endif %}
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-blue-900/20 border border-blue-500 rounded-lg p-4">
+        <div class="flex items-start">
+            <svg class="w-5 h-5 text-blue-400 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <h4 class="text-blue-300 font-medium mb-2">Service Management Tips</h4>
+                <ul class="text-blue-200 text-sm space-y-1">
+                    <li>• Select the appropriate customer and vehicle for the service</li>
+                    <li>• Choose the correct service type from the dropdown</li>
+                    <li>• Assign a mechanic to handle the service work</li>
+                    <li>• Set the service date to when the work will begin</li>
+                    <li>• Update the completion date when the service is finished</li>
+                    <li>• Use the notes field for additional service details</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Auto-fill completion date when status is set to completed
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.querySelector('select[name="service[status]"]');
+        const completionDateInput = document.querySelector('input[name="service[completionDate]"]');
+        
+        if (statusSelect && completionDateInput) {
+            statusSelect.addEventListener('change', function() {
+                if (this.value === 'completed' && !completionDateInput.value) {
+                    const now = new Date();
+                    const isoString = now.toISOString().slice(0, 16);
+                    completionDateInput.value = isoString;
+                }
+            });
+        }
+    });
+
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const customerSelect = document.querySelector('select[name="service[customer]"]');
+                const serviceTypeSelect = document.querySelector('select[name="service[serviceType]"]');
+                const costInput = document.querySelector('input[name="service[cost]"]');
+                
+                let isValid = true;
+                let errorMessage = '';
+                
+                if (!customerSelect.value) {
+                    isValid = false;
+                    errorMessage = 'Please select a customer.';
+                } else if (!serviceTypeSelect.value) {
+                    isValid = false;
+                    errorMessage = 'Please select a service type.';
+                } else if (!costInput.value || parseFloat(costInput.value) <= 0) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid service cost.';
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    showGlobalResultModal('error', 'Validation Error', errorMessage);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

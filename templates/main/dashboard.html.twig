@@ -1,126 +1,355 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard - RamleWheels{% endblock %}
 
 {% block body %}
-    <!-- Top Row Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <!-- Cars Available -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 16v3H5v-3m14 0v-3a2 2 0 00-2-2h-1v-2a2 2 0 00-2-2H7a2 2 0 00-2 2v2H4a2 2 0 00-2 2v3"/>
-                    </svg>
+    <div class="space-y-6">
+        <!-- Header Section -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Welcome Elmar Lariosa!</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-400">Last updated</p>
+                <p class="text-white font-semibold">{{ "now"|date("M d, Y H:i") }}</p>
+            </div>
+        </div>
+
+        <!-- Stats Cards - Top Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Cars Available -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium uppercase tracking-wide">Cars Available</p>
+                        <p class="text-4xl font-bold mt-2">{{ carsAvailable is defined ? carsAvailable : 0 }}</p>
+                        <p class="text-blue-100 text-xs mt-2">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                                </svg>
+                                Total inventory
+                            </span>
+                        </p>
+                    </div>
+                    <div class="bg-blue-500 bg-opacity-20 rounded-full p-4">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                        </svg>
+                    </div>
                 </div>
-                <div class="ml-4">
-                    <h2 class="text-gray-600 text-sm">Cars Available</h2>
-                    <p class="text-2xl font-semibold text-gray-800">24</p>
+            </div>
+
+            <!-- Cars Sold (Future Feature) -->
+            <div class="bg-gradient-to-br from-green-500 to-green-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium uppercase tracking-wide">Cars Sold</p>
+                        <p class="text-4xl font-bold mt-2">{{ carsSold is defined ? carsSold : 0 }}</p>
+                        <p class="text-green-100 text-xs mt-2">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                This month
+                            </span>
+                        </p>
+                    </div>
+                    <div class="bg-green-500 bg-opacity-20 rounded-full p-4">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Repairs (Future Feature) -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-amber-100 text-sm font-medium uppercase tracking-wide">Pending Repairs</p>
+                        <p class="text-4xl font-bold mt-2">{{ pendingRepairs is defined ? pendingRepairs : 0 }}</p>
+                        <p class="text-amber-100 text-xs mt-2">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Awaiting service
+                            </span>
+                        </p>
+                    </div>
+                    <div class="bg-amber-500 bg-opacity-20 rounded-full p-4">
+                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents Awaiting (Future Feature) -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-900 rounded-xl shadow-lg p-6 text-white transform transition hover:scale-105 hover:shadow-2xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium uppercase tracking-wide">Documents Pending</p>
+                        <p class="text-4xl font-bold mt-2">{{ documentsAwaiting is defined ? documentsAwaiting : 0 }}</p>
+                        <p class="text-purple-100 text-xs mt-2">
+                            <span class="inline-flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12" />
+                                </svg>
+                                Need attention
+                            </span>
+                        </p>
+                    </div>
+                    <div class="bg-purple-500 bg-opacity-20 rounded-full p-4">
+                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cars Sold -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-green-100 rounded-full">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+        <!-- Financial Stats - Second Row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Total Inventory Value -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wide">Total Inventory Value</p>
+                        <p class="text-3xl font-bold text-white mt-2">₱{{ totalValue is defined ? totalValue|number_format(0, '.', ',') : '0' }}</p>
+                        <p class="text-gray-400 text-xs mt-2">Current market value</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full p-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
                 </div>
-                <div class="ml-4">
-                    <h2 class="text-gray-600 text-sm">Cars Sold</h2>
-                    <p class="text-2xl font-semibold text-gray-800">12</p>
+                </div>
+            </div>
+
+            <!-- Average Vehicle Value -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wide">Average Vehicle Value</p>
+                        <p class="text-3xl font-bold text-white mt-2">₱{{ averageValue is defined ? averageValue|number_format(0, '.', ',') : '0' }}</p>
+                        <p class="text-gray-400 text-xs mt-2">Per vehicle</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full p-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Revenue -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium uppercase tracking-wide">Monthly Revenue</p>
+                        <p class="text-3xl font-bold text-white mt-2">₱{{ salesStats.monthly_revenue is defined ? salesStats.monthly_revenue|number_format(0, '.', ',') : '0' }}</p>
+                        <p class="text-green-400 text-xs mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            {{ salesStats.revenue_growth is defined and salesStats.revenue_growth > 0 ? '+' ~ salesStats.revenue_growth|number_format(1) ~ '%' : '0%' }} from last month
+                        </p>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full p-3">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Pending Repairs -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-yellow-100 rounded-full">
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" {{ stimulus_controller('charts') }}>
+            <!-- Sales Trend Chart -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white">Sales Trend</h3>
+                    <span class="px-3 py-1 bg-blue-500 bg-opacity-20 text-white text-xs font-medium rounded-full">Last 6 Months</span>
                 </div>
-                <div class="ml-4">
-                    <h2 class="text-gray-600 text-sm">Pending Repairs</h2>
-                    <p class="text-2xl font-semibold text-gray-800">8</p>
+                <div class="h-80">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Inventory Overview Chart -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white">Inventory Overview</h3>
+                    <span class="px-3 py-1 bg-purple-500 bg-opacity-20 text-white text-xs font-medium rounded-full">Current</span>
+                </div>
+                <div class="h-80">
+                    <canvas id="inventoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Vehicle Condition Distribution -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white">Vehicle Conditions</h3>
+                    <span class="px-3 py-1 bg-green-500 bg-opacity-20 text-white text-xs font-medium rounded-full">Distribution</span>
+                </div>
+                <div class="h-80 flex items-center justify-center">
+                    <canvas id="conditionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Brands Chart -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white">Top Brands in Inventory</h3>
+                    <span class="px-3 py-1 bg-amber-500 bg-opacity-20 text-white text-xs font-medium rounded-full">Top 5</span>
+                </div>
+                <div class="h-80">
+                    <canvas id="brandsChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Documents Awaiting -->
-        <div class="bg-white rounded-lg shadow p-6">
-            <div class="flex items-center">
-                <div class="p-3 bg-red-100 rounded-full">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        <!-- Recent Activity & Quick Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Recent Activities -->
+            <div class="lg:col-span-2 bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                </div>
-                <div class="ml-4">
-                    <h2 class="text-gray-600 text-sm">Documents Awaiting</h2>
-                    <p class="text-2xl font-semibold text-gray-800">5</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Middle Section - Charts -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Sales Trend</h2>
-            <div class="h-64">
-                <!-- Add your chart component here -->
-                <canvas id="salesChart"></canvas>
-            </div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Inventory Turnover</h2>
-            <div class="h-64">
-                <!-- Add your chart component here -->
-                <canvas id="inventoryChart"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Section - Recent Activities -->
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold mb-4">Recent Activities</h2>
-        <div class="space-y-4">
-            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                <div class="p-2 bg-green-100 rounded-full">
-                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">Car Sold - BMW M3</p>
-                    <p class="text-sm text-gray-500">2 hours ago</p>
-                </div>
-            </div>
-
-            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                <div class="p-2 bg-blue-100 rounded-full">
-                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
-                    </svg>
-                </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">Repair Completed - Mercedes C200</p>
-                    <p class="text-sm text-gray-500">5 hours ago</p>
+                    Recent Activities
+                </h3>
+                <div class="space-y-3">
+                    {% if recentSales is defined and recentSales|length > 0 %}
+                        {% for sale in recentSales %}
+                            <div class="flex items-center p-4 bg-gray-750 bg-opacity-50 rounded-lg border border-gray-700 hover:border-gray-600 transition">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <p class="text-sm font-medium text-white">{{ sale.vehicle.brand }} - {{ sale.vehicle.year }}</p>
+                                    <p class="text-xs text-gray-400">Sold to: {{ sale.customer.fullName }} • ₱{{ sale.salePrice|number_format(0, '.', ',') }}</p>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="px-3 py-1 bg-green-500 bg-opacity-20 text-green-400 text-xs font-medium rounded-full">Sold</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% elseif recentCars is defined and recentCars|length > 0 %}
+                        {% for car in recentCars %}
+                            <div class="flex items-center p-4 bg-gray-750 bg-opacity-50 rounded-lg border border-gray-700 hover:border-gray-600 transition">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <p class="text-sm font-medium text-white">{{ car.brand }} - {{ car.year }}</p>
+                                    <p class="text-xs text-gray-400">Price: ₱{{ car.price|number_format(0, '.', ',') }} • Condition: {{ car.conditions }}</p>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="px-3 py-1 bg-green-500 bg-opacity-20 text-green-400 text-xs font-medium rounded-full">Available</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-8 text-gray-400">
+                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                            </svg>
+                            <p>No recent activities</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
-            <div class="flex items-center p-4 bg-gray-50 rounded-lg">
-                <div class="p-2 bg-yellow-100 rounded-full">
-                    <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            <!-- Quick Actions -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
+                    Quick Actions
+                </h3>
+                <div class="space-y-3">
+                    <a href="{{ path('app_inventory') }}?openModal=add" class="block w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg px-4 py-3 text-sm font-medium transition transform hover:scale-105 shadow-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Add New Vehicle
+                        </div>
+                    </a>
+                    <a href="{{ path('app_inventory') }}" class="block w-full bg-gray-700 hover:bg-gray-650 text-white rounded-lg px-4 py-3 text-sm font-medium transition">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            View Inventory
+                        </div>
+                    </a>
+                    <a href="{{ path('app_sales_new') }}" class="block w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg px-4 py-3 text-sm font-medium transition transform hover:scale-105 shadow-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Record Sale
+                        </div>
+                    </a>
+                    <button class="block w-full bg-gray-700 hover:bg-gray-650 text-white rounded-lg px-4 py-3 text-sm font-medium transition opacity-60 cursor-not-allowed" disabled>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Generate Report
+                            </span>
+                            <span class="text-xs bg-yellow-500 bg-opacity-20 text-yellow-400 px-2 py-1 rounded">Soon</span>
+                        </div>
+                    </button>
+                    <button class="block w-full bg-gray-700 hover:bg-gray-650 text-white rounded-lg px-4 py-3 text-sm font-medium transition opacity-60 cursor-not-allowed" disabled>
+                        <div class="flex items-center justify-between">
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                Settings
+                            </span>
+                            <span class="text-xs bg-yellow-500 bg-opacity-20 text-yellow-400 px-2 py-1 rounded">Soon</span>
+                        </div>
+                    </button>
                 </div>
-                <div class="ml-4">
-                    <p class="text-sm font-medium text-gray-900">New Document Uploaded - Sales Invoice #1234</p>
-                    <p class="text-sm text-gray-500">1 day ago</p>
+
+                <!-- System Status -->
+                <div class="mt-6 pt-6 border-t border-gray-700">
+                    <h4 class="text-sm font-semibold text-gray-400 mb-3">System Status</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-400">Database</span>
+                            <span class="flex items-center text-green-400">
+                                <span class="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                Online
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-400">Server</span>
+                            <span class="flex items-center text-green-400">
+                                <span class="h-2 w-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                Healthy
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-400">Storage</span>
+                            <span class="text-gray-300">85% Available</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,37 +358,17 @@
 
 {% block javascripts %}
 {{ parent() }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Sample charts setup
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
-
-    new Chart(salesCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Sales',
-                data: [12, 19, 3, 5, 2, 3],
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        }
-    });
-
-    new Chart(inventoryCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Inventory Turnover',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                borderColor: 'rgb(153, 102, 255)',
-                borderWidth: 1
-            }]
-        }
+    // Pass data to Stimulus controller
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, passing data to charts controller...');
+        
+        // Store data in global variables for the Stimulus controller to access
+        window.dashboardData = {
+            monthlyData: {{ monthlyData is defined ? monthlyData|json_encode|raw : 'null' }},
+            conditions: {{ conditions is defined ? conditions|json_encode|raw : 'null' }},
+            topBrands: {{ topBrands is defined ? topBrands|json_encode|raw : 'null' }}
+        };
     });
 </script>
 {% endblock %}
