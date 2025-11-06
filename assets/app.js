@@ -8,3 +8,10 @@ import './bootstrap.js';
 
 // any CSS you import will output into a single css file (app.css in this case)
 import './styles/app.css';
+
+// Load Alpine.js locally via the bundled app (offline)
+import Alpine from 'alpinejs';
+if (typeof window !== 'undefined') {
+    window.Alpine = Alpine;
+    Alpine.start();
+}
