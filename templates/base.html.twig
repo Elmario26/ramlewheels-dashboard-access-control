@@ -176,8 +176,7 @@
             }
         </style>
 
-        <!-- Alpine.js -->
-        <script src="{{ asset('build/alpine.min.js') }}?v=1.0" defer></script>
+        {# Alpine.js is bundled into app.js via Encore for offline use #}
 
         {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
