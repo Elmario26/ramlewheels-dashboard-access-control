@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100 flex">
+    <!-- Sidebar -->
+    {% if is_granted('ROLE_ADMIN') %}
+    <aside class="w-64 bg-gray-800 text-white">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold">You are logged in as Admin. You have full access.</h1>
+        </div>
+        <nav class="mt-8">
+            <a href="{{ path('app_dashboard') }}" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
+                Home
+            </a>
+            <a href="#" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
+                Sales
+            </a>
+            <a href="#" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
+                Products
+            </a>
+        </nav>
+    </aside>
+    {% endif %}
+
+    {% if is_granted('ROLE_USER') and not is_granted('ROLE_ADMIN') %}
+    <aside class="w-64 bg-gray-800 text-white">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold">You are logged in as Regular User. Limited access granted.</h1>
+        </div>
+        <nav class="mt-8">
+            <a href="{{ path('app_dashboard') }}" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
+                Home
+            </a>
+        </nav>
+    </aside> 
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+        <!-- Content area - empty as requested -->
+    </main>
+</div>
+{% endblock %}
+
