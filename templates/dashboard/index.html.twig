@@ -7,8 +7,8 @@
     <!-- Sidebar -->
     {% if is_granted('ROLE_ADMIN') %}
     <aside class="w-64 bg-gray-800 text-white">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold">You are logged in as Admin. You have full access.</h1>
+        <div class="p-6 border-b border-gray-700">
+            <p class="text-lg font-semibold">Admin Navigation</p>
         </div>
         <nav class="mt-8">
             <a href="{{ path('app_dashboard') }}" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
@@ -26,8 +26,8 @@
 
     {% if is_granted('ROLE_USER') and not is_granted('ROLE_ADMIN') %}
     <aside class="w-64 bg-gray-800 text-white">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold">You are logged in as Regular User. Limited access granted.</h1>
+        <div class="p-6 border-b border-gray-700">
+            <p class="text-lg font-semibold">User Navigation</p>
         </div>
         <nav class="mt-8">
             <a href="{{ path('app_dashboard') }}" class="block px-6 py-3 hover:bg-gray-700 transition-colors">
@@ -38,8 +38,20 @@
     {% endif %}
 
     <!-- Main Content -->
-    <main class="flex-1 p-8">
-        <!-- Content area - empty as requested -->
+    <main class="flex-1 p-8 space-y-6">
+        {% if is_granted('ROLE_ADMIN') %}
+            <section class="bg-white shadow rounded-lg p-6">
+                <h1 class="text-2xl font-bold text-gray-900">You are logged in as Admin. You have full access.</h1>
+            </section>
+        {% elseif is_granted('ROLE_USER') %}
+            <section class="bg-white shadow rounded-lg p-6">
+                <h1 class="text-2xl font-bold text-gray-900">You are logged in as Regular User. Limited access granted.</h1>
+            </section>
+        {% else %}
+            <section class="bg-white shadow rounded-lg p-6">
+                <h1 class="text-2xl font-bold text-gray-900">Welcome to the dashboard.</h1>
+            </section>
+        {% endif %}
     </main>
 </div>
 {% endblock %}
