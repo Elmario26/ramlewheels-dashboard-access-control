@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Staff</title>
+    {{ encore_entry_link_tags('app') }}
+    {{ encore_entry_script_tags('app') }}
+</head>
+<body class="bg-gradient-to-br from-[#b32224]/15 via-[#8f1c1e]/10 to-[#b32224]/20">
+    <div class="min-h-screen flex items-center justify-center px-4 py-10">
+        <div class="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                <!-- Left: Gradient with car -->
+                <div class="relative overflow-hidden flex items-center justify-center p-8 lg:p-10"
+                     style="background: linear-gradient(180deg, #b32224 0%, #8f1c1e 100%);">
+                    <div class="absolute inset-0 opacity-25 pointer-events-none"
+                         style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6) 0, rgba(255,255,255,0) 35%), radial-gradient(circle at 80% 10%, rgba(255,255,255,0.4) 0, rgba(255,255,255,0) 30%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.35) 0, rgba(255,255,255,0) 35%);">
+                    </div>
+                    <div class="relative z-10 w-full max-w-xl -mr-10 lg:-mr-1 drop-shadow-2xl">
+                        <img src="{{ asset('uploads/cars/login.png') }}"
+                             alt="Car"
+                             class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                <!-- Right: Form -->
+                <div class="relative bg-white flex items-center justify-center px-8 py-10 md:px-12">
+                    {{ form_start(registrationForm, {'attr': {'class': 'w-full max-w-md space-y-6', 'data-turbo': 'false'}}) }}
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 text-center">Create your Account</h1>
+                        </div>
+
+                        <div class="space-y-4">
+                            {{ form_row(registrationForm.username, {
+                                'row_attr': {'class': 'text-sm text-gray-700'},
+                                'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
+                            }) }}
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{ form_row(registrationForm.firstName, {
+                                    'row_attr': {'class': 'text-sm text-gray-700'},
+                                    'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
+                                }) }}
+                                {{ form_row(registrationForm.lastName, {
+                                    'row_attr': {'class': 'text-sm text-gray-700'},
+                                    'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
+                                }) }}
+                            </div>
+
+                            {{ form_row(registrationForm.plainPassword, {
+                                'row_attr': {'class': 'text-sm text-gray-700'},
+                                'label': 'Password',
+                                'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
+                            }) }}
+
+                            {{ form_row(registrationForm.agreeTerms, {
+                                'row_attr': {'class': 'text-sm text-gray-700'},
+                            }) }}
+                        </div>
+
+                        <div class="space-y-4">
+                            <button type="submit"
+                                    class="w-full inline-flex justify-center items-center px-4 py-3 rounded-lg bg-[#b32224] text-white font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5">
+                                Register
+                            </button>
+                            <div class="pt-2 text-sm text-center text-gray-600">
+                                Already have an account?
+                                <a href="{{ path('app_login') }}" class="text-[#b32224] font-semibold hover:underline">Login</a>
+                            </div>
+                        </div>
+                    {{ form_end(registrationForm) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

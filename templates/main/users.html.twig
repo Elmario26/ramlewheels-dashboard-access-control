@@ -152,6 +152,7 @@
                 <thead class="bg-gray-900">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Username</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Contact</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Role</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
@@ -172,6 +173,9 @@
                                     <div class="text-xs text-gray-400">ID: {{ user.id }}</div>
                                 </div>
                             </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm font-medium text-gray-300">{{ user.username }}</div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-100">
@@ -220,15 +224,49 @@
                                 <span class="text-gray-500">Never</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-sm font-medium space-x-2">
-                            <a href="{{ path('app_users_show', {'id': user.id}) }}" 
-                               class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
-                            <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
-                               class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</a>
-                            <a href="{{ path('app_users_change_password', {'id': user.id}) }}" 
-                               class="text-blue-400 hover:text-blue-300 transition-colors duration-200">Password</a>
-                            <button onclick="handleDelete('{{ user.id }}', '{{ csrf_token('delete' ~ user.id) }}')" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ path('app_users_show', {'id': user.id}) }}" 
+                                   class="text-gray-300 hover:text-gray-100 transition-colors duration-200"
+                                   title="View"
+                                   aria-label="View user">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
+                                <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
+                                   class="text-[#B32224] hover:text-red-600 transition-colors duration-200"
+                                   title="Edit"
+                                   aria-label="Edit user">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                                {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
+                                <a href="{{ path('app_users_change_password', {'id': user.id}) }}" 
+                                   class="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                                   title="Change password"
+                                   aria-label="Change password">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c1.105 0 2-.895 2-2V7a2 2 0 10-4 0v2c0 1.105.895 2 2 2z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11h14a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z"/>
+                                    </svg>
+                                </a>
+                                {% endif %}
+                                {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
+                                <button onclick="handleDelete('{{ user.id }}', '{{ csrf_token('delete' ~ user.id) }}')" 
+                                        class="text-gray-400 hover:text-gray-200 transition-colors duration-200"
+                                        title="Delete"
+                                        aria-label="Delete user">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% else %}

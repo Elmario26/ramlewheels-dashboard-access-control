@@ -1,0 +1,488 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.id ? 'Edit' : 'Upload' }} Document{% endblock %}
+
+{% block body %}
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="mb-2">
+            <h1 class="text-3xl font-bold text-gray-100 flex items-center gap-3">
+                {{ document.id ? 'Edit' : 'Upload' }} Document
+                {% if document.id %}
+                    <span class="text-xs px-2 py-1 rounded-full bg-emerald-900/60 border border-emerald-700 text-emerald-200">Existing</span>
+                {% else %}
+                    <span class="text-xs px-2 py-1 rounded-full bg-blue-900/60 border border-blue-700 text-blue-200">New</span>
+                {% endif %}
+            </h1>
+            <p class="text-gray-400 mt-1">{{ document.id ? 'Update document information'}}</p>
+            {% if isNewVersion is defined and isNewVersion %}
+                <div class="mt-2 p-3 bg-blue-900 bg-opacity-30 border border-blue-700 rounded-lg">
+                    <p class="text-blue-300 text-sm">Creating new version of: <strong>{{ parentDocument.fileName }}</strong></p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-xl">
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'enctype': 'multipart/form-data', 'id': 'documentForm', 'name': 'documentForm', 'data-turbo': 'false'}}) }}
+            
+            <!-- Category -->
+            <div>
+                {{ form_label(form.category, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                {{ form_widget(form.category, {'attr': {'class': 'block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-[#B32224] focus:ring-[#B32224] sm:text-sm'}}) }}
+                {{ form_errors(form.category) }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Document Type -->
+                <div>
+                    {{ form_label(form.documentType, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                    {{ form_widget(form.documentType, {'attr': {'class': 'block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-[#B32224] focus:ring-[#B32224] sm:text-sm'}}) }}
+                    {{ form_errors(form.documentType) }}
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    {{ form_label(form.file, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                    {{ form_errors(form.file) }}
+                    
+                    <!-- Drag and Drop Area -->
+                    <div id="dropZone" class="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-[#B32224] transition-colors bg-gray-700 shadow-inner">
+                        {{ form_widget(form.file, {'attr': {'class': 'hidden', 'id': 'fileInput', 'data-file-input': 'true', 'accept': '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.xls,.xlsx'}}) }}
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="text-gray-300 mb-2">
+                            <span class="text-[#B32224] font-medium">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-gray-400 text-sm">PDF, DOC, DOCX, JPG, PNG, GIF, XLS, XLSX (Max 10MB)</p>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-400">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Keep file names clear (e.g. <em>invoice-1234.pdf</em>).</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            <span>Ensure scans are readable; avoid blurred images.</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Files List -->
+                    <div id="selectedFilesContainer" class="mt-4 hidden">
+                        <div class="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                            <h4 class="text-sm font-medium text-gray-300 mb-3">Selected File:</h4>
+                            <div id="selectedFilesList" class="space-y-2">
+                                <!-- Files will be added here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if document.id and document.fileName %}
+                        <p class="mt-2 text-sm text-gray-400">Current file: {{ document.fileName }} (Leave empty to keep current file)</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div>
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-[#B32224] focus:ring-[#B32224] sm:text-sm', 'rows': 3}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Related Entity -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(form.relatedEntityType, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                    {{ form_widget(form.relatedEntityType, {'attr': {'class': 'block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-[#B32224] focus:ring-[#B32224] sm:text-sm'}}) }}
+                    {{ form_errors(form.relatedEntityType) }}
+                </div>
+
+                <div>
+                    {{ form_label(form.relatedEntityId, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-200 mb-2'}}) }}
+                    {{ form_widget(form.relatedEntityId, {'attr': {'class': 'block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-[#B32224] focus:ring-[#B32224] sm:text-sm', 'placeholder': 'Enter ID (optional)'}}) }}
+                    {{ form_errors(form.relatedEntityId) }}
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-700">
+                <a href="{{ path('app_documents_index') }}" 
+                   class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-all">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center gap-2 px-6 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg font-medium transition-all shadow-lg shadow-[#B32224]/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
+                    </svg>
+                    {{ document.id ? 'Update' : 'Upload' }} Document
+                </button>
+            </div>
+
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    // Use a flag to prevent duplicate initialization
+    let isInitialized = false;
+    let eventListeners = {
+        dropZoneClick: null,
+        fileInputChange: null,
+        dropZoneDragover: null,
+        dropZoneDragleave: null,
+        dropZoneDrop: null,
+        formSubmit: null
+    };
+    
+    function initDocumentUpload() {
+        // Wait a bit to ensure all elements are rendered
+        setTimeout(function() {
+            const dropZone = document.getElementById('dropZone');
+            if (!dropZone) {
+                console.warn('DropZone not found');
+                return;
+            }
+            
+            // Check if already initialized by checking data attribute (more reliable than flag)
+            if (dropZone.hasAttribute('data-upload-initialized')) {
+                return; // Already initialized, skip
+            }
+            
+            // Try multiple ways to find the file input
+            let fileInput = document.getElementById('fileInput');
+            if (!fileInput) {
+                // Try to find by data attribute first (most reliable)
+                fileInput = dropZone.querySelector('input[data-file-input="true"]');
+            }
+            if (!fileInput) {
+                // Try to find by type within dropZone
+                fileInput = dropZone.querySelector('input[type="file"]');
+            }
+            if (!fileInput) {
+                // Try to find anywhere in the form
+                const tempForm = document.getElementById('documentForm') || document.querySelector('form[enctype="multipart/form-data"]');
+                if (tempForm) {
+                    fileInput = tempForm.querySelector('input[type="file"]');
+                }
+            }
+            
+            const selectedFilesContainer = document.getElementById('selectedFilesContainer');
+            const selectedFilesList = document.getElementById('selectedFilesList');
+            
+            // Try to find form by ID or by form element
+            let form = document.getElementById('documentForm');
+            if (!form) {
+                // Fallback: find form by looking for the form element
+                form = document.querySelector('form[enctype="multipart/form-data"]');
+            }
+            
+            // Check if critical elements exist
+            if (!fileInput || !dropZone || !form) {
+                console.warn('Some required elements not found:', {
+                    dropZone: !!dropZone,
+                    fileInput: !!fileInput,
+                    form: !!form,
+                    selectedFilesContainer: !!selectedFilesContainer
+                });
+                // If critical elements are missing, don't proceed
+                if (!fileInput || !dropZone || !form) {
+                    return;
+                }
+            }
+            
+            // Set the ID on fileInput if it doesn't have one (for consistency)
+            if (fileInput && !fileInput.id) {
+                fileInput.id = 'fileInput';
+            }
+            
+            // Initialize only if all required elements exist
+            initializeFileUpload(dropZone, fileInput, selectedFilesContainer, selectedFilesList, form);
+            isInitialized = true;
+        }, 100);
+    }
+    
+    // Initialize on DOMContentLoaded (for full page loads)
+    document.addEventListener('DOMContentLoaded', initDocumentUpload);
+    
+    // Initialize on Turbo load (for Turbo navigation)
+    document.addEventListener('turbo:load', function() {
+        // Reset flag and remove data attribute to allow reinitialization
+        isInitialized = false;
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+            dropZone.removeAttribute('data-upload-initialized');
+        }
+        initDocumentUpload();
+    });
+    
+    // Also listen for turbo:render in case turbo:load doesn't fire
+    document.addEventListener('turbo:render', function() {
+        // Reset flag and remove data attribute to allow reinitialization
+        isInitialized = false;
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+            dropZone.removeAttribute('data-upload-initialized');
+        }
+        initDocumentUpload();
+    });
+    
+    // Clean up on navigation away
+    document.addEventListener('turbo:before-cache', function() {
+        isInitialized = false;
+        // Remove data attribute so it can be reinitialized
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) {
+            dropZone.removeAttribute('data-upload-initialized');
+        }
+    });
+    
+    function initializeFileUpload(dropZone, fileInput, selectedFilesContainer, selectedFilesList, form) {
+        let selectedFile = null;
+        
+        // Check if already initialized by checking for data attribute
+        if (dropZone.hasAttribute('data-upload-initialized')) {
+            return; // Already initialized
+        }
+        
+        // Mark as initialized
+        dropZone.setAttribute('data-upload-initialized', 'true');
+        
+        // Click to select file
+        const clickHandler = function(e) {
+            // Don't trigger if clicking on the file input itself or on buttons
+            if (e.target !== fileInput && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON' && !e.target.closest('button')) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (fileInput) {
+                    fileInput.click();
+                }
+            }
+        };
+        dropZone.addEventListener('click', clickHandler, { passive: false });
+        eventListeners.dropZoneClick = clickHandler;
+        
+        // File input change
+        const changeHandler = function(e) {
+            if (this.files && this.files.length > 0) {
+                handleFileSelect(this.files[0]);
+            }
+        };
+        fileInput.addEventListener('change', changeHandler);
+        eventListeners.fileInputChange = changeHandler;
+        
+        // Drag and drop
+        const dragoverHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('border-[#B32224]', 'bg-gray-600');
+        };
+        dropZone.addEventListener('dragover', dragoverHandler);
+        eventListeners.dropZoneDragover = dragoverHandler;
+        
+        const dragleaveHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('border-[#B32224]', 'bg-gray-600');
+        };
+        dropZone.addEventListener('dragleave', dragleaveHandler);
+        eventListeners.dropZoneDragleave = dragleaveHandler;
+        
+        const dropHandler = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('border-[#B32224]', 'bg-gray-600');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                handleFileSelect(file);
+                
+                // Create a new FileList and assign to input
+                // This is the correct way to set files on an input element
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                
+                // Trigger change event to ensure form recognizes the file
+                const changeEvent = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(changeEvent);
+            }
+        };
+        dropZone.addEventListener('drop', dropHandler);
+        eventListeners.dropZoneDrop = dropHandler;
+        
+        function handleFileSelect(file) {
+            if (!file) return;
+            
+            // Validate file size (10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (file.size > maxSize) {
+                alert('File size exceeds 10MB limit. Please select a smaller file.');
+                clearSelectedFile();
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'image/gif',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                alert('Invalid file type. Please select a PDF, Word, Excel, or Image file.');
+                clearSelectedFile();
+                return;
+            }
+            
+            // Store selected file
+            selectedFile = file;
+            
+            // Display the file with cancel button
+            displaySelectedFile(file);
+            
+            // Update drop zone appearance
+            const currentDropZone = document.getElementById('dropZone');
+            if (currentDropZone) {
+                currentDropZone.classList.remove('border-gray-600');
+                currentDropZone.classList.add('border-green-500');
+            }
+        }
+        
+        function displaySelectedFile(file) {
+            if (!selectedFilesContainer || !selectedFilesList) return;
+            
+            // Clear previous file display
+            selectedFilesList.innerHTML = '';
+            
+            // Create file item
+            const fileItem = document.createElement('div');
+            fileItem.className = 'flex items-center justify-between p-3 bg-gray-800 rounded-lg border border-gray-600';
+            fileItem.id = 'fileItem-' + Date.now();
+            
+            // File info
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'flex items-center gap-3 flex-1 min-w-0';
+            
+            // File icon
+            const fileIcon = document.createElement('div');
+            fileIcon.className = 'flex-shrink-0 w-10 h-10 bg-[#B32224] bg-opacity-20 rounded-lg flex items-center justify-center';
+            
+            let iconSvg = '';
+            if (file.type === 'application/pdf') {
+                iconSvg = '<svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>';
+            } else if (file.type.startsWith('image/')) {
+                iconSvg = '<svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>';
+            } else {
+                iconSvg = '<svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+            }
+            fileIcon.innerHTML = iconSvg;
+            
+            // File details
+            const fileDetails = document.createElement('div');
+            fileDetails.className = 'flex-1 min-w-0';
+            
+            const fileName = document.createElement('div');
+            fileName.className = 'text-white font-medium truncate';
+            fileName.textContent = file.name;
+            fileName.title = file.name;
+            
+            const fileSize = document.createElement('div');
+            fileSize.className = 'text-gray-400 text-sm';
+            fileSize.textContent = formatFileSize(file.size);
+            
+            fileDetails.appendChild(fileName);
+            fileDetails.appendChild(fileSize);
+            
+            fileInfo.appendChild(fileIcon);
+            fileInfo.appendChild(fileDetails);
+            
+            // Cancel button
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'flex-shrink-0 ml-3 p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all';
+            cancelBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+            cancelBtn.title = 'Remove file';
+            cancelBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                clearSelectedFile();
+            });
+            
+            fileItem.appendChild(fileInfo);
+            fileItem.appendChild(cancelBtn);
+            selectedFilesList.appendChild(fileItem);
+            
+            // Show the container
+            selectedFilesContainer.classList.remove('hidden');
+        }
+        
+        function clearSelectedFile() {
+            selectedFile = null;
+            const currentFileInput = document.getElementById('fileInput') || document.querySelector('input[data-file-input="true"]') || fileInput;
+            if (currentFileInput) {
+                currentFileInput.value = '';
+            }
+            
+            if (selectedFilesContainer) {
+                selectedFilesContainer.classList.add('hidden');
+            }
+            if (selectedFilesList) {
+                selectedFilesList.innerHTML = '';
+            }
+            
+            const currentDropZone = document.getElementById('dropZone');
+            if (currentDropZone) {
+                currentDropZone.classList.remove('border-green-500');
+                currentDropZone.classList.add('border-gray-600');
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // Form validation
+        if (form) {
+            const submitHandler = function(e) {
+                const currentFileInput = document.getElementById('fileInput') || document.querySelector('input[data-file-input="true"]') || fileInput;
+                {% if not document.id %}
+                if (!currentFileInput || !currentFileInput.files || currentFileInput.files.length === 0) {
+                    e.preventDefault();
+                    alert('Please select a file to upload.');
+                    if (currentFileInput) {
+                        currentFileInput.focus();
+                    }
+                    return false;
+                }
+                {% endif %}
+                
+                // Show loading state
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Uploading...';
+                }
+            };
+            form.addEventListener('submit', submitHandler);
+            eventListeners.formSubmit = submitHandler;
+        }
+    }
+</script>
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Cars;
 use App\Form\CarsType;
 use App\Repository\CarsRepository;
+use App\Service\ActivityLoggerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -18,6 +19,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/cars')]
 final class CarsController extends AbstractController
 {
+    public function __construct(
+        private ActivityLoggerService $activityLogger
+    ) {}
     #[Route('/{id}/view', name: 'app_cars_view', methods: ['GET'])]
     public function view(Cars $car): Response
     {
@@ -82,6 +86,11 @@ final class CarsController extends AbstractController
         $form = $this->createForm(CarsType::class, $car);
         $form->handleRequest($request);
 
+        // For direct navigation, send users back to inventory and auto-open the modal.
+        if ($request->isMethod('GET') && !$request->isXmlHttpRequest()) {
+            return $this->redirectToRoute('app_cars_index', ['openModal' => 'add']);
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile[] $imageFiles */
             $imageFiles = $form->get('images')->getData();
@@ -112,26 +121,45 @@ final class CarsController extends AbstractController
             $entityManager->persist($car);
             $entityManager->flush();
 
-            if ($request->headers->get('Accept') === 'application/json') {
+            // Log the activity
+            $this->activityLogger->logCreate(
+                'Vehicle',
+                $car->getId(),
+                "Created vehicle: {$car->getBrand()} {$car->getYear()}",
+                [
+                    'brand' => ['after' => $car->getBrand()],
+                    'year' => ['after' => $car->getYear()],
+                    'price' => ['after' => $car->getPrice()],
+                    'mileage' => ['after' => $car->getMileage()],
+                ]
+            );
+
+            if ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json') {
                 return new JsonResponse([
                     'success' => true,
                     'message' => 'Vehicle added successfully!',
+                    'redirect' => $this->generateUrl('app_cars_index'),
                 ]);
             }
 
             return $this->redirectToRoute('app_cars_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        if ($form->isSubmitted() && $request->headers->get('Accept') === 'application/json') {
+        if ($form->isSubmitted() && ($request->isXmlHttpRequest() || $request->headers->get('Accept') === 'application/json')) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Form validation failed.',
-            ]);
+                'form' => $this->renderView('main/_form.html.twig', [
+                    'car' => $car,
+                    'form' => $form->createView(),
+                ]),
+            ], Response::HTTP_BAD_REQUEST);
         }
 
+        // Always return the partial for AJAX/modal loads.
         return $this->render('main/_form.html.twig', [
             'car' => $car,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -181,6 +209,19 @@ final class CarsController extends AbstractController
 
             $entityManager->flush();
 
+            // Log the activity
+            $this->activityLogger->logUpdate(
+                'Vehicle',
+                $car->getId(),
+                "Updated vehicle: {$car->getBrand()} {$car->getYear()}",
+                [
+                    'brand' => ['after' => $car->getBrand()],
+                    'year' => ['after' => $car->getYear()],
+                    'price' => ['after' => $car->getPrice()],
+                    'mileage' => ['after' => $car->getMileage()],
+                ]
+            );
+
             if ($request->headers->get('Accept') === 'application/json') {
                 return new JsonResponse([
                     'success' => true,
@@ -200,7 +241,7 @@ final class CarsController extends AbstractController
 
         return $this->render('main/_form.html.twig', [
             'car' => $car,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -210,7 +251,7 @@ final class CarsController extends AbstractController
         $form = $this->createForm(CarsType::class, $car);
         
         return $this->render('main/_form.html.twig', [
-            'form' => $form,
+            'form' => $form->createView(),
             'car' => $car,
         ]);
     }
@@ -233,6 +274,18 @@ final class CarsController extends AbstractController
     public function delete(Request $request, Cars $car, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$car->getId(), $request->getPayload()->getString('_token'))) {
+            // Log the activity before deleting
+            $this->activityLogger->logDelete(
+                'Vehicle',
+                $car->getId(),
+                "Deleted vehicle: {$car->getBrand()} {$car->getYear()}",
+                [
+                    'brand' => ['before' => $car->getBrand()],
+                    'year' => ['before' => $car->getYear()],
+                    'price' => ['before' => $car->getPrice()],
+                ]
+            );
+
             $entityManager->remove($car);
             $entityManager->flush();
         }

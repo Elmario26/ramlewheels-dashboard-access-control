@@ -87,15 +87,14 @@ class SalesRepository extends ServiceEntityRepository
      */
     public function getCountByStatus(): array
     {
-        $results = $this->createQueryBuilder('s')
-            ->select('s.status, COUNT(s.id) as count')
-            ->groupBy('s.status')
-            ->getQuery()
-            ->getResult();
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT status, COUNT(id) as count FROM sales GROUP BY status';
+        $result = $conn->executeQuery($sql)->fetchAllAssociative();
 
         $statusCounts = [];
-        foreach ($results as $result) {
-            $statusCounts[$result['status']] = (int)$result['count'];
+        foreach ($result as $row) {
+            $status = trim($row['status'] ?? '');
+            $statusCounts[$status] = (int)($row['count'] ?? 0);
         }
 
         return $statusCounts;
@@ -109,7 +108,7 @@ class SalesRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->leftJoin('s.vehicle', 'v')
             ->addSelect('v')
-            ->orderBy('s.saleDate', 'DESC')
+            ->orderBy('s.id', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -118,6 +117,19 @@ class SalesRepository extends ServiceEntityRepository
     /**
      * Get sales by date range
      */
+    public function getSalesByDateRange(\DateTime $startDate, \DateTime $endDate): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.customer', 'c')
+            ->leftJoin('s.vehicle', 'v')
+            ->addSelect('c', 'v')
+            ->where('s.saleDate BETWEEN :start AND :end')
+            ->setParameter('start', $startDate)
+            ->setParameter('end', $endDate)
+            ->orderBy('s.saleDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 
     /**
      * Get top selling vehicles
@@ -213,44 +225,40 @@ class SalesRepository extends ServiceEntityRepository
 
         $orX = $qb->expr()->orX();
 
-        // Search in customer fields - using LOWER() for case-insensitive comparison
-        $orX->add($qb->expr()->like('LOWER(c.firstName)', ':query'))
-            ->add($qb->expr()->like('LOWER(c.lastName)', ':query'))
-            ->add($qb->expr()->like('LOWER(c.email)', ':query'))
-            ->add($qb->expr()->like('LOWER(c.phone)', ':query'))
-            ->add($qb->expr()->like('LOWER(CONCAT(c.firstName, \' \', c.lastName))', ':query'));
+        // Search in customer fields - using LIKE for case-insensitive comparison
+        $orX->add($qb->expr()->like('c.firstName', ':query'))
+            ->add($qb->expr()->like('c.lastName', ':query'))
+            ->add($qb->expr()->like('c.email', ':query'))
+            ->add($qb->expr()->like('c.phone', ':query'))
+            ->add($qb->expr()->like('CONCAT(c.firstName, \' \', c.lastName)', ':query'));
 
-        // Search in vehicle fields - using LOWER() for case-insensitive comparison
-        $orX->add($qb->expr()->like('LOWER(v.brand)', ':query'))
-            ->add($qb->expr()->like('LOWER(v.make)', ':query'))
-            ->add($qb->expr()->like('LOWER(v.color)', ':query'));
+        // Search in vehicle fields - using LIKE for case-insensitive comparison
+        $orX->add($qb->expr()->like('v.brand', ':query'))
+            ->add($qb->expr()->like('v.make', ':query'))
+            ->add($qb->expr()->like('v.color', ':query'))
+            ->add($qb->expr()->like('CAST(v.year AS string)', ':query'));
 
-        // Search in sale fields - using LOWER() for case-insensitive comparison
-        $orX->add($qb->expr()->like('LOWER(s.paymentMethod)', ':query'));
-
-        // Add numeric field searches with separate parameters
-        $orX->add($qb->expr()->like('LOWER(v.Year)', ':query'))
-            ->add($qb->expr()->eq('s.id', ':idQuery'))
-            ->add($qb->expr()->eq('s.salePrice', ':priceQuery'));
+        // Search in sale fields - using LIKE for case-insensitive comparison
+        $orX->add($qb->expr()->like('CAST(s.id AS string)', ':query'))
+            ->add($qb->expr()->like('CAST(s.salePrice AS string)', ':query'))
+            ->add($qb->expr()->like('s.paymentMethod', ':query'));
 
         $qb->where($orX)
-           ->setParameter('query', '%' . strtolower($query) . '%')
-           ->setParameter('idQuery', is_numeric($query) ? (int)$query : 0)
-           ->setParameter('priceQuery', is_numeric($query) ? (float)$query : 0);
+           ->setParameter('query', '%' . strtolower($query) . '%');
 
         // Store the original search term for logging
         $searchTerm = $query;
-        $queryBuilder = $qb->getQuery();
+        $query = $qb->getQuery();
         
         // Debug the actual SQL being executed
         error_log('Search Query Debug ----------------');
-        error_log('Search Term: ' . $searchTerm);
-        error_log('Generated SQL: ' . $queryBuilder->getSQL());
-        error_log('Parameters: ' . json_encode($queryBuilder->getParameters()->toArray()));
+        error_log('Search Term: ' . $searchTerm); // Log the original search term
+        error_log('Generated SQL: ' . $query->getSQL());
+        error_log('Parameters: ' . json_encode($query->getParameters()->toArray()));
         
         try {
             // Execute query and get results
-            $results = $queryBuilder->getResult();
+            $results = $query->getResult();
             error_log('Results count: ' . count($results));
             
             // Debug first few results if any
@@ -270,6 +278,19 @@ class SalesRepository extends ServiceEntityRepository
             error_log('Search Query Error: ' . $e->getMessage());
             throw $e;
         }
+        error_log('Search query SQL: ' . $query->getSQL());
+        error_log('Search query parameters: ' . json_encode($query->getParameters()->toArray()));
+        
+        $result = $query->getResult();
+        error_log('Number of results: ' . count($result));
+        error_log('Result details: ' . json_encode(array_map(function($sale) {
+            return [
+                'id' => $sale->getId(),
+                'customer' => $sale->getCustomer() ? $sale->getCustomer()->getFirstName() . ' ' . $sale->getCustomer()->getLastName() : 'N/A'
+            ];
+        }, $result)));
+        
+        return $result;
     }
 
     /**
@@ -359,5 +380,50 @@ class SalesRepository extends ServiceEntityRepository
         }
 
         return $monthlyData;
+    }
+
+
+    /**
+     * Get top selling brands for a date range
+     */
+    public function getTopSellingBrands(\DateTimeInterface $dateFrom, \DateTimeInterface $dateTo, int $limit = 5): array
+    {
+        // Get all sales for the date range and process in PHP
+        $sales = $this->createQueryBuilder('s')
+            ->select('s', 'v')
+            ->leftJoin('s.vehicle', 'v')
+            ->where('s.saleDate >= :dateFrom')
+            ->andWhere('s.saleDate <= :dateTo')
+            ->andWhere('s.status = :status')
+            ->setParameter('dateFrom', $dateFrom)
+            ->setParameter('dateTo', $dateTo)
+            ->setParameter('status', 'completed')
+            ->getQuery()
+            ->getResult();
+
+        $brandData = [];
+        foreach ($sales as $sale) {
+            if (!$sale->getVehicle()) {
+                continue;
+            }
+            $brand = $sale->getVehicle()->getBrand() ?? 'Unknown';
+            if (!isset($brandData[$brand])) {
+                $brandData[$brand] = [
+                    'name' => $brand,
+                    'sales_count' => 0,
+                    'total_revenue' => 0.0
+                ];
+            }
+            $brandData[$brand]['sales_count']++;
+            $brandData[$brand]['total_revenue'] += (float)($sale->getSalePrice() ?? 0);
+        }
+
+        // Sort by sales count descending
+        uasort($brandData, function ($a, $b) {
+            return $b['sales_count'] <=> $a['sales_count'];
+        });
+
+        // Return top N brands
+        return array_slice(array_values($brandData), 0, $limit);
     }
 }

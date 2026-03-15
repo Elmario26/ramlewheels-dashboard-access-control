@@ -14,6 +14,10 @@ export default class extends Controller {
     setupGlobalListeners() {
         // Generate and double-submit a CSRF token in a form field and a cookie
         document.addEventListener('submit', (event) => {
+            // Skip CSRF modification for login and register forms
+            if (event.target.getAttribute('data-turbo') === 'false') {
+                return;
+            }
             this.generateCsrfToken(event.target);
         }, true);
 

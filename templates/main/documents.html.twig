@@ -5,84 +5,296 @@
 {% block body %}
     <!-- Header Section -->
     <div class="mb-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-100">Documents Management</h1>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Search Form -->
+                <form method="GET" action="{{ path('app_documents_index') }}" class="flex items-center gap-2 flex-1 min-w-[200px]">
+                    <div class="relative flex-1">
+                        <input type="text" name="q" value="{{ filters.q }}" 
+                               placeholder="Search documents..." 
+                               class="w-full px-4 py-3 pl-10 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:bg-gray-600 transition-all duration-200 shadow-sm">
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <button type="submit" class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-4 py-3 rounded-xl transition-all flex items-center gap-2 font-medium">
+                        Search
+                    </button>
+                </form>
+                
+                <!-- Add Document Button -->
+                <a href="{{ path('app_documents_new') }}" 
+                   class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 font-medium transition-all shadow-sm hover:shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <span class="hidden sm:inline">Upload Document</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- Coming Soon Content -->
-    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <!-- Coming Soon Icon -->
-        <div class="mb-8">
-            <div class="relative">
-                <div class="w-32 h-32 bg-gradient-to-br from-[#B32224] to-red-800 rounded-full flex items-center justify-center shadow-2xl">
-                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-                <!-- Animated pulse ring -->
-                <div class="absolute inset-0 w-32 h-32 bg-[#B32224] rounded-full animate-ping opacity-20"></div>
+    <!-- Filter Toggle (floating above table header) -->
+    <div class="flex justify-end mb-4">
+        <div class="relative">
+            <button id="docsFilterToggle" class="px-3 py-2 text-xs font-semibold text-white bg-[#B32224] hover:bg-red-700 rounded-lg shadow-lg shadow-red-900/40 focus:outline-none focus:ring-2 focus:ring-red-500">
+                Filter
+            </button>
+            <div id="docsFilterPanel" class="hidden absolute right-0 mt-2 w-96 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl shadow-black/50 p-4 z-20">
+                <form method="GET" action="{{ path('app_documents_index') }}" class="space-y-4">
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Category</p>
+                        <select name="category" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">All Categories</option>
+                            {% for catStat in documentsByCategory %}
+                                <option class="bg-gray-800 text-white" value="{{ catStat.category }}" {% if filters.category == catStat.category %}selected{% endif %}>
+                                    {{ catStat.category }} ({{ catStat.count }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Document Type</p>
+                        <select name="type" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">All Types</option>
+                            {% for typeStat in documentsByType %}
+                                {% if typeStat.documentType != 'Insurance Documents' %}
+                                    <option class="bg-gray-800 text-white" value="{{ typeStat.documentType }}" {% if filters.type == typeStat.documentType %}selected{% endif %}>
+                                        {{ typeStat.documentType }} ({{ typeStat.count }})
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Linked To</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Vehicle</label>
+                                <select name="vehicle_id" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    <option value="">All Vehicles</option>
+                                    {% for vehicle in vehicles %}
+                                        <option class="bg-gray-800 text-white" value="{{ vehicle.id }}" {% if filters.vehicle_id == vehicle.id %}selected{% endif %}>
+                                            {{ vehicle.brand }} {{ vehicle.make }} {{ vehicle.year }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">Customer</label>
+                                <select name="customer_id" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                                    <option value="">All Customers</option>
+                                    {% for customer in customers %}
+                                        <option class="bg-gray-800 text-white" value="{{ customer.id }}" {% if filters.customer_id == customer.id %}selected{% endif %}>
+                                            {{ customer.fullName }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Date Range</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="date_from" class="block text-[11px] text-gray-400 mb-1">From</label>
+                                <input type="date" id="date_from" name="date_from" value="{{ filters.date_from }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="date_to" class="block text-[11px] text-gray-400 mb-1">To</label>
+                                <input type="date" id="date_to" name="date_to" value="{{ filters.date_to }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <a href="{{ path('app_documents_index') }}" class="text-xs font-semibold text-gray-300 hover:text-white">Clear</a>
+                        <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents Table (Desktop) / Cards (Mobile) -->
+    {% if documents|length > 0 %}
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-200">Document Name</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-200">Type / Category</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-200">Linked To</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-200">Date Uploaded</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-200">Uploaded By</th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold text-gray-200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+                        {% for document in documents %}
+                            {% if document.documentType != 'Insurance Documents' %}
+                                <tr class="hover:bg-gray-750 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 bg-[#B32224] bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                {% if document.isPdf %}
+                                                    <svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                    </svg>
+                                                {% elseif document.isImage %}
+                                                    <svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                    </svg>
+                                                {% else %}
+                                                    <svg class="w-5 h-5 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                    </svg>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="text-white font-medium">{{ document.fileName }}</div>
+                                                <div class="text-gray-400 text-sm">{{ document.formattedFileSize }}</div>
+                                            </div>
+                                            {% if document.version and document.version > 1 %}
+                                                <span class="px-2 py-1 bg-blue-600 text-white text-xs rounded">v{{ document.version }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-white">{{ document.documentType }}</div>
+                                        <div class="text-gray-400 text-sm">{{ document.category }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {% if document.relatedEntityType and document.relatedEntityId %}
+                                            <span class="px-2 py-1 bg-gray-700 text-gray-300 text-sm rounded">
+                                                {{ document.relatedEntityType }} #{{ document.relatedEntityId }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-gray-500">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-300">{{ document.uploadedAt|date('M d, Y') }}</td>
+                                    <td class="px-6 py-4 text-gray-300">
+                                        {{ document.uploadedBy ? document.uploadedBy.fullName : 'System' }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="openPreviewModal({{ document.id }})" 
+                                                    class="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all" 
+                                                    title="Preview">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                            </button>
+                                            <a href="{{ path('app_documents_download', {id: document.id}) }}" 
+                                               class="p-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-all" 
+                                               title="Download">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                                </svg>
+                                            </a>
+                                            <a href="{{ path('app_documents_edit', {id: document.id}) }}" 
+                                               class="p-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-all" 
+                                               title="Edit">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Coming Soon Text -->
-        <div class="max-w-2xl mx-auto">
-            <h2 class="text-4xl font-bold text-gray-100 mb-4">Coming Soon</h2>
-            <p class="text-xl text-gray-300 mb-6">
-                We're working hard to bring you a comprehensive document management system for your vehicle dealership.
-            </p>
-            
-            <!-- Features Preview -->
-            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-8">
-                <h3 class="text-lg font-semibold text-gray-100 mb-4">What to Expect:</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Vehicle Registration Documents</span>
+        <!-- Mobile Card View -->
+        <div class="lg:hidden grid grid-cols-1 gap-4">
+            {% for document in documents %}
+                {% if document.documentType != 'Insurance Documents' %}
+                    <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                        <div class="flex items-start gap-3 mb-3">
+                            <div class="w-12 h-12 bg-[#B32224] bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                {% if document.isPdf %}
+                                    <svg class="w-6 h-6 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                {% elseif document.isImage %}
+                                    <svg class="w-6 h-6 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                {% else %}
+                                    <svg class="w-6 h-6 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-white font-semibold truncate">{{ document.fileName }}</h3>
+                                <p class="text-gray-400 text-sm">{{ document.documentType }} • {{ document.category }}</p>
+                                <p class="text-gray-500 text-xs mt-1">{{ document.formattedFileSize }} • {{ document.uploadedAt|date('M d, Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-3 border-t border-gray-700">
+                            <button onclick="openPreviewModal({{ document.id }})" 
+                                    class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-medium">
+                                Preview
+                            </button>
+                            <a href="{{ path('app_documents_download', {id: document.id}) }}" 
+                               class="flex-1 bg-[#B32224] hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-medium text-center">
+                                Download
+                            </a>
+                        </div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Sales Contracts & Agreements</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Insurance Documents</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Service Records & History</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Digital Document Storage</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-[#B32224] rounded-full"></div>
-                        <span class="text-gray-300">Document Search & Filtering</span>
-                    </div>
-                </div>
-            </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-gray-800 rounded-xl p-12 text-center border border-gray-700">
+            <svg class="w-16 h-16 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-300 mb-2">No Documents Found</h3>
+            <p class="text-gray-500 mb-6">Get started by uploading your first document.</p>
+            <a href="{{ path('app_documents_new') }}" 
+               class="inline-flex items-center px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-xl font-medium transition-all">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Upload Document
+            </a>
+        </div>
+    {% endif %}
 
-            <!-- Progress Indicator -->
-            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-300 font-medium">Development Progress</span>
-                    <span class="text-[#B32224] font-semibold">75%</span>
+    <!-- Preview Modal -->
+    <div id="previewModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closePreviewModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Document Preview</h3>
+                    <button onclick="closePreviewModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
-                <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-[#B32224] to-red-600 h-3 rounded-full transition-all duration-1000 ease-out" style="width: 75%"></div>
+                <div id="previewContent" class="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+                    <!-- Content will be loaded here -->
                 </div>
-                <p class="text-sm text-gray-400 mt-2">Expected completion: AFTER MIDTERM</p>
-            </div>
-
-            <!-- Back to Dashboard -->
-            <div class="mt-8">
-                <a href="{{ path('app_dashboard') }}" 
-                   class="inline-flex items-center px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-xl font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    Back to Dashboard
-                </a>
             </div>
         </div>
     </div>
@@ -91,14 +303,68 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
-    // Add some subtle animations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animate progress bar on load
-        const progressBar = document.querySelector('.bg-gradient-to-r');
-        if (progressBar) {
-            setTimeout(() => {
-                progressBar.style.width = '75%';
-            }, 500);
+    function openPreviewModal(documentId) {
+        const modal = document.getElementById('previewModal');
+        const content = document.getElementById('previewContent');
+        
+        // Show loading
+        content.innerHTML = '<div class="text-center py-12"><div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#B32224]"></div><p class="text-gray-400 mt-4">Loading preview...</p></div>';
+        modal.classList.remove('hidden');
+        
+        // Load preview content
+        fetch(`/documents/${documentId}/preview`)
+            .then(response => response.text())
+            .then(html => {
+                content.innerHTML = html;
+            })
+            .catch(error => {
+                content.innerHTML = '<div class="text-center py-12 text-red-400">Failed to load preview</div>';
+            });
+    }
+    
+    function closePreviewModal() {
+        document.getElementById('previewModal').classList.add('hidden');
+    }
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePreviewModal();
+        }
+    });
+
+    // Filter dropdown toggle (matches activity logs style)
+    function initDocsFilterDropdown() {
+        const toggle = document.getElementById('docsFilterToggle');
+        const panel = document.getElementById('docsFilterPanel');
+
+        // Prevent double-binding
+        if (!toggle || !panel || panel.dataset.bound === 'true') {
+            return;
+        }
+        panel.dataset.bound = 'true';
+
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            panel.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!panel.classList.contains('hidden')) {
+                if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+                    panel.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initDocsFilterDropdown);
+    document.addEventListener('turbo:load', initDocsFilterDropdown);
+    document.addEventListener('turbo:render', initDocsFilterDropdown);
+    document.addEventListener('turbo:before-cache', () => {
+        const panel = document.getElementById('docsFilterPanel');
+        if (panel) {
+            panel.classList.add('hidden');
         }
     });
 </script>

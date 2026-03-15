@@ -3,129 +3,232 @@
 {% block title %}Reports & Analytics{% endblock %}
 
 {% block body %}
-    <!-- Header Section -->
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="space-y-8" data-controller="reports" data-reports-charts-value="{{ chartData|json_encode|e('html_attr') }}">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <p class="text-sm uppercase tracking-wider text-gray-400">Executive Reports</p>
+            <h1 class="text-3xl font-bold text-white mt-1">Business Performance & Sales</h1>
+            <p class="text-gray-400 mt-2">Full-funnel visibility across sales, inventory, services, and documents.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
+                <div class="text-xs text-gray-400">Reporting window</div>
+                <div class="text-sm font-semibold text-white">Year-to-date</div>
+            </div>
+            <div class="bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
+                <div class="text-xs text-gray-400">Last sync</div>
+                <div class="text-sm font-semibold text-white">{{ "now"|date("M d, Y H:i") }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% if is_granted('ROLE_ADMIN') %}
+        <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-700/20 border border-emerald-600/40 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Total Revenue</p>
+                    <p class="text-3xl font-bold text-white mt-1">₱{{ (salesStats.total_revenue ?? 0)|number_format(2, '.', ',') }}</p>
+                    <p class="text-xs text-emerald-300 mt-2">Growth {{ (salesStats.revenue_growth ?? 0)|number_format(1) }}% vs last month</p>
+                </div>
+                <span class="bg-emerald-600/30 text-emerald-200 px-3 py-1 rounded-full text-xs">Sales</span>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500/20 to-blue-700/20 border border-blue-600/40 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Monthly Revenue</p>
+                    <p class="text-3xl font-bold text-white mt-1">₱{{ (salesStats.monthly_revenue ?? 0)|number_format(2, '.', ',') }}</p>
+                    <p class="text-xs text-blue-300 mt-2">Average sale ₱{{ (salesStats.average_sale_price ?? 0)|number_format(0) }}</p>
+                </div>
+                <span class="bg-blue-600/30 text-blue-200 px-3 py-1 rounded-full text-xs">This Month</span>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-purple-500/20 to-purple-700/20 border border-purple-600/40 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Conversion Rate</p>
+                    <p class="text-3xl font-bold text-white mt-1">{{ (salesStats.conversion_rate ?? 0)|number_format(1) }}%</p>
+                    <p class="text-xs text-purple-200 mt-2">Pipeline health & closure velocity</p>
+                </div>
+                <span class="bg-purple-600/30 text-purple-200 px-3 py-1 rounded-full text-xs">Pipeline</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-gradient-to-br from-amber-500/15 to-amber-700/20 border border-amber-600/30 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Inventory Value</p>
+                    <p class="text-3xl font-bold text-white mt-1">₱{{ (inventoryTotals.value ?? 0)|number_format(2, '.', ',') }}</p>
+                    <p class="text-xs text-amber-200 mt-2">{{ inventoryTotals.total ?? 0 }} vehicles • {{ inventoryTotals.available ?? 0 }} available</p>
+                </div>
+                <span class="bg-amber-600/30 text-amber-100 px-3 py-1 rounded-full text-xs">Inventory</span>
+            </div>
+        </div>
+
+        {% if is_granted('ROLE_ADMIN') %}
+        <div class="bg-gradient-to-br from-cyan-500/15 to-cyan-700/20 border border-cyan-600/30 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Service Revenue</p>
+                    <p class="text-3xl font-bold text-white mt-1">₱{{ (serviceStats.total_revenue ?? 0)|number_format(2, '.', ',') }}</p>
+                    <p class="text-xs text-cyan-200 mt-2">{{ serviceStats.completed_services ?? 0 }} completed • {{ serviceStats.in_progress_services ?? 0 }} in progress</p>
+                </div>
+                <span class="bg-cyan-600/30 text-cyan-100 px-3 py-1 rounded-full text-xs">Service</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-gradient-to-br from-rose-500/15 to-rose-700/20 border border-rose-600/30 rounded-2xl p-5 shadow-lg">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm text-gray-300">Documents Managed</p>
+                    <p class="text-3xl font-bold text-white mt-1">{{ documentsTotal ?? 0 }}</p>
+                    <p class="text-xs text-rose-200 mt-2">Compliance coverage & digital paperwork</p>
+                </div>
+                <span class="bg-rose-600/30 text-rose-100 px-3 py-1 rounded-full text-xs">Documents</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-400">Revenue + Volume</p>
+                    <h3 class="text-xl font-semibold text-white">Sales Trend (12 months)</h3>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-400 text-xs">Top Brand</p>
+                    <p class="text-sm font-semibold text-white">{{ salesStats.top_brand ?? '—' }}</p>
+                </div>
+            </div>
+            <div class="h-72">
+                <canvas data-reports-target="salesTrend"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-400">Pipeline Status</p>
+                    <h3 class="text-xl font-semibold text-white">Sales Funnel</h3>
+                </div>
+                <span class="text-xs text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">Live</span>
+            </div>
+            <div class="h-72">
+                <canvas data-reports-target="pipeline"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-400">Brand Performance</p>
+                    <h3 class="text-xl font-semibold text-white">Top 5 Brands (last 6 months)</h3>
+                </div>
+                <span class="text-xs text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">Sales & revenue</span>
+            </div>
+            <div class="h-72">
+                <canvas data-reports-target="topBrands"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-400">Vehicle Readiness</p>
+                    <h3 class="text-xl font-semibold text-white">Inventory Condition Mix</h3>
+                </div>
+                <span class="text-xs text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">{{ inventoryTotals.total ?? 0 }} units</span>
+            </div>
+            <div class="h-72">
+                <canvas data-reports-target="inventory"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <p class="text-sm text-gray-400">Operations</p>
+                    <h3 class="text-xl font-semibold text-white">Service & Documents</h3>
+                </div>
+                <span class="text-xs text-gray-300 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">Health</span>
+            </div>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="h-32">
+                    <canvas data-reports-target="service"></canvas>
+                </div>
+                <div class="h-32">
+                    <canvas data-reports-target="documents"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sales -->
+    <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
             <div>
+                <p class="text-sm text-gray-400">Velocity</p>
+                <h3 class="text-xl font-semibold text-white">Recent Sales</h3>
             </div>
+            <a href="{{ path('app_sales_index') ?? '#' }}" class="text-sm text-[#B32224] hover:text-red-400">View all</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left">
+                <thead class="text-gray-400 uppercase tracking-wide border-b border-gray-800">
+                    <tr>
+                        <th class="py-3 pr-4">Date</th>
+                        <th class="py-3 pr-4">Customer</th>
+                        <th class="py-3 pr-4">Vehicle</th>
+                        <th class="py-3 pr-4">Status</th>
+                        <th class="py-3 pr-4 text-right">Sale Price</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800">
+                    {% for sale in recentSales %}
+                        <tr class="text-gray-200">
+                            <td class="py-3 pr-4">{{ sale.saleDate ? sale.saleDate|date('M d, Y') : '—' }}</td>
+                            <td class="py-3 pr-4">{{ sale.customer ? sale.customer.firstName ~ ' ' ~ sale.customer.lastName : '—' }}</td>
+                            <td class="py-3 pr-4">
+                                {% if sale.vehicle %}
+                                    {{ sale.vehicle.brand }} {{ sale.vehicle.year }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="py-3 pr-4">
+                                <span class="px-3 py-1 rounded-full text-xs border 
+                                    {% if sale.status == 'completed' %}border-emerald-500 text-emerald-300 bg-emerald-500/10
+                                    {% elseif sale.status == 'pending' %}border-amber-500 text-amber-300 bg-amber-500/10
+                                    {% else %}border-gray-600 text-gray-300 bg-gray-700/30{% endif %}">
+                                    {{ sale.status|capitalize }}
+                                </span>
+                            </td>
+                            <td class="py-3 pr-4 text-right font-semibold">₱{{ sale.salePrice|number_format(2, '.', ',') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="py-4 text-center text-gray-400">No sales recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <!-- Coming Soon Content -->
-    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <!-- Coming Soon Icon -->
-        <div class="mb-8">
-            <div class="relative">
-                <div class="w-32 h-32 bg-gradient-to-br from-blue-500 to-blue-800 rounded-full flex items-center justify-center shadow-2xl">
-                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <!-- Animated pulse ring -->
-                <div class="absolute inset-0 w-32 h-32 bg-blue-500 rounded-full animate-ping opacity-20"></div>
-            </div>
-        </div>
-
-        <!-- Coming Soon Text -->
-        <div class="max-w-2xl mx-auto">
-            <h2 class="text-4xl font-bold text-gray-100 mb-4">Coming Soon</h2>
-            <p class="text-xl text-gray-300 mb-6">
-                Advanced reporting and analytics tools are being developed to give you deep insights into your dealership's performance.
-            </p>
-            
-            <!-- Features Preview -->
-            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-8">
-                <h3 class="text-lg font-semibold text-gray-100 mb-4">What to Expect:</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Sales Performance Reports</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Inventory Analytics</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Customer Insights</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Financial Dashboards</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Trend Analysis</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Export to PDF/Excel</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Custom Report Builder</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span class="text-gray-300">Scheduled Reports</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Indicator -->
-            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-300 font-medium">Development Progress</span>
-                    <span class="text-blue-500 font-semibold">60%</span>
-                </div>
-                <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out" style="width: 60%"></div>
-                </div>
-                <p class="text-sm text-gray-400 mt-2">Expected completion: AFTER MIDTERM</p>
-            </div>
-
-            <!-- Quick Stats Preview -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="text-2xl font-bold text-blue-400 mb-1">15+</div>
-                    <div class="text-sm text-gray-400">Report Types</div>
-                </div>
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="text-2xl font-bold text-green-400 mb-1">Real-time</div>
-                    <div class="text-sm text-gray-400">Data Updates</div>
-                </div>
-                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                    <div class="text-2xl font-bold text-purple-400 mb-1">Custom</div>
-                    <div class="text-sm text-gray-400">Dashboards</div>
-                </div>
-            </div>
-
-            <!-- Back to Dashboard -->
-            <div class="mt-8">
-                <a href="{{ path('app_dashboard') }}" 
-                   class="inline-flex items-center px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-xl font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    Back to Dashboard
-                </a>
-            </div>
-        </div>
-    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-{{ parent() }}
-<script>
-    // Add some subtle animations
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animate progress bar on load
-        const progressBar = document.querySelector('.bg-gradient-to-r');
-        if (progressBar) {
-            setTimeout(() => {
-                progressBar.style.width = '60%';
-            }, 500);
-        }
-    });
-</script>
+    {{ parent() }}
 {% endblock %}

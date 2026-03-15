@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Customer;
 use App\Form\CustomerType;
 use App\Repository\CustomerRepository;
+use App\Service\ActivityLoggerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/customers')]
 final class CustomerController extends AbstractController
 {
+    public function __construct(
+        private ActivityLoggerService $activityLogger
+    ) {}
     #[Route('/', name: 'app_customers_index', methods: ['GET'])]
     public function index(CustomerRepository $customerRepository): Response
     {
@@ -53,6 +57,19 @@ final class CustomerController extends AbstractController
                 $customer->setUpdatedAt(new \DateTime());
                 $entityManager->persist($customer);
                 $entityManager->flush();
+
+                // Log the activity
+                $this->activityLogger->logCreate(
+                    'Customer',
+                    $customer->getId(),
+                    "Created customer: {$customer->getFullName()}",
+                    [
+                        'firstName' => ['after' => $customer->getFirstName()],
+                        'lastName' => ['after' => $customer->getLastName()],
+                        'email' => ['after' => $customer->getEmail()],
+                        'phone' => ['after' => $customer->getPhone()],
+                    ]
+                );
 
                 $this->addFlash('success', 'Customer created successfully!');
                 return $this->redirectToRoute('app_customers_index');
@@ -133,6 +150,18 @@ final class CustomerController extends AbstractController
                 $customer->setUpdatedAt(new \DateTime());
                 $entityManager->flush();
 
+                // Log the activity
+                $this->activityLogger->logUpdate(
+                    'Customer',
+                    $customer->getId(),
+                    "Updated customer: {$customer->getFullName()}",
+                    [
+                        'firstName' => ['after' => $customer->getFirstName()],
+                        'lastName' => ['after' => $customer->getLastName()],
+                        'email' => ['after' => $customer->getEmail()],
+                    ]
+                );
+
                 $this->addFlash('success', 'Customer updated successfully!');
                 return $this->redirectToRoute('app_customers_show', ['id' => $customer->getId()]);
             } catch (\Exception $e) {
@@ -150,6 +179,18 @@ final class CustomerController extends AbstractController
     public function delete(Request $request, Customer $customer, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $customer->getId(), $request->request->get('_token'))) {
+            // Log the activity before deleting
+            $this->activityLogger->logDelete(
+                'Customer',
+                $customer->getId(),
+                "Deleted customer: {$customer->getFullName()}",
+                [
+                    'firstName' => ['before' => $customer->getFirstName()],
+                    'lastName' => ['before' => $customer->getLastName()],
+                    'email' => ['before' => $customer->getEmail()],
+                ]
+            );
+
             $entityManager->remove($customer);
             $entityManager->flush();
             $this->addFlash('success', 'Customer deleted successfully!');

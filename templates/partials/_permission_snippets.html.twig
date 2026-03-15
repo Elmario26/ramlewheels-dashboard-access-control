@@ -1,0 +1,483 @@
+{#
+    Permission Snippets for RamleWheels
+    ====================================
+    
+    This file contains reusable Twig snippets to conditionally render UI elements
+    based on user roles (ROLE_ADMIN vs ROLE_STAFF).
+    
+    All snippets use is_granted() to check permissions at the template level.
+    Backend route-level access_control in security.yaml provides server-side protection.
+    
+    Usage:
+        Include this file and use the snippets throughout your templates:
+        {% include 'partials/_permission_snippets.html.twig' %}
+        
+        Then use individual snippets:
+        {{ render_admin_button('delete', vehicle.id) }}
+        {% if can_edit_user() %}...{% endif %}
+#}
+
+{# ========================================
+   USER MANAGEMENT - ADMIN ONLY
+   ======================================== #}
+
+{# Show/hide user management link in navigation #}
+{% macro user_management_link() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_users_index') }}" class="nav-link" data-turbo="false">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            User Management
+        </a>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide user create button #}
+{% macro user_create_button() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_users_new') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" data-turbo="false">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add New User
+        </a>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide user edit button #}
+{% macro user_edit_button(user) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_users_edit', {'id': user.id}) }}" class="btn btn-warning btn-sm" data-turbo="false">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Edit
+        </a>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide user delete button #}
+{% macro user_delete_button(user) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="POST" action="{{ path('app_users_delete', {'id': user.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Delete
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide role/password change for users #}
+{% macro user_role_password_controls(user) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="admin-controls mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h4 class="font-semibold text-yellow-900 mb-3">Admin Controls</h4>
+            <div class="space-y-2">
+                <a href="{{ path('app_users_edit', {'id': user.id}) }}" class="block text-blue-600 hover:text-blue-800">
+                    ✏️ Change Role or Password
+                </a>
+                <a href="{{ path('app_users_change_password', {'id': user.id}) }}" class="block text-blue-600 hover:text-blue-800">
+                    🔑 Reset Password
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   VEHICLE MANAGEMENT - DELETE RESTRICTED
+   ======================================== #}
+
+{# Show/hide vehicle delete button (admin only) #}
+{% macro vehicle_delete_button(vehicle) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="POST" action="{{ path('app_cars_delete', {'id': vehicle.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Permanently delete this vehicle? This cannot be undone.')">
+                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Delete Vehicle
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ vehicle.id) }}">
+        </form>
+    {% else %}
+        <span class="text-gray-500 text-sm italic">
+            💾 Deletion locked (admin only)
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{# Show staff-allowed vehicle actions (create, edit, status change) #}
+{% macro vehicle_staff_actions(vehicle) %}
+    <div class="action-buttons space-x-2">
+        {# Create/Edit allowed for all authenticated users #}
+        {% if app.user %}
+            <a href="{{ path('app_cars_edit', {'id': vehicle.id}) }}" class="btn btn-warning btn-sm" data-turbo="false">
+                ✏️ Edit Details
+            </a>
+            <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" class="btn btn-info btn-sm" data-turbo="false">
+                👁️ View Full Details
+            </a>
+        {% endif %}
+        
+        {# Delete only for admin #}
+        {{ vehicle_delete_button(vehicle) }}
+    </div>
+{% endmacro %}
+
+
+{# ========================================
+   SALES MANAGEMENT - LOCKED AFTER SUBMIT
+   ======================================== #}
+
+{# Show/hide sales edit for others (creator or admin only) #}
+{% macro sales_edit_button(sale) %}
+    {% if is_granted('ROLE_ADMIN') or sale.createdBy == app.user %}
+        <a href="{{ path('app_sales_edit', {'id': sale.id}) }}" class="btn btn-warning btn-sm" data-turbo="false">
+            ✏️ Edit Sale
+        </a>
+    {% else %}
+        <span class="text-gray-500 text-sm italic">
+            🔒 Locked by {{ sale.createdBy.firstName }} (creator only)
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide sales delete (admin only) #}
+{% macro sales_delete_button(sale) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="POST" action="{{ path('app_sales_delete', {'id': sale.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this sales record? This action is only available to admins.')">
+                🗑️ Delete
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ sale.id) }}">
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{# Override completed sales (admin only) #}
+{% macro sales_override_button(sale) %}
+    {% if is_granted('ROLE_ADMIN') and sale.status == 'completed' %}
+        <form method="POST" action="{{ path('app_sales_override', {'id': sale.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Override completed sale? Only admins can modify completed sales.')">
+                ⚠️ Override Sale
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('override' ~ sale.id) }}">
+        </form>
+    {% endif %}
+{% endmacro %}
+
+{# Sales submission warning for staff #}
+{% macro sales_submit_warning() %}
+    {% if not is_granted('ROLE_ADMIN') %}
+        <div class="alert alert-warning mt-3 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <strong>⚠️ Important:</strong> Once you submit a sale, you cannot edit it yourself. Only an admin can modify submitted sales.
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   CUSTOMER MANAGEMENT - DELETE RESTRICTED
+   ======================================== #}
+
+{# Show/hide customer delete button (admin only) #}
+{% macro customer_delete_button(customer) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="POST" action="{{ path('app_customers_delete', {'id': customer.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Permanently delete this customer record?')">
+                🗑️ Delete Customer
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+        </form>
+    {% else %}
+        <span class="text-gray-500 text-sm italic">
+            💾 Permanent deletion locked (admin only)
+        </span>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   SERVICES MANAGEMENT - EDIT RESTRICTIONS
+   ======================================== #}
+
+{# Show/hide service edit (own services or admin) #}
+{% macro service_edit_button(service) %}
+    {% if is_granted('ROLE_ADMIN') or service.createdBy == app.user %}
+        <a href="{{ path('app_services_edit', {'id': service.id}) }}" class="btn btn-warning btn-sm" data-turbo="false">
+            ✏️ Edit Service
+        </a>
+    {% else %}
+        <span class="text-gray-500 text-sm italic">
+            🔒 Only creator can edit
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide service mark complete (own services or admin) #}
+{% macro service_complete_button(service) %}
+    {% if (is_granted('ROLE_ADMIN') or service.createdBy == app.user) and service.status != 'completed' %}
+        <form method="POST" action="{{ path('app_services_complete', {'id': service.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-success btn-sm">
+                ✓ Mark Complete
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ service.id) }}">
+        </form>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   DOCUMENTS MODULE - SENSITIVE DOCS
+   ======================================== #}
+
+{# Show/hide admin-only documents section #}
+{% macro admin_documents_section() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="admin-documents-section p-4 bg-red-50 border border-red-200 rounded-lg mt-4">
+            <h4 class="font-semibold text-red-900 mb-3">🔐 Sensitive Documents (Admin Only)</h4>
+            <a href="{{ path('app_documents_admin') }}" class="text-red-600 hover:text-red-800">
+                View all business documents, financial records, and confidential files
+            </a>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide document delete button (admin only) #}
+{% macro document_delete_button(document) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="POST" action="{{ path('app_documents_delete', {'id': document.id}) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this document?')">
+                🗑️ Delete
+            </button>
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ document.id) }}">
+        </form>
+    {% else %}
+        <span class="text-gray-400 text-xs italic">Cannot delete (admin only)</span>
+    {% endif %}
+{% endmacro %}
+
+{# Show/hide archived documents (admin only) #}
+{% macro archived_documents_section(documents) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% set archived = documents|filter(d => d.isArchived) %}
+        {% if archived|length > 0 %}
+            <div class="archived-docs mt-4 p-4 bg-gray-100 rounded">
+                <h5 class="font-semibold text-gray-700 mb-3">📦 Archived Documents</h5>
+                <ul class="space-y-2">
+                    {% for doc in archived %}
+                        <li class="text-gray-600">
+                            📄 {{ doc.filename }}
+                            <span class="text-xs text-gray-500">({{ doc.archivedAt|date('M d, Y') }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   FINANCIAL & ADMIN DASHBOARDS
+   ======================================== #}
+
+{# Admin-only financial dashboard link #}
+{% macro finance_dashboard_link() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_finance_dashboard') }}" class="nav-link" data-turbo="false">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Finance Dashboard
+        </a>
+    {% endif %}
+{% endmacro %}
+
+{# Admin-only financial metrics (revenue, profit, etc) #}
+{% macro financial_summary(metrics) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="financial-cards grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
+            <div class="card bg-green-50 border border-green-200 p-4 rounded">
+                <h5 class="text-sm font-semibold text-green-800">Total Revenue</h5>
+                <p class="text-2xl font-bold text-green-900">₱{{ metrics.totalRevenue|number_format(2) }}</p>
+            </div>
+            <div class="card bg-blue-50 border border-blue-200 p-4 rounded">
+                <h5 class="text-sm font-semibold text-blue-800">Total Profit</h5>
+                <p class="text-2xl font-bold text-blue-900">₱{{ metrics.totalProfit|number_format(2) }}</p>
+            </div>
+            <div class="card bg-purple-50 border border-purple-200 p-4 rounded">
+                <h5 class="text-sm font-semibold text-purple-800">Net Income</h5>
+                <p class="text-2xl font-bold text-purple-900">₱{{ metrics.netIncome|number_format(2) }}</p>
+            </div>
+            <div class="card bg-orange-50 border border-orange-200 p-4 rounded">
+                <h5 class="text-sm font-semibold text-orange-800">Operating Costs</h5>
+                <p class="text-2xl font-bold text-orange-900">₱{{ metrics.operatingCosts|number_format(2) }}</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info p-4 bg-blue-50 border border-blue-200 rounded mt-4">
+            <strong>📊 Financial Data:</strong> Available to admins only. Contact your administrator for financial reports.
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   ADMIN REPORTS & ANALYTICS
+   ======================================== #}
+
+{# Admin-only reports navigation link #}
+{% macro admin_reports_link() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_reports_admin') }}" class="nav-link" data-turbo="false">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            Admin Reports
+        </a>
+    {% endif %}
+{% endmacro %}
+
+{# Admin reports section with expense/financial/performance data #}
+{% macro admin_reports_section() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <div class="admin-reports p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+            <h4 class="font-semibold text-indigo-900 mb-4">📈 Admin Reports</h4>
+            <ul class="space-y-2">
+                <li><a href="{{ path('app_reports_expenses') }}" class="text-indigo-600 hover:text-indigo-800">💰 Expense Reports</a></li>
+                <li><a href="{{ path('app_reports_annual_financials') }}" class="text-indigo-600 hover:text-indigo-800">📊 Annual Financials</a></li>
+                <li><a href="{{ path('app_reports_staff_performance') }}" class="text-indigo-600 hover:text-indigo-800">👥 Staff Performance</a></li>
+                <li><a href="{{ path('app_reports_inventory_analysis') }}" class="text-indigo-600 hover:text-indigo-800">📦 Inventory Analysis</a></li>
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{# Show staff-allowed basic reports only #}
+{% macro staff_basic_reports() %}
+    {% if app.user and not is_granted('ROLE_ADMIN') %}
+        <div class="staff-reports p-4 bg-green-50 border border-green-200 rounded-lg">
+            <h4 class="font-semibold text-green-900 mb-4">📋 Available Reports</h4>
+            <ul class="space-y-2">
+                <li><a href="{{ path('app_reports_inventory') }}" class="text-green-600 hover:text-green-800">📦 Inventory List</a></li>
+                <li><a href="{{ path('app_reports_sold_vehicles') }}" class="text-green-600 hover:text-green-800">🚗 Sold Vehicles</a></li>
+                <li><a href="{{ path('app_reports_services') }}" class="text-green-600 hover:text-green-800">🔧 Services Completed</a></li>
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   ACTIVITY LOGS - ADMIN ONLY
+   ======================================== #}
+
+{# Show/hide activity logs link #}
+{% macro activity_logs_link() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_activity_logs') }}" class="nav-link" data-turbo="false">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Activity Logs
+        </a>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   SYSTEM SETTINGS - ADMIN ONLY
+   ======================================== #}
+
+{# Show/hide system settings link #}
+{% macro system_settings_link() %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('app_settings') }}" class="nav-link" data-turbo="false">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            System Settings
+        </a>
+    {% endif %}
+{% endmacro %}
+
+
+{# ========================================
+   USAGE EXAMPLES IN TEMPLATES
+   ======================================== #}
+
+{#
+    EXAMPLE 1: User Management List Template
+    =========================================
+    
+    {% import 'partials/_permission_snippets.html.twig' as perms %}
+    
+    <h1>User Directory</h1>
+    
+    {{ perms.user_create_button() }}
+    
+    <table>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.fullName }}</td>
+                <td>
+                    {{ perms.user_edit_button(user) }}
+                    {{ perms.user_delete_button(user) }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    
+    EXAMPLE 2: Vehicle Details Page
+    ================================
+    
+    {% import 'partials/_permission_snippets.html.twig' as perms %}
+    
+    <div class="vehicle-details">
+        <h1>{{ vehicle.brand }} {{ vehicle.model }}</h1>
+        
+        <div class="actions mt-4">
+            <a href="{{ path('app_cars_edit', {id: vehicle.id}) }}">✏️ Edit</a>
+            {{ perms.vehicle_delete_button(vehicle) }}
+        </div>
+    </div>
+
+    
+    EXAMPLE 3: Sales Form Page
+    ===========================
+    
+    {% import 'partials/_permission_snippets.html.twig' as perms %}
+    
+    <form method="POST">
+        <!-- form fields -->
+        <button type="submit">Submit Sale</button>
+    </form>
+    
+    {{ perms.sales_submit_warning() }}
+
+    
+    EXAMPLE 4: Dashboard with Financial Data
+    =========================================
+    
+    {% import 'partials/_permission_snippets.html.twig' as perms %}
+    
+    <div class="dashboard">
+        {{ perms.financial_summary(metrics) }}
+        
+        {% if is_granted('ROLE_ADMIN') %}
+            {{ perms.admin_reports_section() }}
+        {% else %}
+            {{ perms.staff_basic_reports() }}
+        {% endif %}
+    </div>
+#}

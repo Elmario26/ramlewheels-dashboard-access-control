@@ -1,0 +1,308 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Activity Logs - Admin{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-4">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">Activity Logs</h1>
+    </div>
+
+    <!-- Filter Toggle (floating above table header) -->
+    <div class="flex justify-end mb-4">
+        <div class="relative">
+            <button id="logsFilterToggle" class="px-3 py-2 text-xs font-semibold text-white bg-[#B32224] hover:bg-red-700 rounded-lg shadow-lg shadow-red-900/40 focus:outline-none focus:ring-2 focus:ring-red-500">
+                Filter
+            </button>
+            <div id="logsFilterPanel" class="hidden absolute right-0 mt-2 w-80 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl shadow-black/50 p-4 z-20">
+            <form method="GET" action="{{ path('app_activity_logs') }}" class="space-y-4">
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">User</p>
+                    <select id="user_id" name="user_id" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option class="bg-gray-800 text-white" value="">All Users</option>
+                        {% for user in users %}
+                            <option class="bg-gray-800 text-white" value="{{ user.id }}" {% if selected_user_id == user.id %}selected{% endif %}>
+                                {{ user.firstName }} {{ user.lastName }} ({{ user.username }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Action</p>
+                    <select id="action" name="action" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option class="bg-gray-800 text-white" value="">All Actions</option>
+                        {% for action_key, action_label in available_actions %}
+                            <option class="bg-gray-800 text-white" value="{{ action_key }}" {% if selected_action == action_key %}selected{% endif %}>
+                                {{ action_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Date Range</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="date_from" class="block text-[11px] text-gray-400 mb-1">From</label>
+                            <input type="date" id="date_from" name="date_from" value="{{ selected_date_from }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="date_to" class="block text-[11px] text-gray-400 mb-1">To</label>
+                            <input type="date" id="date_to" name="date_to" value="{{ selected_date_to }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="{{ path('app_activity_logs') }}" class="text-xs font-semibold text-gray-300 hover:text-white">Clear</a>
+                    <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Logs Table -->
+    <div class="bg-gray-800 rounded-2xl shadow-lg border border-gray-800 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 bg-gray-900 border-b border-gray-700">
+            <div class="flex items-center gap-2 text-sm text-gray-300">
+                <label for="logsPageSize" class="text-gray-200 font-medium">Rows per page:</label>
+                <select id="logsPageSize" class="bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="logsRangeInfo" class="text-xs text-gray-400">Showing 0 of 0</div>
+            </div>
+        </div>
+        {% if logs|length > 0 %}
+            <table id="activityLogsTable" class="min-w-full divide-y divide-gray-800 text-gray-100">
+                <thead class="bg-gray-900 text-gray-100 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">User ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Action</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Target Data</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Time</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Details</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-800 divide-y divide-gray-700">
+                    {% for log in logs %}
+                        <tr class="hover:bg-gray-900 transition">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 font-semibold">
+                                {% if log.user %}
+                                    {{ log.user.id }}
+                                {% else %}
+                                    <span class="text-gray-400">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
+                                {% if log.user %}
+                                    <div class="flex items-center space-x-3">
+                                        <div class="flex-shrink-0 h-9 w-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow">
+                                            {{ log.user.firstName|first }}{{ log.user.lastName|first }}
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-100 font-semibold">{{ log.user.username }}</p>
+                                            <p class="text-xs text-gray-400">{{ log.user.firstName }} {{ log.user.lastName }}</p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-400 italic">System</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
+                                {% if log.user %}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
+                                        {% if log.user.role == 'admin' %}
+                                            bg-red-900/50 text-red-100 border border-red-700/60
+                                        {% else %}
+                                            bg-blue-900/50 text-blue-100 border border-blue-700/60
+                                        {% endif %}
+                                    ">
+                                        {{ log.user.roleDisplayName }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-gray-400">System</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-gray-700
+                                    {% if log.action == 'login' %}
+                                        bg-green-900/40 text-green-100 border-green-700/60
+                                    {% elseif log.action == 'logout' %}
+                                        bg-gray-800 text-gray-100 border-gray-700
+                                    {% elseif log.action == 'create' %}
+                                        bg-blue-900/40 text-blue-100 border-blue-700/60
+                                    {% elseif log.action == 'update' %}
+                                        bg-yellow-900/40 text-yellow-100 border-yellow-700/60
+                                    {% elseif log.action == 'delete' %}
+                                        bg-red-900/40 text-red-100 border-red-700/60
+                                    {% elseif log.action == 'view' %}
+                                        bg-purple-900/40 text-purple-100 border-purple-700/60
+                                    {% else %}
+                                        bg-gray-800 text-gray-100 border-gray-700
+                                    {% endif %}
+                                ">
+                                    {{ available_actions[log.action] ?? log.action }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-200">
+                                {% if log.entityType %}
+                                    <div class="space-y-1">
+                                        <span class="font-medium text-gray-100">{{ log.entityType }}</span>
+                                    {% if log.entityId %}
+                                        <span class="text-gray-500 ml-1">#{{ log.entityId }}</span>
+                                    {% endif %}
+                                        {% if log.description %}
+                                            <p class="text-xs text-gray-400 truncate max-w-xs">{{ log.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-400">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 font-mono">
+                                {{ log.createdAt|date('Y-m-d') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-100 font-mono">
+                                {{ log.createdAt|date('H:i:s') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <a href="{{ path('app_activity_log_show', {'id': log.id}) }}" class="inline-flex items-center px-3 py-1 rounded-full bg-blue-800 text-blue-50 font-semibold hover:bg-blue-700 transition">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="bg-gray-900 px-6 py-4 flex items-center justify-between border-t border-gray-700">
+                <div class="text-sm text-gray-300" id="logsPageInfo">Page 1 of 1</div>
+                <div class="flex items-center gap-2">
+                    <button id="logsPrev" class="px-3 py-1 rounded-lg border border-gray-700 text-gray-100 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">Prev</button>
+                    <button id="logsNext" class="px-3 py-1 rounded-lg border border-gray-700 text-gray-100 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                </div>
+            </div>
+        {% else %}
+            <div class="px-6 py-12 text-center">
+                <p class="text-gray-500 text-lg">No activity logs found matching your filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('activityLogsTable');
+    const pageSizeSelect = document.getElementById('logsPageSize');
+    const pageInfo = document.getElementById('logsPageInfo');
+    const rangeInfo = document.getElementById('logsRangeInfo');
+    const prevBtn = document.getElementById('logsPrev');
+    const nextBtn = document.getElementById('logsNext');
+    const filterToggle = document.getElementById('logsFilterToggle');
+    const filterPanel = document.getElementById('logsFilterPanel');
+
+    if (!table || !pageSizeSelect || !pageInfo || !rangeInfo || !prevBtn || !nextBtn) {
+        return;
+    }
+
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    let pageSize = parseInt(pageSizeSelect.value, 10) || 10;
+    let currentPage = 1;
+
+    function renderPage() {
+        const totalRows = rows.length;
+        const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
+        currentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+        const start = (currentPage - 1) * pageSize;
+        const end = Math.min(start + pageSize, totalRows);
+
+        rows.forEach((row, idx) => {
+            row.style.display = (idx >= start && idx < end) ? '' : 'none';
+        });
+
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        if (totalRows === 0) {
+            rangeInfo.textContent = 'No rows to display';
+        } else {
+            rangeInfo.textContent = `Showing ${start + 1}-${end} of ${totalRows}`;
+        }
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    pageSizeSelect.addEventListener('change', (e) => {
+        pageSize = parseInt(e.target.value, 10) || 10;
+        currentPage = 1;
+        renderPage();
+    });
+
+    prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            currentPage -= 1;
+            renderPage();
+        }
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+        if (currentPage < totalPages) {
+            currentPage += 1;
+            renderPage();
+        }
+    });
+
+    function initActivityFilterDropdown() {
+        const toggle = document.getElementById('logsFilterToggle');
+        const panel = document.getElementById('logsFilterPanel');
+
+        if (!toggle || !panel || panel.dataset.bound === 'true') {
+            return;
+        }
+        panel.dataset.bound = 'true';
+
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            panel.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!panel.classList.contains('hidden')) {
+                if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+                    panel.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initActivityFilterDropdown);
+    document.addEventListener('turbo:load', initActivityFilterDropdown);
+    document.addEventListener('turbo:render', initActivityFilterDropdown);
+    document.addEventListener('turbo:before-cache', () => {
+        const panel = document.getElementById('logsFilterPanel');
+        if (panel) {
+            panel.classList.add('hidden');
+        }
+    });
+
+    renderPage();
+});
+</script>
+{% endblock %}

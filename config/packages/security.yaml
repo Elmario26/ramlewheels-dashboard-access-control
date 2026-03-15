@@ -1,17 +1,37 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        App\Entity\User:
+            algorithm: auto
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    # providers:
+    #     users_in_memory: { memory: null }
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+    
+    # Define role hierarchy (higher roles inherit permissions from lower roles)
+    role_hierarchy:
+        ROLE_ADMIN: ['ROLE_MANAGER', 'ROLE_STAFF', 'ROLE_MECHANIC']
+        ROLE_MANAGER: ['ROLE_STAFF']
+        ROLE_MECHANIC: []
+    
     firewalls:
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            pattern: ^/(_(profiler|wdt)|css|images|js|build)/
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\LoginAuthenticator
+            logout:
+                path: app_logout
+                target: app_login
+                invalidate_session: true
+            entry_point: App\Security\LoginAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -22,10 +42,34 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # Protect dashboard until authentication is implemented
-        - { path: ^/dashboard, roles: ROLE_USER }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # Allow public/anonymous access to login, logout, register and build/assets so unauthenticated users
+        # can load the login page, registration page, and required front-end files
+        # NOTE: Use PUBLIC_ACCESS (not IS_AUTHENTICATED_ANONYMOUSLY which is deprecated in Symfony 7)
+        - { path: "^/login$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/logout$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/register$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/build/", roles: "PUBLIC_ACCESS" }
+
+        # Admin-only sections (must come before catch-all)
+        - { path: "^/users", roles: "ROLE_ADMIN" }
+        - { path: "^/system", roles: "ROLE_ADMIN" }
+        - { path: "^/admin", roles: "ROLE_ADMIN" }
+        - { path: "^/finance", roles: "ROLE_ADMIN" }
+        - { path: "^/reports/(admin|finance)", roles: "ROLE_ADMIN" }
+        - { path: "^/documents/(admin|sensitive)", roles: "ROLE_ADMIN" }
+        - { path: "^/vehicles/.*/delete", roles: "ROLE_ADMIN" }
+        - { path: "^/customers/.*/delete", roles: "ROLE_ADMIN" }
+
+        # Profile/Settings accessible to mechanics and staff+
+        - { path: "^/profile", roles: [ "ROLE_MECHANIC", "ROLE_STAFF", "ROLE_MANAGER", "ROLE_ADMIN" ] }
+        - { path: "^/settings", roles: [ "ROLE_MECHANIC", "ROLE_STAFF", "ROLE_MANAGER", "ROLE_ADMIN" ] }
+
+        # Services: Mechanics (and higher explicitly)
+        - { path: "^/services", roles: [ "ROLE_MECHANIC", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF" ] }
+        
+        # Everything else requires ROLE_STAFF or higher (Admin/Manager inherit Staff)
+        - { path: "^/", roles: "ROLE_STAFF" }
+
 
 when@test:
     security:

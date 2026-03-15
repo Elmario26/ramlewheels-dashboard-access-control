@@ -1,0 +1,78 @@
+<div class="space-y-4">
+    <!-- Document Info -->
+    <div class="bg-gray-700 rounded-lg p-4">
+        <h4 class="text-white font-semibold mb-2">{{ document.fileName }}</h4>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="text-gray-400">Type:</span>
+                <span class="text-white ml-2">{{ document.documentType }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Category:</span>
+                <span class="text-white ml-2">{{ document.category }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Size:</span>
+                <span class="text-white ml-2">{{ document.formattedFileSize }}</span>
+            </div>
+            <div>
+                <span class="text-gray-400">Uploaded:</span>
+                <span class="text-white ml-2">{{ document.uploadedAt|date('M d, Y g:i A') }}</span>
+            </div>
+            {% if document.uploadedBy %}
+                <div>
+                    <span class="text-gray-400">Uploaded By:</span>
+                    <span class="text-white ml-2">{{ document.uploadedBy.fullName }}</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Document Preview -->
+    <div class="bg-gray-900 rounded-lg p-4 min-h-[400px] flex items-center justify-center">
+        {% if document.isPdf %}
+            <iframe src="{{ path('app_documents_view', {id: document.id}) }}" 
+                    class="w-full h-[600px] border-0 rounded-lg"></iframe>
+        {% elseif document.isImage %}
+            <img src="{{ path('app_documents_view', {id: document.id}) }}" 
+                 alt="{{ document.fileName }}" 
+                 class="max-w-full max-h-[600px] rounded-lg">
+        {% else %}
+            <div class="text-center">
+                <svg class="w-24 h-24 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-400 mb-4">Preview not available for this file type</p>
+                <a href="{{ path('app_documents_download', {id: document.id}) }}" 
+                   class="inline-flex items-center px-6 py-3 bg-[#B32224] hover:bg-red-700 text-white rounded-lg font-medium">
+                    Download to View
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3">
+        <a href="{{ path('app_documents_download', {id: document.id}) }}" 
+           class="flex-1 bg-[#B32224] hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium text-center transition-all">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Download
+        </a>
+        {% if document.isPdf %}
+            <button onclick="window.print()" 
+                    class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                Print
+            </button>
+        {% endif %}
+        <a href="{{ path('app_documents_edit', {id: document.id}) }}" 
+           class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium text-center transition-all">
+            Edit
+        </a>
+    </div>
+</div>
+

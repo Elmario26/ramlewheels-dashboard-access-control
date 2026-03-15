@@ -18,6 +18,7 @@
                     </svg>
                     Back to Users
                 </a>
+                {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
                 <a href="{{ path('app_users_edit', {'id': user.id}) }}" 
                    class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg flex items-center gap-2 font-medium transition-all duration-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,6 +26,7 @@
                     </svg>
                     Edit User
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -157,6 +159,7 @@
                         Edit User
                     </a>
                     
+                    {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
                     <a href="{{ path('app_users_change_password', {'id': user.id}) }}" 
                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,6 +167,7 @@
                         </svg>
                         Change Password
                     </a>
+                    {% endif %}
                     
                     <form method="POST" action="{{ path('app_users_toggle_status', {'id': user.id}) }}">
                         <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ user.id) }}">
@@ -179,6 +183,7 @@
                         </button>
                     </form>
                     
+                    {% if is_granted('ROLE_ADMIN') or app.user.id == user.id %}
                     <button onclick="handleDelete('{{ user.id }}', '{{ csrf_token('delete' ~ user.id) }}')" 
                             class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,6 +191,7 @@
                         </svg>
                         Delete User
                     </button>
+                    {% endif %}
                 </div>
             </div>
 
