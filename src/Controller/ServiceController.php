@@ -8,6 +8,7 @@ use App\Repository\ServiceRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\CarsRepository;
 use App\Repository\UserRepository;
+use App\Service\ActivityLoggerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,8 @@ class ServiceController extends AbstractController
         private ServiceRepository $serviceRepository,
         private CustomerRepository $customerRepository,
         private CarsRepository $carsRepository,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private ActivityLoggerService $activityLogger
     ) {}
 
     #[Route('/', name: 'app_services_index', methods: ['GET'])]
@@ -81,6 +83,25 @@ class ServiceController extends AbstractController
             $this->entityManager->persist($service);
             $this->entityManager->flush();
 
+            // Log the activity
+            try {
+                $vehicleInfo = $service->getVehicle() ? $service->getVehicle()->getBrand() : 'Unknown Vehicle';
+                $vehicleId = $service->getVehicle() ? $service->getVehicle()->getId() : 'N/A';
+                $this->activityLogger->logCreate(
+                    'Service',
+                    $service->getId(),
+                    "Created service for vehicle #{$vehicleId}",
+                    [
+                        'car' => ['after' => $vehicleInfo],
+                        'status' => ['after' => $service->getStatus()],
+                        'description' => ['after' => substr($service->getDescription() ?? '', 0, 100)],
+                    ]
+                );
+            } catch (\Exception $e) {
+                // Log error silently, don't break the operation
+                error_log("Failed to log service creation: " . $e->getMessage());
+            }
+
             $this->addFlash('success', 'Service created successfully!');
             return $this->redirectToRoute('app_services_show', ['id' => $service->getId()]);
         }
@@ -107,8 +128,21 @@ class ServiceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $originalStatus = $service->getStatus();
+            
             $service->setUpdatedAt(new \DateTime());
             $this->entityManager->flush();
+
+            // Log the activity
+            $this->activityLogger->logUpdate(
+                'Service',
+                $service->getId(),
+                "Updated service status to {$service->getStatus()}",
+                [
+                    'status' => ['before' => $originalStatus, 'after' => $service->getStatus()],
+                    'description' => ['after' => substr($service->getDescription(), 0, 100)],
+                ]
+            );
 
             $this->addFlash('success', 'Service updated successfully!');
             return $this->redirectToRoute('app_services_show', ['id' => $service->getId()]);
@@ -125,6 +159,24 @@ class ServiceController extends AbstractController
     public function delete(Request $request, Service $service): Response
     {
         if ($this->isCsrfTokenValid('delete' . $service->getId(), $request->request->get('_token'))) {
+            // Log the activity before deleting
+            try {
+                $vehicleInfo = $service->getVehicle() ? $service->getVehicle()->getBrand() : 'Unknown Vehicle';
+                $vehicleId = $service->getVehicle() ? $service->getVehicle()->getId() : 'N/A';
+                $this->activityLogger->logDelete(
+                    'Service',
+                    $service->getId(),
+                    "Deleted service for vehicle #{$vehicleId}",
+                    [
+                        'car' => ['before' => $vehicleInfo],
+                        'status' => ['before' => $service->getStatus()],
+                    ]
+                );
+            } catch (\Exception $e) {
+                // Log error silently, don't break the operation
+                error_log("Failed to log service deletion: " . $e->getMessage());
+            }
+
             $this->entityManager->remove($service);
             $this->entityManager->flush();
             

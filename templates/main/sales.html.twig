@@ -235,72 +235,61 @@
             </a>
         </div>
     </div>
-    {% endif %}
+    {% endif %}  
 
-    <!-- Filters Section -->
-    <div class="mb-6 bg-gray-800 rounded-xl shadow-lg p-2 border border-gray-700">
-        <div class="flex items-center justify-between mb-2">
-            <h3 class="text-lg font-semibold text-white flex items-center">
-                <svg class="w-5 h-5 mr-2 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"/>
-                </svg>
-                Filters
-            </h3>
-            <button onclick="toggleFilters()" class="text-gray-400 hover:text-gray-200 text-sm font-medium">
-                <span id="filterToggleText">Show Filters</span>
+    <!-- Filter Toggle (floating above table header) -->
+    <div class="flex justify-end mb-4">
+        <div class="relative">
+            <button id="salesFilterToggle" class="px-3 py-2 text-xs font-semibold text-white bg-[#B32224] hover:bg-red-700 rounded-lg shadow-lg shadow-red-900/40 focus:outline-none focus:ring-2 focus:ring-red-500">
+                Filter
             </button>
+            <div id="salesFilterPanel" class="hidden absolute right-0 mt-2 w-80 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl shadow-black/50 p-4 z-20">
+                <form method="GET" action="{{ path('app_sales_filter') }}" class="space-y-4">
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Status</p>
+                        <select name="status" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">All Status</option>
+                            <option value="completed" {{ (filterStatus ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="pending" {{ (filterStatus ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="cancelled" {{ (filterStatus ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Date Range</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">From</label>
+                                <input type="date" name="date_from" value="{{ filterDateFrom ?? '' }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-gray-400 mb-1">To</label>
+                                <input type="date" name="date_to" value="{{ filterDateTo ?? '' }}" class="dark-input w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Payment Method</p>
+                        <select name="payment_method" class="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">All Methods</option>
+                            <option value="cash" {{ (filterPaymentMethod ?? '') == 'cash' ? 'selected' : '' }}>Cash</option>
+                            <option value="financing" {{ (filterPaymentMethod ?? '') == 'financing' ? 'selected' : '' }}>Financing</option>
+                            <option value="bank_transfer" {{ (filterPaymentMethod ?? '') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
+                            <option value="check" {{ (filterPaymentMethod ?? '') == 'check' ? 'selected' : '' }}>Check</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <a href="{{ path('app_sales_index') }}" class="text-xs font-semibold text-gray-300 hover:text-white">Clear</a>
+                        <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg text-xs font-semibold">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        
-        <div id="filterContent" class="hidden">
-            <form method="GET" action="{{ path('app_sales_filter') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Status Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
-                    <select name="status" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
-                        <option value="">All Status</option>
-                        <option value="completed" {{ (filterStatus ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="pending" {{ (filterStatus ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="cancelled" {{ (filterStatus ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    </select>
-                </div>
-                
-                <!-- Date Range Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">From Date</label>
-                    <input type="date" name="date_from" value="{{ filterDateFrom ?? '' }}" 
-                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">To Date</label>
-                    <input type="date" name="date_to" value="{{ filterDateTo ?? '' }}" 
-                           class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 shadow-sm hover:shadow-md">
-                </div>
-                
-                <!-- Payment Method Filter -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Payment Method</label>
-                    <select name="payment_method" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
-                        <option value="">All Methods</option>
-                        <option value="cash" {{ (filterPaymentMethod ?? '') == 'cash' ? 'selected' : '' }}>Cash</option>
-                        <option value="financing" {{ (filterPaymentMethod ?? '') == 'financing' ? 'selected' : '' }}>Financing</option>
-                        <option value="bank_transfer" {{ (filterPaymentMethod ?? '') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
-                        <option value="check" {{ (filterPaymentMethod ?? '') == 'check' ? 'selected' : '' }}>Check</option>
-                    </select>
-                </div>
-                
-                <!-- Filter Actions -->
-                <div class="lg:col-span-4 flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
-                    <a href="{{ path('app_sales_index') }}" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors duration-200">
-                        Clear Filters
-                    </a>
-                    <button type="submit" class="px-4 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
-                        Apply Filters
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>   
+    </div>
 
     <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-700">
         <div class="px-6 py-4 border-b border-gray-700">
@@ -323,6 +312,7 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Payment</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Created By</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -391,13 +381,45 @@
                                 </span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-sm font-medium space-x-2">
-                            <a href="{{ path('app_sales_show', {'id': sale.id}) }}" 
-                               class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
-                            <a href="{{ path('app_sales_edit', {'id': sale.id}) }}" 
-                               class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</a>
-                            <button onclick="handleDelete('{{ sale.id }}', '{{ csrf_token('delete' ~ sale.id) }}')" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        <td class="px-6 py-4 text-sm text-gray-400">
+                            {% if sale.createdBy %}
+                                {{ sale.createdBy.username }}
+                            {% else %}
+                                <span class="text-gray-500 italic">System</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ path('app_sales_show', {'id': sale.id}) }}" 
+                                   class="text-gray-300 hover:text-gray-100 transition-colors duration-200"
+                                   title="View"
+                                   aria-label="View sale">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                {% if is_granted('ROLE_ADMIN') or (sale.createdBy and app.user and app.user.id == sale.createdBy.id) %}
+                                {% if sale.status != 'completed' %}
+                                    <a href="{{ path('app_sales_edit', {'id': sale.id}) }}" 
+                                       class="text-[#B32224] hover:text-red-600 transition-colors duration-200"
+                                       title="Edit"
+                                       aria-label="Edit sale">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                    <button onclick="handleDelete('{{ sale.id }}', '{{ csrf_token('delete' ~ sale.id) }}')" 
+                                            class="text-gray-400 hover:text-gray-200 transition-colors duration-200"
+                                            title="Delete"
+                                            aria-label="Delete sale">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                {% endif %}
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% else %}
@@ -539,6 +561,40 @@
             }
         }
     }
+
+    // Sales filter dropdown (floating button)
+    function initSalesFilterDropdown() {
+        const toggle = document.getElementById('salesFilterToggle');
+        const panel = document.getElementById('salesFilterPanel');
+
+        if (!toggle || !panel || panel.dataset.bound === 'true') {
+            return;
+        }
+        panel.dataset.bound = 'true';
+
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            panel.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!panel.classList.contains('hidden')) {
+                if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+                    panel.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSalesFilterDropdown);
+    document.addEventListener('turbo:load', initSalesFilterDropdown);
+    document.addEventListener('turbo:render', initSalesFilterDropdown);
+    document.addEventListener('turbo:before-cache', () => {
+        const panel = document.getElementById('salesFilterPanel');
+        if (panel) {
+            panel.classList.add('hidden');
+        }
+    });
 </script>
 {% endblock %}
 

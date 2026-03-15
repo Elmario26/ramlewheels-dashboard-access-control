@@ -77,6 +77,19 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
+     * Find enabled users (not suspended or inactive)
+     */
+    public function findEnabledUsers(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.status NOT IN (:statuses)')
+            ->setParameter('statuses', ['suspended', 'inactive'])
+            ->orderBy('u.firstName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Find mechanics
      */
     public function findMechanics(): array

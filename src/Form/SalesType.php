@@ -53,8 +53,7 @@ class SalesType extends AbstractType
                     new Assert\NotBlank(['message' => 'Please select a customer'])
                 ]
             ])
-            ->add('salePrice', MoneyType::class, [
-                'currency' => 'PHP',
+            ->add('salePrice', NumberType::class, [
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => '0.00',
@@ -65,8 +64,7 @@ class SalesType extends AbstractType
                     new Assert\Positive(['message' => 'Sale price must be positive'])
                 ]
             ])
-            ->add('downPayment', MoneyType::class, [
-                'currency' => 'PHP',
+            ->add('downPayment', NumberType::class, [
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -77,8 +75,7 @@ class SalesType extends AbstractType
                     new Assert\PositiveOrZero(['message' => 'Down payment must be positive or zero'])
                 ]
             ])
-            ->add('financingAmount', MoneyType::class, [
-                'currency' => 'PHP',
+            ->add('financingAmount', NumberType::class, [
                 'required' => false,
                 'attr' => [
                     'class' => 'form-control',

@@ -21,7 +21,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank(message: 'Email is required')]
+    #[Assert\NotBlank(message: 'Username is required')]
+    #[Assert\Length(min: 3, max: 50, minMessage: 'Username must be at least {{ limit }} characters', maxMessage: 'Username cannot exceed {{ limit }} characters')]
+    private ?string $username = null;
+
+    #[ORM\Column(length: 180, unique: true, nullable: true)]
     #[Assert\Email(message: 'Please enter a valid email address')]
     private ?string $email = null;
 
@@ -29,8 +33,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[ORM\Column]
-    #[Assert\NotBlank(message: 'Password is required')]
-    #[Assert\Length(min: 6, max: 255)]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -56,7 +58,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: 'Role is required')]
     #[Assert\Choice(choices: ['admin', 'manager', 'mechanic', 'staff'], message: 'Please select a valid role')]
     private ?string $role = null;
 
@@ -82,7 +83,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->assignedServices = new ArrayCollection();
         $this->createdAt = new \DateTime();
-        $this->roles = ['ROLE_USER'];
+        $this->setRole('staff'); // default self-registered users to staff
     }
 
     public function getId(): ?int
@@ -90,12 +91,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+        return $this;
+    }
+
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
         $this->email = $email;
         return $this;
@@ -108,7 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string) ($this->username ?? $this->email ?? '');
     }
 
     /**
@@ -117,8 +129,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        // guarantee every user at least has ROLE_USER (no automatic ROLE_STAFF for mechanics)
+        if (empty($roles)) {
+            $roles[] = 'ROLE_STAFF';
+        }
 
         return array_unique($roles);
     }
@@ -191,7 +205,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRole(): ?string
     {
-        return $this->role;
+        return $this->resolveRole();
     }
 
     public function setRole(string $role): static
@@ -201,16 +215,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // Set roles based on role
         switch ($role) {
             case 'admin':
-                $this->roles = ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_MECHANIC', 'ROLE_USER'];
+                $this->roles = ['ROLE_ADMIN', 'ROLE_MANAGER', 'ROLE_MECHANIC', 'ROLE_STAFF'];
                 break;
             case 'manager':
-                $this->roles = ['ROLE_MANAGER', 'ROLE_MECHANIC', 'ROLE_USER'];
+                $this->roles = ['ROLE_MANAGER', 'ROLE_MECHANIC', 'ROLE_STAFF'];
                 break;
             case 'mechanic':
-                $this->roles = ['ROLE_MECHANIC', 'ROLE_USER'];
+                $this->roles = ['ROLE_MECHANIC', 'ROLE_STAFF'];
                 break;
             case 'staff':
-                $this->roles = ['ROLE_USER'];
+                $this->roles = ['ROLE_STAFF'];
                 break;
         }
         
@@ -323,9 +337,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->status === 'active';
     }
 
+    /**
+     * Check if the user is enabled (not suspended or inactive)
+     * Required by Symfony UserInterface - prevents suspended/inactive users from logging in
+     */
+    public function isEnabled(): bool
+    {
+        return !in_array($this->status, ['suspended', 'inactive']);
+    }
+
     public function getRoleDisplayName(): string
     {
-        return match($this->role) {
+        return match($this->resolveRole()) {
             'admin' => 'Administrator',
             'manager' => 'Manager',
             'mechanic' => 'Mechanic',
@@ -342,5 +365,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'suspended' => 'Suspended',
             default => 'Unknown'
         };
+    }
+
+    /**
+     * Determine the primary role, falling back to Symfony roles when the
+     * persisted string role is missing or in an unexpected format.
+     */
+    private function resolveRole(): string
+    {
+        if (in_array($this->role, ['admin', 'manager', 'mechanic', 'staff'], true)) {
+            return $this->role;
+        }
+
+        $roles = $this->roles;
+
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            return 'admin';
+        }
+        if (in_array('ROLE_MANAGER', $roles, true)) {
+            return 'manager';
+        }
+        if (in_array('ROLE_MECHANIC', $roles, true)) {
+            return 'mechanic';
+        }
+        if (in_array('ROLE_STAFF', $roles, true)) {
+            return 'staff';
+        }
+
+        return 'unknown';
     }
 }

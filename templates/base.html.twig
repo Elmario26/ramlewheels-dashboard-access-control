@@ -418,12 +418,22 @@
         </script>
     </head>
     <body class="bg-gray-900">
-        {% include 'partials/_sidebar.html.twig' %}
-        <div class="ml-64 min-h-screen flex flex-col bg-gray-900">
+        {% if not is_granted('ROLE_MECHANIC') or is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') %}
+            {% include 'partials/_sidebar.html.twig' %}
+        {% endif %}
+        <div class="{% if not is_granted('ROLE_MECHANIC') or is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') %}ml-64{% endif %} min-h-screen flex flex-col bg-gray-900">
             <div class="sticky top-0 z-40">
                 {% include 'partials/_topbar.html.twig' %}
             </div>
             <div class="flex-1 p-8">
+                {# Flash messages (consumed by JS modal and visible fallback) #}
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="flash-message {{ label }} mb-4 px-4 py-3 rounded {{ label == 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
                 {% block body %}{% endblock %}
             </div>
         </div>

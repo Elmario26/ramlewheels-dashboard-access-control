@@ -145,8 +145,7 @@
                             <span class="text-red-400" id="salePrice-error" style="display: none;">Required</span>
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
-                            {{ form_widget(form.salePrice, {'attr': {'class': 'w-full pl-8 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'salePrice', 'placeholder': '0.00'}}) }}
+                            {{ form_widget(form.salePrice, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'salePrice', 'placeholder': '0.00'}}) }}
                         </div>
                         {{ form_errors(form.salePrice) }}
                         <div class="mt-2 text-xs text-gray-400" id="salePrice-info" style="display: none;">
@@ -164,8 +163,7 @@
                             Down Payment
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
-                            {{ form_widget(form.downPayment, {'attr': {'class': 'w-full pl-8 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'downPayment', 'placeholder': '0.00'}}) }}
+                            {{ form_widget(form.downPayment, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'downPayment', 'placeholder': '0.00'}}) }}
                         </div>
                         {{ form_errors(form.downPayment) }}
                     </div>
@@ -176,8 +174,7 @@
                             <span class="text-blue-400 text-xs">(Auto-calculated)</span>
                         </label>
                         <div class="relative">
-                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">₱</span>
-                            {{ form_widget(form.financingAmount, {'attr': {'class': 'w-full pl-8 pr-4 py-3 bg-gray-600 border border-gray-600 rounded-lg text-gray-300 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'readonly': 'readonly', 'data-field': 'financingAmount'}}) }}
+                            {{ form_widget(form.financingAmount, {'attr': {'class': 'w-full px-4 py-3 bg-gray-600 border border-gray-600 rounded-lg text-gray-300 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'readonly': 'readonly', 'data-field': 'financingAmount'}}) }}
                         </div>
                         {{ form_errors(form.financingAmount) }}
                         <div class="mt-2 text-xs text-gray-400">

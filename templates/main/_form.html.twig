@@ -149,7 +149,7 @@
         </button>
         <button type="submit" 
             class="px-4 py-2 bg-[#B32224] border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#B32224]">
-            {% if car is defined and car.id is defined %}Update Vehicle{% else %}Save Vehicle{% endif %}
+            {% if car is defined and car.id %}Update Vehicle{% else %}Save Vehicle{% endif %}
         </button>
     </div>
 {{ form_end(form) }}

@@ -1,0 +1,241 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Document Details{% endblock %}
+
+{% block body %}
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{{ path('app_documents_index') }}" 
+               class="inline-flex items-center text-gray-400 hover:text-gray-200 mb-4">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to Documents
+            </a>
+            <h1 class="text-3xl font-bold text-gray-100">Document Details</h1>
+        </div>
+
+        <!-- Document Card -->
+        <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-lg mb-6">
+            <div class="flex items-start gap-6 mb-6">
+                <div class="w-20 h-20 bg-[#B32224] bg-opacity-20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {% if document.isPdf %}
+                        <svg class="w-10 h-10 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    {% elseif document.isImage %}
+                        <svg class="w-10 h-10 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    {% else %}
+                        <svg class="w-10 h-10 text-[#B32224]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    {% endif %}
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <h2 class="text-2xl font-bold text-gray-100">{{ document.fileName }}</h2>
+                        {% if document.version and document.version > 1 %}
+                            <span class="px-3 py-1 bg-blue-600 text-white text-sm rounded-full">Version {{ document.version }}</span>
+                        {% endif %}
+                        {% if document.isLatestVersion %}
+                            <span class="px-3 py-1 bg-green-600 text-white text-sm rounded-full">Latest</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-gray-400">{{ document.documentType }} • {{ document.category }}</p>
+                </div>
+            </div>
+
+            <!-- Document Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">File Size</label>
+                    <p class="text-gray-100">{{ document.formattedFileSize }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Uploaded</label>
+                    <p class="text-gray-100">{{ document.uploadedAt|date('F d, Y g:i A') }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Uploaded By</label>
+                    <p class="text-gray-100">{{ document.uploadedBy ? document.uploadedBy.fullName : 'System' }}</p>
+                </div>
+                {% if document.relatedEntityType and document.relatedEntityId %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Related To</label>
+                        <p class="text-gray-100">{{ document.relatedEntityType }} #{{ document.relatedEntityId }}</p>
+                    </div>
+                {% endif %}
+                {% if document.updatedAt %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Last Updated</label>
+                        <p class="text-gray-100">{{ document.updatedAt|date('F d, Y g:i A') }}</p>
+                    </div>
+                {% endif %}
+                {% if document.updatedBy %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Updated By</label>
+                        <p class="text-gray-100">{{ document.updatedBy.fullName }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {% if document.description %}
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                    <p class="text-gray-100 bg-gray-700 p-4 rounded-lg">{{ document.description }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="flex flex-wrap items-center gap-4 pt-6 border-t border-gray-700">
+                <button onclick="openPreviewModal({{ document.id }})" 
+                        class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                    Preview
+                </button>
+                <a href="{{ path('app_documents_download', {id: document.id}) }}" 
+                   class="bg-[#B32224] hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                    Download
+                </a>
+                <a href="{{ path('app_documents_edit', {id: document.id}) }}" 
+                   class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                    Edit
+                </a>
+                {% if document.isLatestVersion %}
+                    <a href="{{ path('app_documents_new_version', {id: document.id}) }}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                        Upload New Version
+                    </a>
+                {% endif %}
+                {% if document.relatedEntityType == 'Cars' and document.relatedEntityId %}
+                    <a href="{{ path('app_documents_export_vehicle', {vehicleId: document.relatedEntityId}) }}" 
+                       class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                        Export Vehicle Docs
+                    </a>
+                {% elseif document.relatedEntityType == 'Customer' and document.relatedEntityId %}
+                    <a href="{{ path('app_documents_export_customer', {customerId: document.relatedEntityId}) }}" 
+                       class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                        Export Customer Docs
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Version History -->
+        {% if versions|length > 1 %}
+            <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-lg mb-6">
+                <h3 class="text-xl font-bold text-gray-100 mb-4">Version History</h3>
+                <div class="space-y-3">
+                    {% for version in versions %}
+                        <div class="flex items-center justify-between p-4 bg-gray-700 rounded-lg {% if version.id == document.id %}border-2 border-[#B32224]{% endif %}">
+                            <div class="flex items-center gap-4">
+                                <div>
+                                    <div class="text-white font-medium">{{ version.fileName }}</div>
+                                    <div class="text-gray-400 text-sm">
+                                        Version {{ version.version }} • {{ version.uploadedAt|date('M d, Y') }}
+                                        {% if version.isLatestVersion %}
+                                            <span class="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded">Latest</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ path('app_documents_download', {id: version.id}) }}" 
+                                   class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">
+                                    Download
+                                </a>
+                                {% if version.id != document.id %}
+                                    <a href="{{ path('app_documents_show', {id: version.id}) }}" 
+                                       class="px-4 py-2 bg-[#B32224] hover:bg-red-700 text-white rounded-lg text-sm">
+                                        View
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Activity Log -->
+        {% if activityLogs|length > 0 %}
+            <div class="bg-gray-800 rounded-xl p-8 border border-gray-700 shadow-lg">
+                <h3 class="text-xl font-bold text-gray-100 mb-4">Activity Log</h3>
+                <div class="space-y-3">
+                    {% for log in activityLogs %}
+                        <div class="flex items-start gap-4 p-4 bg-gray-700 rounded-lg">
+                            <div class="flex-1">
+                                <div class="text-white font-medium capitalize">{{ log.action }}</div>
+                                <div class="text-gray-400 text-sm">
+                                    {% if log.user %}
+                                        by {{ log.user.fullName }}
+                                    {% else %}
+                                        by System
+                                    {% endif %}
+                                    • {{ log.createdAt|date('M d, Y g:i A') }}
+                                </div>
+                                {% if log.description %}
+                                    <div class="text-gray-300 text-sm mt-1">{{ log.description }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closePreviewModal()"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                    <h3 class="text-lg font-semibold text-white">Document Preview</h3>
+                    <button onclick="closePreviewModal()" class="text-gray-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="previewContent" class="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    function openPreviewModal(documentId) {
+        const modal = document.getElementById('previewModal');
+        const content = document.getElementById('previewContent');
+        
+        content.innerHTML = '<div class="text-center py-12"><div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#B32224]"></div><p class="text-gray-400 mt-4">Loading preview...</p></div>';
+        modal.classList.remove('hidden');
+        
+        fetch(`/documents/${documentId}/preview`)
+            .then(response => response.text())
+            .then(html => {
+                content.innerHTML = html;
+            })
+            .catch(error => {
+                content.innerHTML = '<div class="text-center py-12 text-red-400">Failed to load preview</div>';
+            });
+    }
+    
+    function closePreviewModal() {
+        document.getElementById('previewModal').classList.add('hidden');
+    }
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePreviewModal();
+        }
+    });
+</script>
+{% endblock %}

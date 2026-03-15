@@ -563,10 +563,27 @@
                         <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.mileage }}km</td>
                         <td class="px-6 py-4 text-sm text-gray-400">{{ vehicle.conditions }}</td>
                         <td class="px-6 py-4 text-sm text-[#B32224] font-semibold">₱{{ vehicle.price|number_format(2, '.', ',') }}</td>
-                        <td class="px-6 py-4 text-sm font-medium space-x-2">
-                            <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" class="text-gray-300 hover:text-gray-100 transition-colors duration-200">View</a>
-                            <button onclick="openEditModal('{{ vehicle.id }}')" class="text-[#B32224] hover:text-red-600 transition-colors duration-200">Edit</button>
-                            <button onclick="handleDelete('{{ vehicle.id }}', '{{ csrf_token('delete' ~ vehicle.id) }}')" class="text-gray-400 hover:text-gray-200 transition-colors duration-200">Delete</button>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex items-center gap-3">
+                                <a href="{{ path('app_cars_view', {'id': vehicle.id}) }}" class="text-gray-300 hover:text-gray-100 transition-colors duration-200" title="View details">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </a>
+                                <button onclick="openEditModal('{{ vehicle.id }}')" class="text-[#B32224] hover:text-red-600 transition-colors duration-200" title="Edit vehicle">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.586-9.414a2 2 0 112.828 2.828L12 18l-4 1 1-4 8.414-8.414z"/>
+                                    </svg>
+                                </button>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                <button onclick="handleDelete('{{ vehicle.id }}', '{{ csrf_token('delete' ~ vehicle.id) }}')" class="text-gray-400 hover:text-gray-200 transition-colors duration-200" title="Delete vehicle">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-3h4m-6 0h8m-9 3h10"/>
+                                    </svg>
+                                </button>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -636,12 +653,12 @@
             const listView = document.getElementById('listView');
             const gridBtn = document.getElementById('gridViewBtn');
             const listBtn = document.getElementById('listViewBtn');
-            
+
             // Return early if elements don't exist yet
             if (!gridView || !listView || !gridBtn || !listBtn) {
                 return;
             }
-            
+
             if (viewType === 'grid') {
                 gridView.classList.remove('hidden');
                 listView.classList.add('hidden');
@@ -657,7 +674,7 @@
                         updateListViewImage(vehicleId, window.carouselStates[vehicleId]);
                     });
                 }
-                
+
                 gridView.classList.add('hidden');
                 listView.classList.remove('hidden');
                 listBtn.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
@@ -915,16 +932,35 @@
                 content.classList.add('opacity-100', 'scale-100');
             });
 
-            // Load form via AJAX
-            fetch('/cars/new')
+            // Load form via AJAX (use inventory route)
+            fetch('{{ path('app_inventory_new') }}', {
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => response.text())
                 .then(html => {
                     formContainer.innerHTML = html;
                     
+                    // Re-initialize Stimulus controllers on newly added content
+                    if (window.Stimulus) {
+                        const application = window.Stimulus.application;
+                        if (application && application.router) {
+                            // Dispatch a custom event to re-scan for Stimulus controllers
+                            formContainer.dispatchEvent(new CustomEvent('stimulus:connect'));
+                            // Or manually find and initialize image-preview controller if present
+                            const imagePreviewElement = formContainer.querySelector('[data-controller="image-preview"]');
+                            if (imagePreviewElement && application) {
+                                application.router.discoverElements();
+                            }
+                        }
+                    }
+                    
                     // Update form action and add new-specific attributes
                     const form = formContainer.querySelector('#carForm');
                     if (form) {
-                        form.action = '/cars/new';
+                        form.action = '{{ path('app_inventory_create') }}';
                         form.setAttribute('data-new-mode', 'true');
                     }
                 })
@@ -998,7 +1034,12 @@
             });
 
             // Load form via AJAX
-            fetch(`/inventory/${vehicleId}/edit`)
+            fetch(`/inventory/${vehicleId}/edit`, {
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => response.text())
                 .then(html => {
                     formContainer.innerHTML = html;
@@ -1094,12 +1135,88 @@
     document.addEventListener('submit', function(e) {
         const form = e.target;
         if (form.id === 'carForm') {
-            // Don't close modal immediately - let the form submit naturally
-            // The page will redirect/reload after successful submission
-            // which will automatically close the modal
-            
-            // Show a loading state instead
             const submitBtn = form.querySelector('button[type="submit"]');
+
+                // Handle "add new" inside modal via AJAX to avoid navigating away from inventory
+            if (form.dataset.newMode === 'true') {
+                e.preventDefault();
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+                }
+
+                const formData = new FormData(form);
+                
+                // Get CSRF token from form's hidden input
+                const csrfTokenInput = form.querySelector('input[name="_token"]');
+                const csrfToken = csrfTokenInput ? csrfTokenInput.value : null;
+
+                fetch(form.action || '{{ path('app_inventory_create') }}', {
+                    credentials: 'same-origin',
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        ...(csrfToken && { 'X-CSRF-TOKEN': csrfToken })
+                    }
+                })
+                    .then(async (response) => {
+                        const contentType = response.headers.get('content-type') || '';
+                        // Prefer JSON if server sends it, otherwise fall back to HTML form content
+                        if (contentType.includes('application/json')) {
+                            return response.json();
+                        }
+                        const text = await response.text();
+                        return { success: response.ok, form: text, message: response.ok ? null : 'Form validation failed.' };
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            closeAddModal();
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                window.location.reload();
+                            }
+                        } else {
+                            // If server sent back the form HTML, re-render it so the user can fix errors
+                            if (data.form) {
+                                console.error('Form validation errors:', data.errors);
+                                if (data.errors && data.errors.length > 0) {
+                                    data.errors.forEach(error => {
+                                        console.error(`  - ${error.field}: ${error.message}`);
+                                    });
+                                }
+                                const container = document.getElementById('addFormContent');
+                                if (container) {
+                                    container.innerHTML = data.form;
+                                    const newForm = container.querySelector('#carForm');
+                                    if (newForm) {
+                                        newForm.action = '{{ path('app_inventory_create') }}';
+                                        newForm.setAttribute('data-new-mode', 'true');
+                                    }
+                                }
+                                // Show inline form errors; skip global error modal
+                                return;
+                            }
+                            showFlashMessage('error', data.message || 'Form validation failed.');
+                        }
+                    })
+                    .catch(() => {
+                        showFlashMessage('error', 'Unable to add vehicle. Please try again.');
+                    })
+                    .finally(() => {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = form.dataset.editMode ? 'Update Vehicle' : 'Save Vehicle';
+                        }
+                    });
+
+                return;
+            }
+
+            // Default non-AJAX behaviour (edit mode)
             if (submitBtn) {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline-block" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';

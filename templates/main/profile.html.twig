@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-750 text-gray-100">
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-white">Your Profile</h1>
+            <p class="text-sm text-gray-400 mt-2">Manage your account details and status</p>
+        </div>
+
+        {% if app.user %}
+            <div class="bg-gray-800 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+                <div class="relative h-32 bg-secondary">
+                    <div class="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.4),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.35),transparent_30%),radial-gradient(circle_at_40%_80%,rgba(255,255,255,0.25),transparent_35%)]"></div>
+                </div>
+                <div class="px-6 pb-6 -mt-12">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="h-20 w-20 rounded-full bg-gradient-to-br from-[#b32224] to-[#8f1c1e] flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-gray-900">
+                                {{ app.user.firstName|first }}{{ app.user.lastName|first }}
+                            </div>
+                            <div>
+                                <p class="text-2xl font-semibold text-white">{{ app.user.firstName }} {{ app.user.lastName }}</p>
+                                <p class="text-sm text-gray-400">@{{ app.user.username }}</p>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#b32224]/20 text-red-100 border border-[#b32224]/40">
+                                        {{ app.user.getRoleDisplayName() }}
+                                    </span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-200 border border-gray-700">
+                                        {{ app.user.getStatusDisplayName() }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <a href="{{ path('app_users_edit', {'id': app.user.id}) }}" class="px-4 py-2 rounded-lg bg-[#b32224] text-white font-semibold hover:bg-red-700 transition">
+                                Edit Profile
+                            </a>
+                            <a href="{{ path('app_users_change_password', {'id': app.user.id}) }}" class="px-4 py-2 rounded-lg bg-gray-800 text-gray-100 border border-gray-700 hover:border-gray-500 transition">
+                                Change Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 pb-6">
+                    <div class="bg-gray-850 rounded-xl border border-gray-800 p-4">
+                        <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Email</p>
+                        <p class="text-gray-100 font-semibold">{{ app.user.email ?? 'Not set' }}</p>
+                    </div>
+                    <div class="bg-gray-850 rounded-xl border border-gray-800 p-4">
+                        <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Phone</p>
+                        <p class="text-gray-100 font-semibold">{{ app.user.phone ?? 'Not set' }}</p>
+                    </div>
+                    <div class="bg-gray-850 rounded-xl border border-gray-800 p-4">
+                        <p class="text-xs uppercase tracking-wide text-gray-400 mb-1">Member since</p>
+                        <p class="text-gray-100 font-semibold">{{ app.user.createdAt ? app.user.createdAt|date('M d, Y') : 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 text-center text-gray-100">
+                <p class="text-lg font-semibold mb-2">You are not logged in.</p>
+                <a href="{{ path('app_login') }}" class="text-[#b32224] font-semibold hover:text-red-300">Go to Login</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

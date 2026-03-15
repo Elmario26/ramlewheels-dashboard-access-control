@@ -27,7 +27,7 @@ class Service
     #[ORM\JoinColumn(nullable: true)]
     private ?Cars $vehicle = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'assignedServices')]
     #[ORM\JoinColumn(nullable: true)]
     private ?User $assignedMechanic = null;
 

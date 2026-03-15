@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    {{ encore_entry_link_tags('app') }}
+    {{ encore_entry_script_tags('app') }}
+</head>
+<body class="bg-gradient-to-br from-[#b32224]/15 via-[#8f1c1e]/10 to-[#b32224]/20">
+    <div class="min-h-screen flex items-center justify-center px-4 py-10">
+        <div class="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2">
+                <!-- Left: Gradient with car -->
+                <div class="relative overflow-hidden flex items-center justify-center p-8 lg:p-10"
+                     style="background: linear-gradient(180deg, #b32224 0%, #8f1c1e 100%);">
+                    <div class="absolute inset-0 opacity-25 pointer-events-none"
+                         style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6) 0, rgba(255,255,255,0) 35%), radial-gradient(circle at 80% 10%, rgba(255,255,255,0.4) 0, rgba(255,255,255,0) 30%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.35) 0, rgba(255,255,255,0) 35%);">
+                    </div>
+                    <div class="relative z-10 w-full max-w-xl -mr-10 lg:-mr-1 drop-shadow-2xl">
+                        <img src="{{ asset('uploads/cars/login.png') }}"
+                             alt="Car"
+                             class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                <!-- Right: Form -->
+                <div class="relative bg-white flex items-center justify-center px-8 py-10 md:px-12">
+                    <form method="post" class="w-full max-w-md space-y-6">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900 text-center">Login your Account</h1>
+                        </div>
+
+                        {% if error %}
+                            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                                {# Try to translate the message, fallback to message itself #}
+                                {{ error.message|trans({}, 'security')|default(error.message) }}
+                            </div>
+                        {% endif %}
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-1 sr-only">Email</label>
+                                <input type="text" id="username" name="_username" value="{{ last_username }}"
+                                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition"
+                                       placeholder="Username" autocomplete="username" required autofocus>
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1 sr-only">Password</label>
+                                <input type="password" id="password" name="_password"
+                                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition"
+                                       placeholder="Password" autocomplete="current-password" required>
+                            </div>
+                            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+                        </div>
+
+                        <div class="space-y-4">
+                            <button type="submit"
+                                    class="w-full inline-flex justify-center items-center px-4 py-3 rounded-lg bg-[#b32224] text-white font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5">
+                                Login
+                            </button>
+                        </div>
+
+                        <div class="pt-2 text-sm text-center text-gray-600">
+                            New member?
+                            <a href="{{ path('app_register') }}" class="text-[#b32224] font-semibold hover:underline">Sign Up</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

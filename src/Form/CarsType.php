@@ -19,6 +19,7 @@ class CarsType extends AbstractType
     {
         $builder
             ->add('brand', TextType::class, [
+                'required' => true,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter brand name'
@@ -28,6 +29,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('year', TextType::class, [
+                'required' => true,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter year'
@@ -37,6 +39,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('mileage', TextType::class, [
+                'required' => true,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter mileage'
@@ -46,6 +49,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('conditions', TextType::class, [
+                'required' => true,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter condition'
@@ -55,6 +59,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('price', NumberType::class, [
+                'required' => true,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter price'
@@ -64,6 +69,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('make', TextType::class, [
+                'required' => false,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter make/model'
@@ -73,6 +79,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('color', TextType::class, [
+                'required' => false,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter color'
@@ -82,6 +89,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('plateNumber', TextType::class, [
+                'required' => false,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter plate number'
@@ -91,6 +99,7 @@ class CarsType extends AbstractType
                 ]
             ])
             ->add('engineNumber', TextType::class, [
+                'required' => false,
                 'attr' => [
                     'class' => 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#B32224] sm:text-sm sm:leading-6',
                     'placeholder' => 'Enter engine number'

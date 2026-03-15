@@ -7,6 +7,7 @@ use App\Entity\Cars;
 use App\Form\SalesType;
 use App\Repository\SalesRepository;
 use App\Repository\CarsRepository;
+use App\Service\ActivityLoggerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,12 +15,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
 #[Route('/sales')]
 final class SalesController extends AbstractController
 {
+    public function __construct(
+        private ActivityLoggerService $activityLogger
+    ) {}
     #[Route('/', name: 'app_sales_index', methods: ['GET'])]
     public function index(SalesRepository $salesRepository): Response
     {
@@ -78,12 +83,27 @@ final class SalesController extends AbstractController
                 }
 
                 // Customer is now required and handled by the form
+                // Set the user who created this sale
+                $sale->setCreatedBy($this->getUser());
 
                 // Set updated timestamp
                 $sale->setUpdatedAt(new \DateTime());
 
                 $entityManager->persist($sale);
                 $entityManager->flush();
+
+                // Log the activity
+                $this->activityLogger->logCreate(
+                    'Sale',
+                    $sale->getId(),
+                    "Created sale for {$sale->getVehicle()->getBrand()} {$sale->getVehicle()->getYear()}",
+                    [
+                        'vehicle' => ['after' => $sale->getVehicle()->getBrand()],
+                        'customer' => ['after' => $sale->getCustomer()->getFullName()],
+                        'price' => ['after' => $sale->getSalePrice()],
+                        'status' => ['after' => $sale->getStatus()],
+                    ]
+                );
 
                 // Update vehicle status to sold if sale is completed
                 if ($sale->getStatus() === 'completed') {
@@ -378,6 +398,18 @@ final class SalesController extends AbstractController
     #[Route('/{id}/edit', name: 'app_sales_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Sales $sale, EntityManagerInterface $entityManager): Response
     {
+        // Check authorization: staff can only edit their own sales, admins can edit any
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            // If not admin, check if staff owns this sale
+            $currentUser = $this->getUser();
+            $createdBy = $sale->getCreatedBy();
+            
+            // Staff can only edit if they created this sale
+            if (!$createdBy || $createdBy->getId() !== $currentUser->getId()) {
+                throw new AccessDeniedException('You do not have permission to edit this sale.');
+            }
+        }
+        
         $originalStatus = $sale->getStatus();
         $originalVehicle = $sale->getVehicle();
         
@@ -388,6 +420,17 @@ final class SalesController extends AbstractController
             try {
                 $sale->setUpdatedAt(new \DateTime());
                 $entityManager->flush();
+
+                // Log the activity
+                $this->activityLogger->logUpdate(
+                    'Sale',
+                    $sale->getId(),
+                    "Updated sale status to {$sale->getStatus()}",
+                    [
+                        'status' => ['before' => $originalStatus, 'after' => $sale->getStatus()],
+                        'price' => ['after' => $sale->getSalePrice()],
+                    ]
+                );
 
                 // Handle vehicle status changes
                 $newStatus = $sale->getStatus();
@@ -425,8 +468,31 @@ final class SalesController extends AbstractController
     #[Route('/{id}', name: 'app_sales_delete', methods: ['POST'])]
     public function delete(Request $request, Sales $sale, EntityManagerInterface $entityManager): Response
     {
+        // Check authorization: staff can only delete their own sales, admins can delete any
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            // If not admin, check if staff owns this sale
+            $currentUser = $this->getUser();
+            $createdBy = $sale->getCreatedBy();
+            
+            // Staff can only delete if they created this sale
+            if (!$createdBy || $createdBy->getId() !== $currentUser->getId()) {
+                throw new AccessDeniedException('You do not have permission to delete this sale.');
+            }
+        }
+        
         if ($this->isCsrfTokenValid('delete'.$sale->getId(), $request->request->get('_token'))) {
             try {
+                // Log the activity before deleting
+                $this->activityLogger->logDelete(
+                    'Sale',
+                    $sale->getId(),
+                    "Deleted sale for {$sale->getVehicle()->getBrand()} {$sale->getVehicle()->getYear()}",
+                    [
+                        'vehicle' => ['before' => $sale->getVehicle()->getBrand()],
+                        'price' => ['before' => $sale->getSalePrice()],
+                    ]
+                );
+
                 // Reset vehicle status if it was sold
                 $vehicle = $sale->getVehicle();
                 if ($vehicle && $vehicle->getStatus() === 'sold') {
