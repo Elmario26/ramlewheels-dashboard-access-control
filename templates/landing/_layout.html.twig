@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Ramle Wheels | Premium Car Dealership{% endblock %}</title>
+    {{ encore_entry_link_tags('app') }}
+
+    {# Marketing styles are bundled in assets/styles/landing.css #}
+</head>
+<body>
+    <div class="rw-shell" data-rw-landing>
+        <div class="rw-noise" aria-hidden="true"></div>
+        <div class="rw-gradient-orbit" aria-hidden="true"></div>
+        <div class="rw-gradient-orbit-alt" aria-hidden="true"></div>
+
+        <header class="rw-header">
+            <div class="rw-header-inner">
+                <div class="rw-nav-spread">
+                    <a href="{{ path('app_home') }}" class="rw-logo" aria-label="Ramle Wheels home">
+                        <img src="{{ asset('images/rmlogo 2.png') }}" alt="Ramle Wheels logo" class="rw-logo-image">
+                    </a>
+
+                    {% set active = activeNav|default('home') %}
+                    <nav class="rw-nav-center" aria-label="Primary">
+                        <a href="{{ path('app_home') }}" class="rw-nav-link {{ active == 'home' ? 'is-active' : '' }}">Home</a>
+                        <a href="{{ path('app_marketing_about') }}" class="rw-nav-link {{ active == 'about' ? 'is-active' : '' }}">About Us</a>
+                        <a href="{{ path('app_marketing_contact') }}" class="rw-nav-link {{ active == 'contact' ? 'is-active' : '' }}">Contact</a>
+                    </nav>
+
+                    <div class="rw-nav-right">
+                        <a class="rw-nav-cta" href="{{ path('app_marketing_contact') }}">
+                            <span>Book a Showroom Visit</span>
+                            <span aria-hidden="true">↗</span>
+                        </a>
+                        <button class="rw-icon-btn" type="button" aria-label="Search">
+                            <span aria-hidden="true">⌕</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="rw-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
+                    <div class="rw-nav-toggle-line"></div>
+                </button>
+            </div>
+
+            <div class="rw-header-rule" aria-hidden="true"></div>
+
+            <div class="rw-nav-mobile" data-rw-nav-mobile>
+                <div class="rw-nav-mobile-inner">
+                    <a href="{{ path('app_home') }}">Home</a>
+                    <a href="{{ path('app_marketing_about') }}">About Us</a>
+                    <a href="{{ path('app_marketing_contact') }}">Contact</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="rw-main">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="rw-footer">
+            <div class="rw-footer-inner">
+                <div>
+                    <div class="rw-logo-text-main">Ramle Wheels</div>
+                    <p style="margin:0.4rem 0 0;">
+                        A modern dealership experience, combining curated vehicles with thoughtful, transparent service.
+                    </p>
+                    <div class="rw-footer-links">
+                        <a href="{{ path('app_home') }}" class="rw-footer-link">Home</a>
+                        <a href="{{ path('app_marketing_about') }}" class="rw-footer-link">About Us</a>
+                        <a href="{{ path('app_marketing_contact') }}" class="rw-footer-link">Contact</a>
+                    </div>
+                </div>
+                <div class="rw-footer-copy">
+                    <div>Showroom: Sample Automotive District, City Name</div>
+                    <div style="margin-top:0.2rem;">Phone: +63 900 000 0000 · Email: hello@ramlewheels.test</div>
+                    <div style="margin-top:0.5rem;">© {{ "now"|date("Y") }} Ramle Wheels. All rights reserved.</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        (function () {
+            const root = document.querySelector('[data-rw-landing]');
+            if (!root) return;
+
+            // Reveal animations
+            const revealEls = Array.from(root.querySelectorAll('.rw-reveal'));
+            const revealVariants = ['rw-reveal--left', 'rw-reveal--right', 'rw-reveal--zoom', 'rw-reveal--tilt', 'rw-reveal--soft'];
+
+            function pickVariant(index) {
+                // Avoid choosing the same animation for consecutive elements
+                const base = Math.floor(Math.random() * revealVariants.length);
+                const offset = (index % revealVariants.length);
+                return revealVariants[(base + offset) % revealVariants.length];
+            }
+
+            revealEls.forEach((el, idx) => {
+                // Keep explicit "is-visible" elements as-is (hero first paint)
+                if (el.classList.contains('is-visible')) return;
+                // Allow components to opt-out of random variants
+                if (el.hasAttribute('data-rw-reveal-fixed')) return;
+                el.classList.add(pickVariant(idx));
+            });
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.14, rootMargin: '0px 0px -10% 0px' });
+
+                revealEls.forEach(el => observer.observe(el));
+            } else {
+                revealEls.forEach(el => el.classList.add('is-visible'));
+            }
+
+            // Mobile nav
+            const navToggle = root.querySelector('.rw-nav-toggle');
+            const mobileNav = root.querySelector('[data-rw-nav-mobile]');
+
+            if (navToggle && mobileNav) {
+                navToggle.addEventListener('click', () => {
+                    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+                    navToggle.setAttribute('aria-expanded', String(!expanded));
+                    mobileNav.setAttribute('data-open', expanded ? 'false' : 'true');
+                });
+            }
+
+            // Smooth scroll for in-page CTAs only (anchors)
+            const scrollTriggers = root.querySelectorAll('[data-scroll-target]');
+            function scrollToTarget(target) {
+                const el = document.querySelector(target);
+                if (!el) return;
+                const headerOffset = 76;
+                const rect = el.getBoundingClientRect();
+                const y = rect.top + window.scrollY - headerOffset;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+            scrollTriggers.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = btn.getAttribute('data-scroll-target');
+                    if (!target || !target.startsWith('#')) return;
+                    e.preventDefault();
+                    scrollToTarget(target);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
+

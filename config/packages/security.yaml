@@ -42,6 +42,14 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # Public marketing landing page
+        - { path: "^/$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/showroom/cars$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/about-us$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/services-overview$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/contact$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/verify-email$", roles: "PUBLIC_ACCESS" }
+
         # Allow public/anonymous access to login, logout, register and build/assets so unauthenticated users
         # can load the login page, registration page, and required front-end files
         # NOTE: Use PUBLIC_ACCESS (not IS_AUTHENTICATED_ANONYMOUSLY which is deprecated in Symfony 7)

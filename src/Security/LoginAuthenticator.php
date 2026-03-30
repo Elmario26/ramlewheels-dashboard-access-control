@@ -38,14 +38,20 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $username = $request->getPayload()->getString('_username');
+        // Prefer email field (login form), but fall back to username for existing data.
+        $email = trim($request->getPayload()->getString('_email'));
+        $username = trim($request->getPayload()->getString('_username'));
+        $identifier = $email !== '' ? strtolower($email) : $username;
 
-        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $username);
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $identifier);
 
         return new Passport(
-            new UserBadge($username, function($userIdentifier) {
+            new UserBadge($identifier, function($userIdentifier) {
                 // Load the user and check if enabled
-                $user = $this->entityManager->getRepository(\App\Entity\User::class)->findOneBy(['username' => $userIdentifier]);
+                $user = $this->entityManager->getRepository(\App\Entity\User::class)->findOneBy(['email' => $userIdentifier]);
+                if (!$user && $userIdentifier !== '') {
+                    $user = $this->entityManager->getRepository(\App\Entity\User::class)->findOneBy(['username' => $userIdentifier]);
+                }
                 
                 if ($user && !$user->isEnabled()) {
                     throw new AuthenticationException('Your account is suspended or inactive. Please contact an administrator.');
@@ -85,7 +91,10 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
     {
         // Let Symfony handle the error automatically via SecurityRequestAttributes
         $request->getSession()->set(SecurityRequestAttributes::AUTHENTICATION_ERROR, $exception);
-        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $request->getPayload()->getString('_username'));
+        $email = trim($request->getPayload()->getString('_email'));
+        $username = trim($request->getPayload()->getString('_username'));
+        $identifier = $email !== '' ? strtolower($email) : $username;
+        $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $identifier);
         
         return new RedirectResponse($this->urlGenerator->generate(self::LOGIN_ROUTE));
     }

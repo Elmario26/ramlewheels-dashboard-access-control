@@ -1,0 +1,113 @@
+{% extends 'landing/_layout.html.twig' %}
+
+{% block title %}Ramle Wheels | Contact{% endblock %}
+
+{% set activeNav = 'contact' %}
+
+{% block body %}
+    <section class="rw-section rw-reveal is-visible" aria-labelledby="contact-page-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Contact</div>
+                <h1 id="contact-page-heading" class="rw-section-title" style="font-size:1.8rem;">
+                    Let’s plan your showroom visit.
+                </h1>
+            </div>
+            <p class="rw-section-subtitle">
+                Send a message and we’ll coordinate availability, schedules, and next steps during showroom hours.
+            </p>
+        </div>
+
+        <div class="rw-contact-grid">
+            <div style="font-size:0.9rem;color:var(--rw-muted);line-height:1.7;">
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom address</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">
+                        Ramle Wheels Showroom<br>
+                        Sample Automotive District, City Name, 0000
+                    </div>
+                </div>
+
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Phone</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 900 000 0000</div>
+                </div>
+
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Email</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">hello@ramlewheels.test</div>
+                </div>
+
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom hours</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">
+                        Monday – Saturday: 9:00am – 7:00pm<br>
+                        Sunday: By appointment only
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.9rem;">
+                    <a href="#" class="rw-ghost-cta" style="padding:0.5rem 0.9rem;font-size:0.78rem;" aria-label="Visit Ramle Wheels on Facebook">Facebook</a>
+                    <a href="#" class="rw-ghost-cta" style="padding:0.5rem 0.9rem;font-size:0.78rem;" aria-label="Visit Ramle Wheels on Instagram">Instagram</a>
+                    <a href="#" class="rw-ghost-cta" style="padding:0.5rem 0.9rem;font-size:0.78rem;" aria-label="Visit Ramle Wheels on YouTube">YouTube</a>
+                </div>
+            </div>
+
+            <div class="rw-contact-form-shell">
+                <form aria-label="Contact Ramle Wheels (marketing inquiry only)" onsubmit="return false;">
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.9rem;">
+                        <div>
+                            <label class="rw-input-label" for="rw-name">Full name</label>
+                            <input id="rw-name" name="name" type="text" class="rw-input" placeholder="Enter your name">
+                        </div>
+                        <div>
+                            <label class="rw-input-label" for="rw-phone">Phone</label>
+                            <input id="rw-phone" name="phone" type="tel" class="rw-input" placeholder="e.g. +63 900 000 0000">
+                        </div>
+                    </div>
+
+                    <div style="margin-top:0.9rem;">
+                        <label class="rw-input-label" for="rw-email">Email</label>
+                        <input id="rw-email" name="email" type="email" class="rw-input" placeholder="you@example.com">
+                    </div>
+
+                    <div style="margin-top:0.9rem;">
+                        <label class="rw-input-label" for="rw-interest">Vehicle interest (optional)</label>
+                        <input id="rw-interest" name="interest" type="text" class="rw-input" placeholder="Preferred model, budget, or category">
+                    </div>
+
+                    <div style="margin-top:0.9rem;">
+                        <label class="rw-input-label" for="rw-message">How can we help?</label>
+                        <textarea id="rw-message" name="message" class="rw-input rw-textarea" placeholder="Share your ideal visit schedule or what you’re looking for."></textarea>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;">
+                        <button class="rw-primary-cta" type="submit">
+                            <span>Send inquiry</span>
+                            <span aria-hidden="true">➜</span>
+                        </button>
+                        <p style="font-size:0.75rem;color:var(--rw-muted);max-width:16rem;margin:0;">
+                            This form is for marketing inquiries only. It doesn’t log in or access system features.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="rw-section rw-reveal" aria-labelledby="contact-cta-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Quick links</div>
+                <h2 id="contact-cta-heading" class="rw-section-title">Prefer to browse first?</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                Explore inventory and services, then message us when you’re ready.
+            </p>
+        </div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+            <a class="rw-ghost-cta" href="{{ path('app_marketing_about') }}">About Ramle Wheels</a>
+        </div>
+    </section>
+{% endblock %}
+

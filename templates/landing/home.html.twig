@@ -1,0 +1,368 @@
+{% extends 'landing/_layout.html.twig' %}
+
+{% block title %}Ramle Wheels | Home{% endblock %}
+
+{% set activeNav = 'home' %}
+
+{% block body %}
+    <!-- Section 1: Full image hero with details (like reference) -->
+    <section id="home" class="rw-hero-full rw-bleed rw-reveal is-visible" aria-labelledby="hero-heading">
+        <div class="rw-hero-full-media" aria-hidden="true">
+            <img
+                src="https://images.pexels.com/photos/1149831/pexels-photo-1149831.jpeg?auto=compress&cs=tinysrgb&w=1800"
+                alt=""
+                loading="eager"
+            >
+        </div>
+        <div class="rw-hero-full-badge">Signature Collection</div>
+        <div class="rw-hero-full-vert" aria-hidden="true">RAMLE</div>
+
+        <div class="rw-hero-full-inner">
+            <div class="rw-hero-full-top">
+                <div class="rw-kicker">
+                    <span class="rw-kicker-indicator" aria-hidden="true"></span>
+                    <span>Ramle Wheels · Premium Car Dealership</span>
+                </div>
+                <h1 id="hero-heading" class="rw-hero-full-title">Exclusive car dealings</h1>
+                <p class="rw-hero-full-subtitle">
+                    Delivering unmatched elegance, quality, and excellence in luxury automobile transactions — with a calm showroom experience and transparent guidance.
+                </p>
+                <a class="rw-hero-full-cta" href="{{ path('app_marketing_contact') }}">
+                    <span>Explore Now</span>
+                    <span aria-hidden="true">➜</span>
+                </a>
+            </div>
+
+            <div></div>
+
+            <div class="rw-hero-full-specs" aria-label="Key highlights">
+                <div class="rw-hero-spec">
+                    <div class="k">Top Speed</div>
+                    <div class="v">320 km/h</div>
+                    <div class="d">Performance-focused selection</div>
+                </div>
+                <div class="rw-hero-spec">
+                    <div class="k">Steering</div>
+                    <div class="v">Precision</div>
+                    <div class="d">Comfort and control balance</div>
+                </div>
+                <div class="rw-hero-spec">
+                    <div class="k">Engine</div>
+                    <div class="v">Turbo</div>
+                    <div class="d">Curated for smooth driving</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Showroom highlights (dealer-focused, static visuals only) -->
+    <section id="highlights" class="rw-section rw-reveal" aria-labelledby="highlights-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Showroom highlights</div>
+                <h2 id="highlights-heading" class="rw-section-title">A premium dealership experience — without the pressure.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                We focus on presentation, transparency, and a smooth buying journey. Browse with confidence, ask questions freely, and get clear answers.
+            </p>
+        </div>
+
+        <div class="rw-brand-strip rw-reveal" data-rw-delay="1">
+            <div style="text-align:center;color:rgba(229,231,235,0.9);letter-spacing:0.06em;text-transform:uppercase;font-size:0.85rem;">
+                Find Your Brand
+            </div>
+            <div class="rw-brand-row" aria-label="Popular brands">
+                {% for b in ['BMW','Toyota','Tesla','Bugatti','Honda','Mercedes','Ford','Audi','Kia','Tata'] %}
+                    <div class="rw-brand-pill">{{ b }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="rw-banner-strip rw-reveal" data-rw-delay="1" aria-hidden="true">
+            <img
+                src="https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                alt=""
+                loading="lazy"
+            >
+            <div class="rw-banner-strip-content">
+                <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.95);">Ramle Wheels</div>
+                <div style="font-size:1.15rem;font-weight:650;letter-spacing:-0.02em;color:#f9fafb;">Designed like a premium brand showroom.</div>
+                <div style="font-size:0.88rem;color:rgba(209,213,219,0.92);max-width:42rem;line-height:1.55;">
+                    Clean presentation, modern flow, and a team ready to guide you—only when you want it.
+                </div>
+            </div>
+        </div>
+
+        <div class="rw-split-cards rw-reveal" data-rw-delay="2" aria-label="Showroom pillars">
+            <article class="rw-split-card rw-reveal" data-rw-reveal-fixed>
+                <div class="rw-split-card-media" aria-hidden="true">
+                    <img
+                        src="https://images.pexels.com/photos/193991/pexels-photo-193991.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                        alt=""
+                        loading="lazy"
+                    >
+                </div>
+                <div class="rw-split-card-body">
+                    <div class="rw-split-kicker">Experience</div>
+                    <h3 class="rw-split-title">No‑pressure showroom</h3>
+                    <p class="rw-split-text">
+                        Explore at your pace with a specialist on standby — transparent answers, zero push.
+                    </p>
+                </div>
+            </article>
+
+            <article class="rw-split-card rw-split-card--reverse rw-reveal" data-rw-reveal-fixed>
+                <div class="rw-split-card-media" aria-hidden="true">
+                    <img
+                        src="https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                        alt=""
+                        loading="lazy"
+                    >
+                </div>
+                <div class="rw-split-card-body">
+                    <div class="rw-split-kicker">Quality</div>
+                    <h3 class="rw-split-title">Inspection-first standard</h3>
+                    <p class="rw-split-text">
+                        Multi‑point checks and clear condition notes — we prioritize long‑term confidence.
+                    </p>
+                </div>
+            </article>
+
+            <article class="rw-split-card rw-reveal" data-rw-reveal-fixed>
+                <div class="rw-split-card-media" aria-hidden="true">
+                    <img
+                        src="https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                        alt=""
+                        loading="lazy"
+                    >
+                </div>
+                <div class="rw-split-card-body">
+                    <div class="rw-split-kicker">Clarity</div>
+                    <h3 class="rw-split-title">Transparent guidance</h3>
+                    <p class="rw-split-text">
+                        Clear next steps for financing, trade‑ins, and paperwork — simple and modern.
+                    </p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 3: Why choose us -->
+    <section class="rw-section rw-reveal" aria-labelledby="why-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Why Choose Us</div>
+                <h2 id="why-heading" class="rw-section-title">Designed for trust, clarity, and modern comfort.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                Premium presentation is only the start — we optimize the experience around transparency and long‑term confidence.
+            </p>
+        </div>
+
+        <div class="rw-feature-row">
+            <article class="rw-feature-card">
+                <div class="rw-feature-icon" aria-hidden="true">🛡</div>
+                <h3>Reliability</h3>
+                <p>Inspection-first standards with clear notes, so you know what you’re choosing.</p>
+            </article>
+            <article class="rw-feature-card">
+                <div class="rw-feature-icon" aria-hidden="true">⚡</div>
+                <h3>Modern process</h3>
+                <p>Smooth, guided steps — from inquiry to paperwork — built to feel effortless.</p>
+            </article>
+            <article class="rw-feature-card">
+                <div class="rw-feature-icon" aria-hidden="true">👤</div>
+                <h3>Customer support</h3>
+                <p>We stay available after purchase with ownership guidance and after‑sales care.</p>
+            </article>
+            <article class="rw-feature-card">
+                <div class="rw-feature-icon" aria-hidden="true">⏱</div>
+                <h3>Efficiency</h3>
+                <p>Fast scheduling, clear availability confirmation, and a calm showroom visit flow.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- Section 4: Showcase (static, for marketing only) -->
+    <section class="rw-section rw-reveal" aria-labelledby="showcase-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Showcase</div>
+                <h2 id="showcase-heading" class="rw-section-title">The most searched styles & segments.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                A premium gallery to set the tone — for availability, schedules, and details, contact our showroom.
+            </p>
+        </div>
+
+        <div class="rw-gallery-grid">
+            {% set cards = [
+                { t:'AeroVox GT', m:'Performance coupe · Track-inspired', img:'https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+                { t:'Stratus Pulse', m:'Urban SUV · Tech comfort', img:'https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+                { t:'Neon Drift', m:'Night city drive · Sport package', img:'https://images.pexels.com/photos/193991/pexels-photo-193991.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+                { t:'Ignis Phantom', m:'Executive sedan · Luxury interior', img:'https://images.pexels.com/photos/358070/pexels-photo-358070.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+            ] %}
+            {% for c in cards %}
+                <article class="rw-gallery-card">
+                    <div class="rw-gallery-media" aria-hidden="true">
+                        <img src="{{ c.img }}" alt="" loading="lazy">
+                    </div>
+                    <div class="rw-gallery-body">
+                        <h3 class="rw-gallery-title">{{ c.t }}</h3>
+                        <div class="rw-gallery-meta">{{ c.m }}</div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Section 5: Drive into style banner -->
+    <section class="rw-section rw-reveal" aria-labelledby="drive-heading">
+        <div class="rw-wide-banner">
+            <img
+                src="https://images.pexels.com/photos/2127733/pexels-photo-2127733.jpeg?auto=compress&cs=tinysrgb&w=1600"
+                alt=""
+                loading="lazy"
+            >
+            <div class="rw-wide-banner-content">
+                <h2 id="drive-heading">Drive Into Style</h2>
+                <p>
+                    Explore a handpicked showroom experience designed to combine elegance, comfort, and lasting confidence — with a team that guides you only when you want it.
+                </p>
+                <a class="rw-primary-cta" href="{{ path('app_marketing_contact') }}">
+                    <span>Browse & Book</span>
+                    <span aria-hidden="true">➜</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services (kept) -->
+    <section id="services" class="rw-section rw-reveal" aria-labelledby="services-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Dealership services</div>
+                <h2 id="services-heading" class="rw-section-title">Support at every step — before, during, and after purchase.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                Financing, trade‑ins, inspections, and after‑sales care — streamlined into a modern experience.
+            </p>
+        </div>
+
+        <div class="rw-services-grid">
+            <article class="rw-service-card">
+                <div class="rw-service-icon" aria-hidden="true">₱</div>
+                <h3 class="rw-service-title">Flexible Financing</h3>
+                <p class="rw-service-text">Tailored plans, competitive rates, and clear monthly breakdowns.</p>
+            </article>
+            <article class="rw-service-card">
+                <div class="rw-service-icon" aria-hidden="true">⇄</div>
+                <h3 class="rw-service-title">Trade‑in Support</h3>
+                <p class="rw-service-text">Fair valuations backed by market data and transparent documentation.</p>
+            </article>
+            <article class="rw-service-card">
+                <div class="rw-service-icon" aria-hidden="true">✓</div>
+                <h3 class="rw-service-title">Multi‑Point Inspection</h3>
+                <p class="rw-service-text">Structured checks across safety, electronics, performance, and condition.</p>
+            </article>
+            <article class="rw-service-card">
+                <div class="rw-service-icon" aria-hidden="true">⚙</div>
+                <h3 class="rw-service-title">After‑Sales Care</h3>
+                <p class="rw-service-text">Ownership guidance, service coordination, and long‑term support.</p>
+            </article>
+        </div>
+
+        <div style="margin-top:1.2rem;display:flex;justify-content:flex-end;">
+            <a class="rw-ghost-cta" href="{{ path('app_marketing_contact') }}">Ask about financing & trade‑ins</a>
+        </div>
+    </section>
+
+    <!-- Section 4: About teaser -->
+    <section id="about" class="rw-section rw-reveal" aria-labelledby="about-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">About Ramle Wheels</div>
+                <h2 id="about-heading" class="rw-section-title">A dealership built around trust, detail, and modern driving.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                Curated inventory, transparent pricing, and a customer‑first experience — designed to feel premium and effortless.
+            </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,0.8fr);gap:1.6rem;align-items:start;">
+            <div style="color:var(--rw-muted);line-height:1.7;">
+                Ramle Wheels curates high‑quality vehicles for drivers who want more than a transaction. We focus on presentation, inspection, and clear communication — so choosing your next car feels confident and straightforward.
+                <div style="margin-top:1rem;">
+                    <a class="rw-primary-cta" href="{{ path('app_marketing_about') }}">
+                        <span>Learn more</span>
+                        <span aria-hidden="true">➜</span>
+                    </a>
+                </div>
+            </div>
+            <div class="rw-card" style="padding:1rem;">
+                <div style="font-size:1.35rem;font-weight:600;color:#f9fafb;letter-spacing:-0.03em;">72‑pt</div>
+                <div style="margin-top:0.15rem;color:var(--rw-muted);">Inspection checklist</div>
+                <div style="margin-top:0.45rem;font-size:0.85rem;color:rgba(209,213,219,0.92);line-height:1.55;">
+                    Every unit is reviewed for safety, performance, and presentation before it reaches the floor.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: Contact teaser -->
+    <section id="contact" class="rw-section rw-reveal" aria-labelledby="contact-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Contact</div>
+                <h2 id="contact-heading" class="rw-section-title">Visit the showroom or send a quick inquiry.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                Our team will coordinate a viewing schedule and confirm availability during showroom hours.
+            </p>
+        </div>
+
+        <div class="rw-contact-grid">
+            <div style="color:var(--rw-muted);font-size:0.9rem;line-height:1.7;">
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom address</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">Sample Automotive District, City Name, 0000</div>
+                </div>
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Phone</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 900 000 0000</div>
+                </div>
+                <div style="margin-bottom:0.9rem;">
+                    <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Email</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">hello@ramlewheels.test</div>
+                </div>
+                <a class="rw-ghost-cta" href="{{ path('app_marketing_contact') }}">Open full contact page</a>
+            </div>
+
+            <div class="rw-contact-form-shell">
+                <form aria-label="Contact Ramle Wheels" onsubmit="return false;">
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.9rem;">
+                        <div>
+                            <label class="rw-input-label" for="rw-home-name">Full name</label>
+                            <input id="rw-home-name" name="name" type="text" class="rw-input" placeholder="Enter your name">
+                        </div>
+                        <div>
+                            <label class="rw-input-label" for="rw-home-phone">Phone</label>
+                            <input id="rw-home-phone" name="phone" type="tel" class="rw-input" placeholder="e.g. +63 900 000 0000">
+                        </div>
+                    </div>
+                    <div style="margin-top:0.9rem;">
+                        <label class="rw-input-label" for="rw-home-message">Message</label>
+                        <textarea id="rw-home-message" name="message" class="rw-input rw-textarea" placeholder="Tell us what vehicle you’re looking for and your preferred visit time."></textarea>
+                    </div>
+                    <div style="margin-top:1.1rem;display:flex;justify-content:flex-end;">
+                        <button class="rw-primary-cta" type="submit">
+                            <span>Send inquiry</span>
+                            <span aria-hidden="true">➜</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+

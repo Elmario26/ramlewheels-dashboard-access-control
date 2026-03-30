@@ -37,6 +37,11 @@
                                 'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
                             }) }}
 
+                            {{ form_row(registrationForm.email, {
+                                'row_attr': {'class': 'text-sm text-gray-700'},
+                                'attr': {'class': 'w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition'}
+                            }) }}
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {{ form_row(registrationForm.firstName, {
                                     'row_attr': {'class': 'text-sm text-gray-700'},

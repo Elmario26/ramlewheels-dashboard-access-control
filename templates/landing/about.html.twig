@@ -1,0 +1,85 @@
+{% extends 'landing/_layout.html.twig' %}
+
+{% block title %}Ramle Wheels | About Us{% endblock %}
+
+{% set activeNav = 'about' %}
+
+{% block body %}
+    <section class="rw-section rw-reveal is-visible" aria-labelledby="about-page-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">About Us</div>
+                <h1 id="about-page-heading" class="rw-section-title" style="font-size:1.8rem;">
+                    A modern dealership built on trust and detail.
+                </h1>
+            </div>
+            <p class="rw-section-subtitle">
+                Our mission is simple: deliver high‑quality vehicles with a premium, transparent experience.
+            </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,0.8fr);gap:1.6rem;align-items:start;">
+            <div style="color:var(--rw-muted);line-height:1.75;font-size:0.95rem;">
+                <p style="margin:0;">
+                    Ramle Wheels was created for drivers who want more than a transaction. We curate each vehicle, inspect it thoroughly, and present it with the kind of care you’d expect from a premium automotive brand.
+                </p>
+                <p style="margin:0.95rem 0 0;">
+                    With years of combined experience in dealership operations and customer care, our team focuses on clarity — straightforward pricing, honest guidance, and a calm showroom environment where you can choose with confidence.
+                </p>
+                <p style="margin:0.95rem 0 0;">
+                    We’re committed to quality vehicles and long‑term ownership confidence. From first inquiry to after‑sales support, we aim to make every step feel smooth and modern.
+                </p>
+            </div>
+
+            <div class="rw-card" style="padding:1rem;">
+                <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Our standards</div>
+                <div style="margin-top:0.75rem;display:grid;gap:0.6rem;">
+                    <div style="color:#e5e7eb;">• Curated inventory</div>
+                    <div style="color:#e5e7eb;">• Transparent guidance</div>
+                    <div style="color:#e5e7eb;">• Multi‑point inspection</div>
+                    <div style="color:#e5e7eb;">• Customer‑first service</div>
+                </div>
+                <div style="margin-top:1rem;">
+                    <a class="rw-ghost-cta" href="{{ path('app_marketing_contact') }}">Talk to our team</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rw-section rw-reveal" aria-labelledby="about-stats-heading">
+        <div class="rw-section-header">
+            <div>
+                <div class="rw-section-kicker">Experience</div>
+                <h2 id="about-stats-heading" class="rw-section-title">Built to be premium, designed to be simple.</h2>
+            </div>
+            <p class="rw-section-subtitle">
+                A consistent process that prioritizes vehicle quality and customer clarity.
+            </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem;">
+            <article class="rw-card" style="padding:1rem;">
+                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">3K+</div>
+                <div style="margin-top:0.15rem;color:var(--rw-muted);">Vehicles delivered</div>
+                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
+                    Customer handovers with guided walkthroughs and ownership tips.
+                </div>
+            </article>
+            <article class="rw-card" style="padding:1rem;">
+                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">72‑pt</div>
+                <div style="margin-top:0.15rem;color:var(--rw-muted);">Inspection checklist</div>
+                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
+                    Safety, performance, electronics, and cosmetic quality checks.
+                </div>
+            </article>
+            <article class="rw-card" style="padding:1rem;">
+                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">15+</div>
+                <div style="margin-top:0.15rem;color:var(--rw-muted);">Years of expertise</div>
+                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
+                    Combined experience across sales, service coordination, and customer care.
+                </div>
+            </article>
+        </div>
+    </section>
+{% endblock %}
+

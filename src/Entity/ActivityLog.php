@@ -41,7 +41,7 @@ class ActivityLog
     #[ORM\Column(length: 50)]
     private ?string $action = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $entityType = null;
 
     #[ORM\Column(nullable: true)]

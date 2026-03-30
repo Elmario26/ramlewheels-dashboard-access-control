@@ -79,6 +79,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'assignedMechanic', targetEntity: Service::class)]
     private Collection $assignedServices;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isVerified = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $verificationToken = null;
+
     public function __construct()
     {
         $this->assignedServices = new ArrayCollection();
@@ -393,5 +399,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return 'unknown';
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): static
+    {
+        $this->verificationToken = $verificationToken;
+
+        return $this;
     }
 }

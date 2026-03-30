@@ -23,11 +23,20 @@ class MainController extends AbstractController
     #[Route('/', name: 'app_home', methods: ['GET'])]
     public function home(): Response
     {
-        if ($this->getUser()) {
-            return $this->redirectToRoute('app_dashboard');
-        }
+        return $this->render('landing/home.html.twig');
+    }
 
-        return $this->redirectToRoute('app_login');
+    #[Route('/about-us', name: 'app_marketing_about', methods: ['GET'])]
+    public function marketingAbout(): Response
+    {
+        return $this->render('landing/about.html.twig');
+    }
+
+
+    #[Route('/contact', name: 'app_marketing_contact', methods: ['GET'])]
+    public function marketingContact(): Response
+    {
+        return $this->render('landing/contact.html.twig');
     }
 
     #[Route('/inventory', name: 'app_inventory', methods: ['GET'])]

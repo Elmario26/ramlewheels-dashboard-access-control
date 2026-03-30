@@ -6,7 +6,6 @@ use App\Entity\User;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface;
@@ -14,11 +13,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+use App\Service\EmailVerificationService; // NEW - Inject email service
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface; // NEW - For generating absolute URLs
+
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager, LoggerInterface $logger): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+        LoggerInterface $logger,
+        EmailVerificationService $emailVerificationService // ADDED
+        ): Response {
         // Log POST request headers and body for debugging 422 responses
         if ($request->isMethod('POST')) {
             $logger->debug('Registration POST headers', array_map(function($v){ return implode(', ', (array) $v); }, $request->headers->all()));
@@ -54,6 +61,11 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
+            $verificationToken = $emailVerificationService->generateVerificationToken();
+            $user->setVerificationToken($verificationToken);
+            $user->setIsVerified(false);
+            
+            // Generate verification token and set it in the user
             $entityManager->persist($user);
             try {
                 $entityManager->flush();
@@ -66,15 +78,24 @@ class RegistrationController extends AbstractController
                 ]);
             }
 
-            // do anything else you need here, like send an email
+             // Generate verification URL
+            $verificationUrl = $this->generateUrl(
+            'app_verify_email',
+            ['token' => $verificationToken],
+            UrlGeneratorInterface::ABSOLUTE_URL
+            );
 
-            $response = $security->login($user, 'App\\Security\\LoginAuthenticator', 'main');
-            if ($response instanceof Response) {
-                return $response;
-            }
+            // Send verification email
+            $emailVerificationService->sendVerificationEmail($user, $verificationUrl);
+            $this->addFlash('success', 'Registration successful! Please check your email to verify your account.');
+            $verificationUrl = $this->generateUrl('app_verify_email', ['token' => $verificationToken], UrlGeneratorInterface::ABSOLUTE_URL);
 
-            // fallback: redirect to dashboard
-            return $this->redirectToRoute('app_dashboard');
+            return $this->redirectToRoute('app_login');
+
+           
+    
+
+            // Send verification email
         }
 
         return $this->render('registration/register.html.twig', [

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./landing.css";
 
 /* remove any invalid @source lines that break CSS build */
 /* optional helper:
