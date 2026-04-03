@@ -14,18 +14,20 @@
                 loading="eager"
             >
         </div>
-        <div class="rw-hero-full-badge">Signature Collection</div>
-        <div class="rw-hero-full-vert" aria-hidden="true">RAMLE</div>
 
         <div class="rw-hero-full-inner">
+            <div class="rw-hero-full-strip">
+                <div class="rw-hero-full-badge">Signature Collection</div>
+                <div class="rw-hero-full-vert" aria-hidden="true">RAMLE</div>
+            </div>
             <div class="rw-hero-full-top">
                 <div class="rw-kicker">
                     <span class="rw-kicker-indicator" aria-hidden="true"></span>
                     <span>Ramle Wheels · Premium Car Dealership</span>
                 </div>
-                <h1 id="hero-heading" class="rw-hero-full-title">Exclusive car dealings</h1>
+                <h1 id="hero-heading" class="rw-hero-full-title">DRIVE WHAT YOU DESERVE</h1>
                 <p class="rw-hero-full-subtitle">
-                    Delivering unmatched elegance, quality, and excellence in luxury automobile transactions — with a calm showroom experience and transparent guidance.
+                    Delivering unmatched elegance, quality, and excellence in luxury automobile transactions with a calm showroom experience and transparent guidance.
                 </p>
                 <a class="rw-hero-full-cta" href="{{ path('app_marketing_contact') }}">
                     <span>Explore Now</span>
@@ -37,19 +39,19 @@
 
             <div class="rw-hero-full-specs" aria-label="Key highlights">
                 <div class="rw-hero-spec">
-                    <div class="k">Top Speed</div>
-                    <div class="v">320 km/h</div>
-                    <div class="d">Performance-focused selection</div>
+                    <div class="k">Inventory</div>
+                    <div class="v">200+ Vehicles</div>
+                    <div class="d">New, pre-owned & certified</div>
                 </div>
                 <div class="rw-hero-spec">
-                    <div class="k">Steering</div>
-                    <div class="v">Precision</div>
-                    <div class="d">Comfort and control balance</div>
+                    <div class="k">Financing</div>
+                    <div class="v">Same-Day Approval</div>
+                    <div class="d">Flexible plans for every budget</div>
                 </div>
                 <div class="rw-hero-spec">
-                    <div class="k">Engine</div>
-                    <div class="v">Turbo</div>
-                    <div class="d">Curated for smooth driving</div>
+                    <div class="k">Warranty</div>
+                    <div class="v">2-Year Coverage</div>
+                    <div class="d">On all certified pre-owned cars</div>
                 </div>
             </div>
         </div>
@@ -60,7 +62,7 @@
         <div class="rw-section-header">
             <div>
                 <div class="rw-section-kicker">Showroom highlights</div>
-                <h2 id="highlights-heading" class="rw-section-title">A premium dealership experience — without the pressure.</h2>
+                <h2 id="highlights-heading" class="rw-section-title">A premium dealership experience without the pressure.</h2>
             </div>
             <p class="rw-section-subtitle">
                 We focus on presentation, transparency, and a smooth buying journey. Browse with confidence, ask questions freely, and get clear answers.
@@ -72,8 +74,30 @@
                 Find Your Brand
             </div>
             <div class="rw-brand-row" aria-label="Popular brands">
-                {% for b in ['BMW','Toyota','Tesla','Bugatti','Honda','Mercedes','Ford','Audi','Kia','Tata'] %}
-                    <div class="rw-brand-pill">{{ b }}</div>
+                {% set brands = [
+                    { name: 'BMW', file: 'bmw.png' },
+                    { name: 'Toyota', file: 'toyota.png' },
+                    { name: 'Tesla', file: 'tesla.png' },
+                    { name: 'Honda', file: 'honda.png' },
+                    { name: 'Mercedes', file: 'mercedes.png' },
+                    { name: 'Ford', file: 'ford.png' },
+                    { name: 'Audi', file: 'audi.png' },
+                    { name: 'Kia', file: 'kia.png' },
+                    { name: 'Hyundai', file: 'hyundai.png' },
+                    { name: 'Mitsubishi', file: 'mitsubishi.png' }
+                ] %}
+
+                {% for brand in brands %}
+                    <div class="rw-brand-pill" data-brand="{{ brand.name }}">
+                        <img
+                            class="rw-brand-logo"
+                            src="{{ asset('images/brands/' ~ brand.file) }}"
+                            alt="{{ brand.name }} logo"
+                            loading="lazy"
+                            decoding="async"
+                            onerror="this.parentElement.textContent=this.parentElement.dataset.brand;"
+                        >
+                    </div>
                 {% endfor %}
             </div>
         </div>
@@ -106,7 +130,7 @@
                     <div class="rw-split-kicker">Experience</div>
                     <h3 class="rw-split-title">No‑pressure showroom</h3>
                     <p class="rw-split-text">
-                        Explore at your pace with a specialist on standby — transparent answers, zero push.
+                        Explore at your pace with a specialist on standby transparent answers, zero push.
                     </p>
                 </div>
             </article>
@@ -123,7 +147,7 @@
                     <div class="rw-split-kicker">Quality</div>
                     <h3 class="rw-split-title">Inspection-first standard</h3>
                     <p class="rw-split-text">
-                        Multi‑point checks and clear condition notes — we prioritize long‑term confidence.
+                        Multi‑point checks and clear condition notes we prioritize long‑term confidence.
                     </p>
                 </div>
             </article>
@@ -140,7 +164,7 @@
                     <div class="rw-split-kicker">Clarity</div>
                     <h3 class="rw-split-title">Transparent guidance</h3>
                     <p class="rw-split-text">
-                        Clear next steps for financing, trade‑ins, and paperwork — simple and modern.
+                        Clear next steps for financing, trade‑ins, and paperwork simple and modern.
                     </p>
                 </div>
             </article>
@@ -155,7 +179,7 @@
                 <h2 id="why-heading" class="rw-section-title">Designed for trust, clarity, and modern comfort.</h2>
             </div>
             <p class="rw-section-subtitle">
-                Premium presentation is only the start — we optimize the experience around transparency and long‑term confidence.
+                Premium presentation is only the start we optimize the experience around transparency and long‑term confidence.
             </p>
         </div>
 
@@ -168,7 +192,7 @@
             <article class="rw-feature-card">
                 <div class="rw-feature-icon" aria-hidden="true">⚡</div>
                 <h3>Modern process</h3>
-                <p>Smooth, guided steps — from inquiry to paperwork — built to feel effortless.</p>
+                <p>Smooth, guided steps from inquiry to paperwork built to feel effortless.</p>
             </article>
             <article class="rw-feature-card">
                 <div class="rw-feature-icon" aria-hidden="true">👤</div>
@@ -191,7 +215,7 @@
                 <h2 id="showcase-heading" class="rw-section-title">The most searched styles & segments.</h2>
             </div>
             <p class="rw-section-subtitle">
-                A premium gallery to set the tone — for availability, schedules, and details, contact our showroom.
+                A premium gallery to set the tone for availability, schedules, and details, contact our showroom.
             </p>
         </div>
 
@@ -285,11 +309,11 @@
                 <h2 id="about-heading" class="rw-section-title">A dealership built around trust, detail, and modern driving.</h2>
             </div>
             <p class="rw-section-subtitle">
-                Curated inventory, transparent pricing, and a customer‑first experience — designed to feel premium and effortless.
+                Curated inventory, transparent pricing, and a customer‑first experience designed to feel premium and effortless.
             </p>
         </div>
 
-        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,0.8fr);gap:1.6rem;align-items:start;">
+        <div class="rw-about-intro">
             <div style="color:var(--rw-muted);line-height:1.7;">
                 Ramle Wheels curates high‑quality vehicles for drivers who want more than a transaction. We focus on presentation, inspection, and clear communication — so choosing your next car feels confident and straightforward.
                 <div style="margin-top:1rem;">
@@ -325,22 +349,22 @@
             <div style="color:var(--rw-muted);font-size:0.9rem;line-height:1.7;">
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom address</div>
-                    <div style="margin-top:0.15rem;color:#e5e7eb;">Sample Automotive District, City Name, 0000</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">Dumaguete City, Negros Oriental, Philippines</div>
                 </div>
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Phone</div>
-                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 900 000 0000</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 917 123 4567</div>
                 </div>
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Email</div>
-                    <div style="margin-top:0.15rem;color:#e5e7eb;">hello@ramlewheels.test</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">ramlelariosa26@gmail.com</div>
                 </div>
                 <a class="rw-ghost-cta" href="{{ path('app_marketing_contact') }}">Open full contact page</a>
             </div>
 
             <div class="rw-contact-form-shell">
                 <form aria-label="Contact Ramle Wheels" onsubmit="return false;">
-                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.9rem;">
+                    <div class="rw-form-two-col">
                         <div>
                             <label class="rw-input-label" for="rw-home-name">Full name</label>
                             <input id="rw-home-name" name="name" type="text" class="rw-input" placeholder="Enter your name">

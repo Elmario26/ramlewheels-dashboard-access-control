@@ -51,6 +51,7 @@
                     <a href="{{ path('app_home') }}">Home</a>
                     <a href="{{ path('app_marketing_about') }}">About Us</a>
                     <a href="{{ path('app_marketing_contact') }}">Contact</a>
+                    <a class="rw-nav-mobile-cta" href="{{ path('app_marketing_contact') }}">Book a Showroom Visit</a>
                 </div>
             </div>
         </header>
@@ -73,8 +74,8 @@
                     </div>
                 </div>
                 <div class="rw-footer-copy">
-                    <div>Showroom: Sample Automotive District, City Name</div>
-                    <div style="margin-top:0.2rem;">Phone: +63 900 000 0000 · Email: hello@ramlewheels.test</div>
+                    <div>Dumaguete City, Negros Oriental, Philippines</div>
+                    <div style="margin-top:0.2rem;">Phone: +63 917 123 4567 · Email: ramlelariosa26@gmail.com</div>
                     <div style="margin-top:0.5rem;">© {{ "now"|date("Y") }} Ramle Wheels. All rights reserved.</div>
                 </div>
             </div>
@@ -124,13 +125,29 @@
             const navToggle = root.querySelector('.rw-nav-toggle');
             const mobileNav = root.querySelector('[data-rw-nav-mobile]');
 
+            function setMobileNavOpen(open) {
+                if (!navToggle || !mobileNav) return;
+                navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+                mobileNav.setAttribute('data-open', open ? 'true' : 'false');
+                document.body.style.overflow = open ? 'hidden' : '';
+                navToggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+            }
+
             if (navToggle && mobileNav) {
                 navToggle.addEventListener('click', () => {
                     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-                    navToggle.setAttribute('aria-expanded', String(!expanded));
-                    mobileNav.setAttribute('data-open', expanded ? 'false' : 'true');
+                    setMobileNavOpen(!expanded);
+                });
+                mobileNav.querySelectorAll('a').forEach((link) => {
+                    link.addEventListener('click', () => setMobileNavOpen(false));
                 });
             }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape' || !mobileNav || mobileNav.getAttribute('data-open') !== 'true') return;
+                setMobileNavOpen(false);
+                if (navToggle) navToggle.focus();
+            });
 
             // Smooth scroll for in-page CTAs only (anchors)
             const scrollTriggers = root.querySelectorAll('[data-scroll-target]');
