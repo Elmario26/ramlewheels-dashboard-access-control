@@ -11,7 +11,14 @@ security:
             entity:
                 class: App\Entity\User
                 property: username
-    
+        app_user_email_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        app_chain_user_provider:
+            chain:
+                providers: [app_user_email_provider, app_user_provider]
+
     # Define role hierarchy (higher roles inherit permissions from lower roles)
     role_hierarchy:
         ROLE_ADMIN: ['ROLE_MANAGER', 'ROLE_STAFF', 'ROLE_MECHANIC']
@@ -22,16 +29,37 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js|build)/
             security: false
+
+        api_login:
+            pattern: ^/api/login$
+            stateless: true
+            provider: app_chain_user_provider
+            json_login:
+                check_path: /api/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_chain_user_provider
+            jwt: ~
+
         main:
             lazy: true
             provider: app_user_provider
             custom_authenticators:
                 - App\Security\LoginAuthenticator
+                - App\Security\GoogleAuthenticator
             logout:
                 path: app_logout
                 target: app_login
                 invalidate_session: true
             entry_point: App\Security\LoginAuthenticator
+
+            
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -53,6 +81,7 @@ security:
         # Allow public/anonymous access to login, logout, register and build/assets so unauthenticated users
         # can load the login page, registration page, and required front-end files
         # NOTE: Use PUBLIC_ACCESS (not IS_AUTHENTICATED_ANONYMOUSLY which is deprecated in Symfony 7)
+        - { path: "^/connect/google", roles: "PUBLIC_ACCESS" }
         - { path: "^/login$", roles: "PUBLIC_ACCESS" }
         - { path: "^/logout$", roles: "PUBLIC_ACCESS" }
         - { path: "^/register$", roles: "PUBLIC_ACCESS" }
@@ -74,7 +103,11 @@ security:
 
         # Services: Mechanics (and higher explicitly)
         - { path: "^/services", roles: [ "ROLE_MECHANIC", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF" ] }
-        
+
+        # API Platform + JWT: reachable by anonymous; each operation enforces its own security rules
+        - { path: "^/api/login$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api", roles: "IS_AUTHENTICATED_FULLY" }
+
         # Everything else requires ROLE_STAFF or higher (Admin/Manager inherit Staff)
         - { path: "^/", roles: "ROLE_STAFF" }
 

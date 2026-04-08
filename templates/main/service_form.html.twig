@@ -68,10 +68,14 @@
                     {{ form_row(form.status) }}
                 </div>
                 <div>
-                    {{ form_row(form.serviceDate) }}
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Service Date</label>
+                    {{ form_widget(form.serviceDate, {'attr': {'min': 'now'|date('Y-m-d\\TH:i')}}) }}
+                    {{ form_errors(form.serviceDate) }}
                 </div>
                 <div>
-                    {{ form_row(form.completionDate) }}
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Completion Date</label>
+                    {{ form_widget(form.completionDate, {'attr': {'min': 'now'|date('Y-m-d\\TH:i')}}) }}
+                    {{ form_errors(form.completionDate) }}
                 </div>
             </div>
 
@@ -151,6 +155,51 @@
     // Form validation
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
+        const serviceDateInput = document.querySelector('input[name="service[serviceDate]"]');
+        const completionDateInput = document.querySelector('input[name="service[completionDate]"]');
+        
+        // Set min attribute to today for both date inputs (local timezone)
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const minDate = `${year}-${month}-${day}`;
+        const minDateTime = `${minDate}T00:00`;
+        
+        if (serviceDateInput) {
+            serviceDateInput.min = minDateTime;
+        }
+        if (completionDateInput) {
+            completionDateInput.min = minDateTime;
+        }
+        
+        // Prevent past dates in date inputs - check on change, input, and blur
+        function preventPastDates(input) {
+            if (!input) return;
+            
+            function validateDate() {
+                if (!input.value) return;
+                
+                const selectedDate = new Date(input.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    showGlobalResultModal('error', 'Invalid Date', 'Please select today or a future date.');
+                    input.value = '';
+                    input.classList.add('border-red-500');
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+            }
+            
+            input.addEventListener('change', validateDate);
+            input.addEventListener('blur', validateDate);
+        }
+        
+        preventPastDates(serviceDateInput);
+        preventPastDates(completionDateInput);
+        
         if (form) {
             form.addEventListener('submit', function(e) {
                 const customerSelect = document.querySelector('select[name="service[customer]"]');
@@ -169,6 +218,26 @@
                 } else if (!costInput.value || parseFloat(costInput.value) <= 0) {
                     isValid = false;
                     errorMessage = 'Please enter a valid service cost.';
+                }
+                
+                // Validate dates on submit
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (serviceDateInput.value) {
+                    const serviceDate = new Date(serviceDateInput.value);
+                    if (serviceDate < today) {
+                        isValid = false;
+                        errorMessage = 'Service date cannot be in the past.';
+                    }
+                }
+                
+                if (completionDateInput && completionDateInput.value) {
+                    const completionDate = new Date(completionDateInput.value);
+                    if (completionDate < today) {
+                        isValid = false;
+                        errorMessage = 'Completion date cannot be in the past.';
+                    }
                 }
                 
                 if (!isValid) {

@@ -5,6 +5,8 @@
 {% set activeNav = 'contact' %}
 
 {% block body %}
+{{ encore_entry_link_tags('contact') }}
+
     <section class="rw-section rw-reveal is-visible" aria-labelledby="contact-page-heading">
         <div class="rw-section-header">
             <div>
@@ -13,9 +15,6 @@
                     Let’s plan your showroom visit.
                 </h1>
             </div>
-            <p class="rw-section-subtitle">
-                Send a message and we’ll coordinate availability, schedules, and next steps during showroom hours.
-            </p>
         </div>
 
         <div class="rw-contact-grid">
@@ -24,25 +23,25 @@
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom address</div>
                     <div style="margin-top:0.15rem;color:#e5e7eb;">
                         Ramle Wheels Showroom<br>
-                        Sample Automotive District, City Name, 0000
+                        Dumaguete City, Negros Oriental, 6200
                     </div>
                 </div>
 
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Phone</div>
-                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 900 000 0000</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">+63 912 345 6789</div>
                 </div>
 
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Email</div>
-                    <div style="margin-top:0.15rem;color:#e5e7eb;">hello@ramlewheels.test</div>
+                    <div style="margin-top:0.15rem;color:#e5e7eb;">hello@ramlewheels.com</div>
                 </div>
 
                 <div style="margin-bottom:0.9rem;">
                     <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Showroom hours</div>
                     <div style="margin-top:0.15rem;color:#e5e7eb;">
-                        Monday – Saturday: 9:00am – 7:00pm<br>
-                        Sunday: By appointment only
+                        Monday – Sunday: 9:00am – 7:00pm<br>
+                        Saturday: Closed
                     </div>
                 </div>
 
@@ -54,41 +53,78 @@
             </div>
 
             <div class="rw-contact-form-shell">
-                <form aria-label="Contact Ramle Wheels (marketing inquiry only)" onsubmit="return false;">
-                    <div class="rw-form-two-col">
-                        <div>
-                            <label class="rw-input-label" for="rw-name">Full name</label>
-                            <input id="rw-name" name="name" type="text" class="rw-input" placeholder="Enter your name">
+                <!-- Loading State -->
+                <div id="form-feedback-loading" class="rw-form-feedback rw-form-feedback--loading" role="status" aria-live="polite">
+                    <div class="rw-form-feedback__spinner" aria-hidden="true"></div>
+                    <span>Sending your message...</span>
+                </div>
+
+                <!-- Success State -->
+                <div id="form-feedback-success" class="rw-form-feedback rw-form-feedback--success" role="status" aria-live="polite">
+                    <svg class="rw-form-feedback__icon" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Message sent successfully! We'll get back to you within 24 hours.</span>
+                </div>
+
+                <!-- Error State -->
+                <div id="form-feedback-error" class="rw-form-feedback rw-form-feedback--error" role="alert" aria-live="assertive">
+                    <svg class="rw-form-feedback__icon" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span id="error-message-text">Something went wrong. Please try again or contact us directly.</span>
+                </div>
+
+                <!-- Success Message (replaces form after submission) -->
+                <div id="success-message" class="rw-success-message">
+                    <div class="rw-success-message__icon">✓</div>
+                    <h3 class="rw-success-message__title">Thank You!</h3>
+                    <p class="rw-success-message__text">
+                        Your inquiry has been received. Our team will review your message and contact you within 24 hours to schedule your showroom visit.
+                    </p>
+                </div>
+
+                <form id="contact-form" class="rw-contact-form" aria-label="Contact Ramle Wheels">
+                    <div class="rw-form-fields">
+                        <div class="rw-form-two-col">
+                            <div>
+                                <label class="rw-input-label" for="rw-name">Full name *</label>
+                                <input id="rw-name" name="name" type="text" class="rw-input" placeholder="Enter your name" required>
+                                <span class="rw-input-error" id="name-error">Please enter your name</span>
+                            </div>
+                            <div>
+                                <label class="rw-input-label" for="rw-phone">Phone *</label>
+                                <input id="rw-phone" name="phone" type="tel" class="rw-input" placeholder="e.g. +63 900 000 0000" required>
+                                <span class="rw-input-error" id="phone-error">Please enter a valid phone number</span>
+                            </div>
                         </div>
-                        <div>
-                            <label class="rw-input-label" for="rw-phone">Phone</label>
-                            <input id="rw-phone" name="phone" type="tel" class="rw-input" placeholder="e.g. +63 900 000 0000">
+
+                        <div style="margin-top:0.9rem;">
+                            <label class="rw-input-label" for="rw-email">Email *</label>
+                            <input id="rw-email" name="email" type="email" class="rw-input" placeholder="you@example.com" required>
+                            <span class="rw-input-error" id="email-error">Please enter a valid email address</span>
                         </div>
-                    </div>
 
-                    <div style="margin-top:0.9rem;">
-                        <label class="rw-input-label" for="rw-email">Email</label>
-                        <input id="rw-email" name="email" type="email" class="rw-input" placeholder="you@example.com">
-                    </div>
+                        <div style="margin-top:0.9rem;">
+                            <label class="rw-input-label" for="rw-interest">Vehicle interest (optional)</label>
+                            <input id="rw-interest" name="interest" type="text" class="rw-input" placeholder="Preferred model, budget, or category">
+                        </div>
 
-                    <div style="margin-top:0.9rem;">
-                        <label class="rw-input-label" for="rw-interest">Vehicle interest (optional)</label>
-                        <input id="rw-interest" name="interest" type="text" class="rw-input" placeholder="Preferred model, budget, or category">
-                    </div>
+                        <div style="margin-top:0.9rem;">
+                            <label class="rw-input-label" for="rw-message">How can we help? *</label>
+                            <textarea id="rw-message" name="message" class="rw-input rw-textarea" placeholder="Share your ideal visit schedule or what you're looking for." required></textarea>
+                            <span class="rw-input-error" id="message-error">Please enter a message</span>
+                        </div>
 
-                    <div style="margin-top:0.9rem;">
-                        <label class="rw-input-label" for="rw-message">How can we help?</label>
-                        <textarea id="rw-message" name="message" class="rw-input rw-textarea" placeholder="Share your ideal visit schedule or what you’re looking for."></textarea>
-                    </div>
-
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;">
-                        <button class="rw-primary-cta" type="submit">
-                            <span>Send inquiry</span>
-                            <span aria-hidden="true">➜</span>
-                        </button>
-                        <p style="font-size:0.75rem;color:var(--rw-muted);max-width:16rem;margin:0;">
-                            This form is for marketing inquiries only. It doesn’t log in or access system features.
-                        </p>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;">
+                            <button id="submit-btn" class="rw-primary-cta" type="submit">
+                                <span class="rw-btn-text">Send inquiry</span>
+                                <span aria-hidden="true">➜</span>
+                            </button>
+                            <p style="font-size:0.75rem;color:var(--rw-muted);max-width:16rem;margin:0;">
+                                This form is for marketing inquiries only. It doesn't log in or access system features.
+                            </p>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -109,5 +145,124 @@
             <a class="rw-ghost-cta" href="{{ path('app_marketing_about') }}">About Ramle Wheels</a>
         </div>
     </section>
+
+<script>
+(function() {
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const feedbackLoading = document.getElementById('form-feedback-loading');
+    const feedbackSuccess = document.getElementById('form-feedback-success');
+    const feedbackError = document.getElementById('form-feedback-error');
+    const errorText = document.getElementById('error-message-text');
+    const successMessage = document.getElementById('success-message');
+
+    function showFeedback(type, message) {
+        feedbackLoading.classList.remove('is-visible');
+        feedbackSuccess.classList.remove('is-visible');
+        feedbackError.classList.remove('is-visible');
+
+        if (type === 'loading') {
+            feedbackLoading.classList.add('is-visible');
+            submitBtn.classList.add('is-loading');
+            submitBtn.disabled = true;
+        } else if (type === 'success') {
+            feedbackSuccess.classList.add('is-visible');
+            submitBtn.classList.remove('is-loading');
+            submitBtn.disabled = false;
+            setTimeout(() => {
+                form.classList.add('is-submitted');
+            }, 2000);
+        } else if (type === 'error') {
+            feedbackError.classList.add('is-visible');
+            if (message) errorText.textContent = message;
+            submitBtn.classList.remove('is-loading');
+            submitBtn.disabled = false;
+        }
+    }
+
+    function validateForm() {
+        let isValid = true;
+        const name = document.getElementById('rw-name');
+        const phone = document.getElementById('rw-phone');
+        const email = document.getElementById('rw-email');
+        const message = document.getElementById('rw-message');
+
+        [name, phone, email, message].forEach(field => {
+            field.classList.remove('is-error');
+            document.getElementById(field.id.replace('rw-', '') + '-error').classList.remove('is-visible');
+        });
+
+        if (!name.value.trim()) {
+            name.classList.add('is-error');
+            document.getElementById('name-error').classList.add('is-visible');
+            isValid = false;
+        }
+
+        if (!phone.value.trim() || phone.value.length < 10) {
+            phone.classList.add('is-error');
+            document.getElementById('phone-error').classList.add('is-visible');
+            isValid = false;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.value.trim() || !emailRegex.test(email.value)) {
+            email.classList.add('is-error');
+            document.getElementById('email-error').classList.add('is-visible');
+            isValid = false;
+        }
+
+        if (!message.value.trim()) {
+            message.classList.add('is-error');
+            document.getElementById('message-error').classList.add('is-visible');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    async function submitForm(formData) {
+        const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        return response.ok;
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        showFeedback('loading');
+
+        const formData = {
+            name: document.getElementById('rw-name').value.trim(),
+            phone: document.getElementById('rw-phone').value.trim(),
+            email: document.getElementById('rw-email').value.trim(),
+            interest: document.getElementById('rw-interest').value.trim(),
+            message: document.getElementById('rw-message').value.trim()
+        };
+
+        try {
+            const success = await submitForm(formData);
+            if (success) {
+                showFeedback('success');
+            } else {
+                showFeedback('error', 'Failed to send message. Please try again.');
+            }
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showFeedback('error', 'Network error. Please check your connection and try again.');
+        }
+    });
+
+    ['rw-name', 'rw-phone', 'rw-email', 'rw-message'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            this.classList.remove('is-error');
+            document.getElementById(this.id.replace('rw-', '') + '-error').classList.remove('is-visible');
+        });
+    });
+})();
+</script>
 {% endblock %}
 

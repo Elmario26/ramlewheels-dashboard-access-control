@@ -76,7 +76,7 @@
                             <span class="text-red-400" id="customer-error" style="display: none;">Required</span>
                         </label>
                         <div class="relative">
-                            {{ form_widget(form.customer, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-controller': 'customer-select', 'data-field': 'customer'}}) }}
+                            {{ form_widget(form.customer, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200 appearance-none pr-10', 'data-controller': 'customer-select', 'data-field': 'customer'}}) }}
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                 <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -139,6 +139,15 @@
                     Sale Information
                 </h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            Payment Method
+                        </label>
+                        {{ form_widget(form.paymentMethod, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'paymentMethod'}}) }}
+                        {{ form_errors(form.paymentMethod) }}
+                        <p class="mt-1 text-xs text-gray-400">Select a payment method first to enable relevant fields</p>
+                    </div>
+                    
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">
                             Sale Price *
@@ -158,23 +167,27 @@
                         </div>
                     </div>
                     
-                    <div>
+                    <div id="downPaymentWrapper">
                         <label class="block text-sm font-medium text-gray-300 mb-2">
                             Down Payment
+                            <span class="text-gray-500 text-xs">(Only for Financing)</span>
                         </label>
                         <div class="relative">
-                            {{ form_widget(form.downPayment, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'downPayment', 'placeholder': '0.00'}}) }}
+                            {{ form_widget(form.downPayment, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'downPayment', 'placeholder': '0.00', 'id': 'downPaymentInput'}}) }}
                         </div>
                         {{ form_errors(form.downPayment) }}
+                        <div class="mt-1 text-xs text-gray-500">
+                            Enter the down payment amount for financing options
+                        </div>
                     </div>
                     
-                    <div>
+                    <div id="financingAmountWrapper">
                         <label class="block text-sm font-medium text-gray-300 mb-2">
                             Financing Amount
                             <span class="text-blue-400 text-xs">(Auto-calculated)</span>
                         </label>
                         <div class="relative">
-                            {{ form_widget(form.financingAmount, {'attr': {'class': 'w-full px-4 py-3 bg-gray-600 border border-gray-600 rounded-lg text-gray-300 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'readonly': 'readonly', 'data-field': 'financingAmount'}}) }}
+                            {{ form_widget(form.financingAmount, {'attr': {'class': 'w-full px-4 py-3 bg-gray-600 border border-gray-600 rounded-lg text-gray-300 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'readonly': 'readonly', 'data-field': 'financingAmount', 'id': 'financingAmountInput'}}) }}
                         </div>
                         {{ form_errors(form.financingAmount) }}
                         <div class="mt-2 text-xs text-gray-400">
@@ -189,18 +202,10 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">
-                            Payment Method
-                        </label>
-                        {{ form_widget(form.paymentMethod, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'paymentMethod'}}) }}
-                        {{ form_errors(form.paymentMethod) }}
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">
                             Sale Date *
                             <span class="text-red-400" id="saleDate-error" style="display: none;">Required</span>
                         </label>
-                        {{ form_widget(form.saleDate, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'saleDate'}}) }}
+                        {{ form_widget(form.saleDate, {'attr': {'class': 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent transition-all duration-200', 'data-field': 'saleDate', 'min': 'now'|date('Y-m-d')}}) }}
                         {{ form_errors(form.saleDate) }}
                         <div class="mt-2 text-xs text-gray-400" id="saleDate-info" style="display: none;">
                             <div class="flex items-center">
@@ -265,6 +270,8 @@
 <script>
     // Wait for DOM to be fully loaded before executing JavaScript
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== Form Initialization Started ===');
+        
         // Enhanced form validation and progress tracking
         const salePriceInput = document.querySelector('input[name="sales[salePrice]"]');
         const downPaymentInput = document.querySelector('input[name="sales[downPayment]"]');
@@ -273,6 +280,16 @@
         const customerSelect = document.querySelector('select[name="sales[customer]"]');
         const saleDateInput = document.querySelector('input[name="sales[saleDate]"]');
         const statusSelect = document.querySelector('select[name="sales[status]"]');
+        
+        console.log('Elements found:', {
+            salePriceInput: !!salePriceInput,
+            downPaymentInput: !!downPaymentInput,
+            financingAmountInput: !!financingAmountInput,
+            vehicleSelect: !!vehicleSelect,
+            customerSelect: !!customerSelect,
+            saleDateInput: !!saleDateInput,
+            statusSelect: !!statusSelect
+        });
         
         // Progress tracking
         const progressBar = document.getElementById('progressBar');
@@ -319,18 +336,54 @@
         }
         
         function calculateFinancing() {
+            console.log('calculateFinancing() called');
             if (salePriceInput && downPaymentInput && financingAmountInput) {
                 const salePrice = parseFloat(salePriceInput.value) || 0;
                 const downPayment = parseFloat(downPaymentInput.value) || 0;
                 const financing = salePrice - downPayment;
                 
-                if (financing > 0) {
+                console.log('Sale Price:', salePrice, 'Down Payment:', downPayment, 'Financing:', financing);
+                
+                // Always show the calculated value, even if it's 0 or negative
+                if (salePrice > 0) {
                     financingAmountInput.value = financing.toFixed(2);
+                    console.log('Financing Amount Updated to:', financing.toFixed(2));
                 } else {
                     financingAmountInput.value = '';
+                    console.log('Financing Amount Cleared');
                 }
                 updateProgress();
+            } else {
+                console.warn('Missing input elements:', { salePriceInput, downPaymentInput, financingAmountInput });
             }
+        }
+        
+        // Get payment method select element
+        const paymentMethodSelect = document.querySelector('select[name="sales[paymentMethod]"]');
+        const downPaymentWrapper = document.getElementById('downPaymentWrapper');
+        const financingAmountWrapper = document.getElementById('financingAmountWrapper');
+        
+        function updateFinancingFieldsVisibility() {
+            if (!paymentMethodSelect) return;
+            
+            const isFinancing = paymentMethodSelect.value === 'financing';
+            
+            if (isFinancing) {
+                // Show down payment and financing amount for financing method
+                if (downPaymentWrapper) downPaymentWrapper.classList.remove('hidden');
+                if (financingAmountWrapper) financingAmountWrapper.classList.remove('hidden');
+            } else {
+                // Optionally hide them for other methods (can be changed based on requirements)
+                // Keeping them visible allows for financial planning even with other payment methods
+            }
+        }
+        
+        if (paymentMethodSelect) {
+            paymentMethodSelect.addEventListener('change', function() {
+                updateFinancingFieldsVisibility();
+                calculateFinancing();
+                updateProgress();
+            });
         }
         
         // Add event listeners for real-time validation
@@ -349,25 +402,74 @@
         }
         
         if (salePriceInput) {
+            console.log('Adding event listeners to salePriceInput');
             salePriceInput.addEventListener('input', function() {
+                console.log('Sale Price input event fired. New value:', this.value);
                 validateField(this, 'salePrice-error', 'salePrice-info');
                 calculateFinancing();
                 updateProgress();
             });
+            salePriceInput.addEventListener('change', function() {
+                console.log('Sale Price change event fired. New value:', this.value);
+                calculateFinancing();
+            });
+            salePriceInput.addEventListener('keyup', function() {
+                console.log('Sale Price keyup event fired. New value:', this.value);
+                calculateFinancing();
+            });
+        } else {
+            console.warn('salePriceInput not found');
         }
         
         if (downPaymentInput) {
+            console.log('Adding event listeners to downPaymentInput');
             downPaymentInput.addEventListener('input', function() {
+                console.log('Down Payment input event fired. New value:', this.value);
                 calculateFinancing();
                 updateProgress();
             });
+            downPaymentInput.addEventListener('change', function() {
+                console.log('Down Payment change event fired. New value:', this.value);
+                calculateFinancing();
+            });
+            downPaymentInput.addEventListener('keyup', function() {
+                console.log('Down Payment keyup event fired. New value:', this.value);
+                calculateFinancing();
+            });
+        } else {
+            console.warn('downPaymentInput not found');
         }
         
         if (saleDateInput) {
-            saleDateInput.addEventListener('change', function() {
-                validateField(this, 'saleDate-error', 'saleDate-info');
+            // Set min date to today (local timezone)
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const minDate = `${year}-${month}-${day}`;
+            saleDateInput.min = minDate;
+            
+            function validateSaleDate() {
+                validateField(saleDateInput, 'saleDate-error', 'saleDate-info');
+                
+                // Prevent past dates
+                const selectedDate = new Date(saleDateInput.value + 'T00:00:00');
+                const todayCheck = new Date();
+                todayCheck.setHours(0, 0, 0, 0);
+                
+                if (selectedDate.getTime() < todayCheck.getTime()) {
+                    showGlobalResultModal('error', 'Invalid Date', 'Sale date cannot be in the past. Please select today or a future date.');
+                    saleDateInput.value = '';
+                    saleDateInput.classList.add('border-red-500');
+                } else {
+                    saleDateInput.classList.remove('border-red-500');
+                }
+                
                 updateProgress();
-            });
+            }
+            
+            saleDateInput.addEventListener('change', validateSaleDate);
+            saleDateInput.addEventListener('blur', validateSaleDate);
         }
         
         if (statusSelect) {
@@ -379,6 +481,10 @@
         
         // Initial progress calculation
         updateProgress();
+        
+        // Initialize financing fields visibility and calculation
+        updateFinancingFieldsVisibility();
+        calculateFinancing();
 
         // Customer selection functionality
         const customerDetails = document.getElementById('customerDetails');
@@ -483,6 +589,20 @@
                             errorEl.textContent = 'Sale price must be greater than 0';
                             errorEl.style.display = 'inline';
                         }
+                    }
+                }
+                
+                // Validate sale date is not in the past
+                if (saleDateInput && saleDateInput.value) {
+                    const selectedDate = new Date(saleDateInput.value + 'T00:00:00');
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDate.getTime() < today.getTime()) {
+                        isValid = false;
+                        if (!firstInvalidField) firstInvalidField = saleDateInput;
+                        
+                        showGlobalResultModal('error', 'Invalid Date', 'Sale date cannot be in the past. Please select today or a future date.');
                     }
                 }
                 

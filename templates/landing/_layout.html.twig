@@ -24,6 +24,9 @@
                     {% set active = activeNav|default('home') %}
                     <nav class="rw-nav-center" aria-label="Primary">
                         <a href="{{ path('app_home') }}" class="rw-nav-link {{ active == 'home' ? 'is-active' : '' }}">Home</a>
+                        <button type="button" class="rw-nav-link rw-nav-link--ghost rw-explore-toggle" data-rw-explore-toggle aria-expanded="false">
+                            Explore Vehicles <span class="rw-explore-caret" aria-hidden="true">▾</span>
+                        </button>
                         <a href="{{ path('app_marketing_about') }}" class="rw-nav-link {{ active == 'about' ? 'is-active' : '' }}">About Us</a>
                         <a href="{{ path('app_marketing_contact') }}" class="rw-nav-link {{ active == 'contact' ? 'is-active' : '' }}">Contact</a>
                     </nav>
@@ -49,6 +52,9 @@
             <div class="rw-nav-mobile" data-rw-nav-mobile>
                 <div class="rw-nav-mobile-inner">
                     <a href="{{ path('app_home') }}">Home</a>
+                    <button type="button" class="rw-nav-link rw-nav-link--ghost rw-explore-toggle" data-rw-explore-toggle aria-expanded="false">
+                        Explore Vehicles <span class="rw-explore-caret" aria-hidden="true">▾</span>
+                    </button>
                     <a href="{{ path('app_marketing_about') }}">About Us</a>
                     <a href="{{ path('app_marketing_contact') }}">Contact</a>
                     <a class="rw-nav-mobile-cta" href="{{ path('app_marketing_contact') }}">Book a Showroom Visit</a>
@@ -56,27 +62,171 @@
             </div>
         </header>
 
+        <div class="rw-explore-dropdown" data-rw-explore-dropdown aria-hidden="true" data-open="false">
+            <div class="rw-explore-dropdown-inner">
+                {# Mobile Header - Toyota Style #}
+                <header class="rw-explore-mobile-header">
+                    <button type="button" class="rw-explore-back" data-rw-explore-close aria-label="Back">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <h2 class="rw-explore-mobile-title">EXPLORE VEHICLES</h2>
+                    <button type="button" class="rw-explore-close-mobile" data-rw-explore-close aria-label="Close">✕</button>
+                </header>
+
+                {# Mobile Brand Tabs #}
+                <div class="rw-explore-mobile-tabs">
+                    <button type="button" class="rw-explore-tab-btn rw-explore-tab-btn--active" data-brand-filter="all">All Brands</button>
+                </div>
+
+                {# Desktop Header (hidden on mobile) #}
+                <header class="rw-explore-dropdown-header">
+                    <div>
+                        <div class="rw-section-kicker">Explore Vehicles</div>
+                        <h2 class="rw-section-title">Browse available showroom cars</h2>
+                    </div>
+                    <button type="button" class="rw-explore-close" data-rw-explore-close aria-label="Close vehicle explorer">✕</button>
+                </header>
+
+                <div class="rw-explore-content">
+                    <aside class="rw-explore-sidebar" aria-label="Filter by brand">
+                        <div class="rw-explore-sidebar-title">Brands</div>
+                        <ul class="rw-explore-brand-list" data-rw-brand-list>
+                            <li>
+                                <button type="button" class="rw-explore-brand-btn rw-explore-brand-btn--active" data-brand-filter="all">
+                                    All Brands
+                                </button>
+                            </li>
+                        </ul>
+                    </aside>
+
+                    <div class="rw-explore-main">
+                        <div class="rw-explore-dropdown-list" data-rw-explore-grid>
+                            <div class="rw-explore-loading" role="status" aria-live="polite">
+                                Loading vehicles...
+                            </div>
+                        </div>
+                        {# Mobile Swiper Pagination #}
+                        <div class="rw-explore-swiper-pagination" data-rw-swiper-pagination></div>
+                        {# Mobile Pagination Info #}
+                        <div class="rw-explore-pagination--swiper">
+                            <div class="rw-explore-pagination-text" data-rw-pagination-text>1 / 1</div>
+                        </div>
+                        {# All Vehicles Button #}
+                        <a href="{{ path('app_home') }}#inventory" class="rw-explore-all-btn">All Vehicles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <main class="rw-main">
             {% block body %}{% endblock %}
         </main>
 
         <footer class="rw-footer">
-            <div class="rw-footer-inner">
-                <div>
-                    <div class="rw-logo-text-main">Ramle Wheels</div>
-                    <p style="margin:0.4rem 0 0;">
-                        A modern dealership experience, combining curated vehicles with thoughtful, transparent service.
-                    </p>
-                    <div class="rw-footer-links">
-                        <a href="{{ path('app_home') }}" class="rw-footer-link">Home</a>
-                        <a href="{{ path('app_marketing_about') }}" class="rw-footer-link">About Us</a>
-                        <a href="{{ path('app_marketing_contact') }}" class="rw-footer-link">Contact</a>
+            {# Toyota-style Professional Footer #}
+            <div class="rw-footer-main">
+                <div class="rw-footer-upper">
+                    {# Logo and Description #}
+                    <div class="rw-footer-brand">
+                        <a href="{{ path('app_home') }}" class="rw-footer-logo">
+                            <img src="{{ asset('images/rmlogo 2.png') }}" alt="Ramle Wheels" class="rw-footer-logo-img">
+                        </a>
+                        <p class="rw-footer-tagline">Premium vehicles. Transparent service. Trusted since 2010.</p>
+                        <div class="rw-footer-social">
+                            <a href="#" class="rw-social-link" aria-label="Facebook">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            </a>
+                            <a href="#" class="rw-social-link" aria-label="Instagram">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266-.058 1.644-.07 4.85-.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            </a>
+                            <a href="#" class="rw-social-link" aria-label="YouTube">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                            </a>
+                            <a href="#" class="rw-social-link" aria-label="Twitter/X">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    {# Link Columns #}
+                    <div class="rw-footer-columns">
+                        <div class="rw-footer-column">
+                            <h4 class="rw-footer-column-title">Vehicles</h4>
+                            <ul class="rw-footer-links-list">
+                                <li><a href="{{ path('app_home') }}#inventory">New Arrivals</a></li>
+                                <li><a href="{{ path('app_home') }}#inventory">Pre-Owned</a></li>
+                                <li><a href="{{ path('app_home') }}#inventory">Luxury Sedans</a></li>
+                                <li><a href="{{ path('app_home') }}#inventory">SUVs & Trucks</a></li>
+                                <li><a href="{{ path('app_home') }}#inventory">Electric & Hybrid</a></li>
+                            </ul>
+                        </div>
+                        <div class="rw-footer-column">
+                            <h4 class="rw-footer-column-title">Services</h4>
+                            <ul class="rw-footer-links-list">
+                                <li><a href="{{ path('app_marketing_contact') }}">Book Test Drive</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Financing</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Trade-In</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Vehicle History</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Maintenance</a></li>
+                            </ul>
+                        </div>
+                        <div class="rw-footer-column">
+                            <h4 class="rw-footer-column-title">Company</h4>
+                            <ul class="rw-footer-links-list">
+                                <li><a href="{{ path('app_marketing_about') }}">About Us</a></li>
+                                <li><a href="{{ path('app_marketing_about') }}">Our Story</a></li>
+                                <li><a href="{{ path('app_marketing_about') }}">Team</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Careers</a></li>
+                                <li><a href="{{ path('app_marketing_contact') }}">Press</a></li>
+                            </ul>
+                        </div>
+                        <div class="rw-footer-column">
+                            <h4 class="rw-footer-column-title">Support</h4>
+                            <ul class="rw-footer-links-list">
+                                <li><a href="{{ path('app_marketing_contact') }}">Contact Us</a></li>
+                                <li><a href="#">FAQs</a></li>
+                                <li><a href="#">Privacy Policy</a></li>
+                                <li><a href="#">Terms of Service</a></li>
+                                <li><a href="#">Sitemap</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div class="rw-footer-copy">
-                    <div>Dumaguete City, Negros Oriental, Philippines</div>
-                    <div style="margin-top:0.2rem;">Phone: +63 917 123 4567 · Email: ramlelariosa26@gmail.com</div>
-                    <div style="margin-top:0.5rem;">© {{ "now"|date("Y") }} Ramle Wheels. All rights reserved.</div>
+
+                {# Contact Bar #}
+                <div class="rw-footer-contact-bar">
+                    <div class="rw-footer-contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>Dumaguete City, Negros Oriental, Philippines</span>
+                    </div>
+                    <div class="rw-footer-contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <span>+63 917 123 4567</span>
+                    </div>
+                    <div class="rw-footer-contact-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <span>ramlelariosa26@gmail.com</span>
+                    </div>
+                    <div class="rw-footer-hours">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                        <span>Mon-Sat: 9AM - 7PM</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Bottom Bar #}
+            <div class="rw-footer-bottom">
+                <div class="rw-footer-bottom-inner">
+                    <p class="rw-footer-copyright">&copy; {{ "now"|date("Y") }} Ramle Wheels. All rights reserved.</p>
+                    <div class="rw-footer-legal">
+                        <a href="#">Privacy</a>
+                        <span class="rw-footer-separator">|</span>
+                        <a href="#">Terms</a>
+                        <span class="rw-footer-separator">|</span>
+                        <a href="#">Cookies</a>
+                    </div>
                 </div>
             </div>
         </footer>
@@ -138,8 +288,13 @@
                     const expanded = navToggle.getAttribute('aria-expanded') === 'true';
                     setMobileNavOpen(!expanded);
                 });
-                mobileNav.querySelectorAll('a').forEach((link) => {
-                    link.addEventListener('click', () => setMobileNavOpen(false));
+
+                // Use event delegation to close nav when clicking any link inside
+                mobileNav.addEventListener('click', (e) => {
+                    const target = e.target.closest('a, button');
+                    if (target && mobileNav.contains(target)) {
+                        setMobileNavOpen(false);
+                    }
                 });
             }
 
@@ -166,6 +321,437 @@
                     e.preventDefault();
                     scrollToTarget(target);
                 });
+            });
+
+            // Explore vehicles dropdown
+            const exploreDropdown = root.querySelector('[data-rw-explore-dropdown]');
+            const exploreToggles = root.querySelectorAll('[data-rw-explore-toggle]');
+            const exploreCloseEls = root.querySelectorAll('[data-rw-explore-close]');
+            const headerEl = root.querySelector('.rw-header');
+
+            const exploreGrid = root.querySelector('[data-rw-explore-grid]');
+            const exploreBrandList = root.querySelector('[data-rw-brand-list]');
+            const mobileTabContainer = document.querySelector('.rw-explore-mobile-tabs');
+            let exploreCarsLoaded = false;
+            let exploreAllCars = [];
+            let exploreSelectedBrand = 'all';
+            let currentPage = 1;
+            const itemsPerPage = 4;
+            let totalPages = 1;
+            let paginatedCars = [];
+
+            // Preserve initial server-rendered active state (Home/About/Contact)
+            const allNavLinks = Array.from(root.querySelectorAll('.rw-nav-center .rw-nav-link, .rw-nav-mobile-inner .rw-nav-link'));
+            const initialActiveNavLinks = allNavLinks.filter((el) => el.classList.contains('is-active'));
+
+            function clearNavActive() {
+                allNavLinks.forEach((el) => el.classList.remove('is-active'));
+            }
+
+            function restoreInitialNavActive() {
+                initialActiveNavLinks.forEach((el) => el.classList.add('is-active'));
+            }
+
+            function escapeHtml(input) {
+                return String(input ?? '').replace(/[&<>"']/g, (m) => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;',
+                }[m]));
+            }
+
+            function normalizeCarsPayload(payload) {
+                if (!payload) return [];
+                if (Array.isArray(payload)) return payload;
+                if (payload['hydra:member'] && Array.isArray(payload['hydra:member'])) return payload['hydra:member'];
+                if (payload.items && Array.isArray(payload.items)) return payload.items;
+                return [];
+            }
+
+            function imageSrcFromApi(car) {
+                const images = car?.images;
+                const first = Array.isArray(images) ? images[0] : null;
+                if (!first || typeof first !== 'string') return null;
+
+                if (first.startsWith('http://') || first.startsWith('https://')) return first;
+                if (first.startsWith('/')) return first;
+                return `/uploads/cars/${first}`;
+            }
+
+            function renderExploreCars(cars) {
+                if (!exploreGrid) return;
+                exploreGrid.innerHTML = '';
+                console.log(`renderExploreCars called with ${cars.length} cars`);
+
+                if (!cars || cars.length === 0) {
+                    exploreGrid.innerHTML = `<div class="rw-explore-loading" role="status" aria-live="polite">No vehicles found.</div>`;
+                    return;
+                }
+
+                // Check if mobile (same breakpoint as CSS)
+                const isMobile = window.innerWidth <= 640;
+                console.log(`isMobile: ${isMobile}`);
+
+                if (isMobile) {
+                    // Mobile: Group cars into pages of 4 (2x2 grid per page)
+                    const carsPerPage = 4;
+                    const pages = [];
+                    for (let i = 0; i < cars.length; i += carsPerPage) {
+                        pages.push(cars.slice(i, i + carsPerPage));
+                    }
+                    console.log(`Created ${pages.length} pages with ${carsPerPage} cars per page`);
+
+                    pages.forEach((pageCars, pageIdx) => {
+                        console.log(`Rendering page ${pageIdx + 1} with ${pageCars.length} cars`);
+                        const pageDiv = document.createElement('div');
+                        pageDiv.className = 'rw-explore-page';
+
+                        pageCars.forEach((car, idx) => {
+                            const title = [car?.brand, car?.Year, car?.make].filter(Boolean).join(' ');
+                            const imgSrc = imageSrcFromApi(car);
+
+                            const card = document.createElement('article');
+                            card.className = 'rw-explore-card';
+
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(10px)';
+                            card.style.transition = 'opacity 350ms ease, transform 350ms ease';
+                            card.style.transitionDelay = `${idx * 60}ms`;
+
+                            card.innerHTML = `
+                                <div class="rw-explore-card-media" aria-hidden="true">
+                                    <img ${imgSrc ? `src="${escapeHtml(imgSrc)}"` : 'style="display:none"'} alt="" loading="lazy">
+                                </div>
+                                <div class="rw-explore-card-body">
+                                    <div class="rw-explore-card-title">${escapeHtml(title || 'Vehicle')}</div>
+                                    <div class="rw-explore-card-cta">Explore</div>
+                                </div>
+                            `;
+
+                            pageDiv.appendChild(card);
+
+                            requestAnimationFrame(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            });
+                        });
+
+                        exploreGrid.appendChild(pageDiv);
+                        console.log(`Page ${pageIdx + 1} has ${pageDiv.children.length} cards in DOM`);
+                    });
+                } else {
+                    // Desktop: Render cars directly in grid (original layout)
+                    console.log(`Rendering ${cars.length} cars in desktop layout`);
+                    cars.forEach((car, idx) => {
+                        const title = [car?.brand, car?.Year, car?.make].filter(Boolean).join(' ');
+                        const imgSrc = imageSrcFromApi(car);
+
+                        const card = document.createElement('article');
+                        card.className = 'rw-explore-card';
+
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(10px)';
+                        card.style.transition = 'opacity 350ms ease, transform 350ms ease';
+                        card.style.transitionDelay = `${idx * 60}ms`;
+
+                        card.innerHTML = `
+                            <div class="rw-explore-card-media" aria-hidden="true">
+                                <img ${imgSrc ? `src="${escapeHtml(imgSrc)}"` : 'style="display:none"'} alt="" loading="lazy">
+                            </div>
+                            <div class="rw-explore-card-body">
+                                <div class="rw-explore-card-title">${escapeHtml(title || 'Vehicle')}</div>
+                                <div class="rw-explore-card-cta">Explore</div>
+                            </div>
+                        `;
+
+                        exploreGrid.appendChild(card);
+
+                        requestAnimationFrame(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0)';
+                        });
+                    });
+                }
+                console.log(`Finished rendering. Total children in exploreGrid: ${exploreGrid.children.length}`);
+            }
+
+            function populateBrandList(cars) {
+                if (!exploreBrandList) return;
+
+                const brandsSet = new Set();
+                cars.forEach(car => {
+                    if (car?.brand) {
+                        brandsSet.add(car.brand);
+                    }
+                });
+
+                const brands = Array.from(brandsSet).sort();
+
+                // Keep the "All Brands" button, add the rest
+                const allBrandsBtn = exploreBrandList.querySelector('[data-brand-filter="all"]');
+                const brandItems = exploreBrandList.querySelectorAll('li:not(:first-child)');
+                brandItems.forEach(li => li.remove());
+
+                brands.forEach(brand => {
+                    const li = document.createElement('li');
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'rw-explore-brand-btn';
+                    btn.textContent = brand;
+                    btn.setAttribute('data-brand-filter', brand);
+                    btn.addEventListener('click', () => filterByBrand(brand));
+                    
+                    li.appendChild(btn);
+                    exploreBrandList.appendChild(li);
+                });
+
+                // Set up "All Brands" click handler
+                if (allBrandsBtn) {
+                    allBrandsBtn.addEventListener('click', () => filterByBrand('all'));
+                }
+            }
+
+            function updatePagination(cars) {
+                const carsPerPage = 4;
+                totalPages = Math.ceil(cars.length / carsPerPage) || 1;
+                const textEl = document.querySelector('[data-rw-pagination-text]');
+                const paginationContainer = document.querySelector('[data-rw-swiper-pagination]');
+                
+                // Update page text
+                if (textEl) {
+                    textEl.textContent = `1 / ${totalPages}`;
+                }
+                
+                // Create/update bullet pagination
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = '';
+                    if (totalPages > 1) {
+                        for (let i = 1; i <= totalPages; i++) {
+                            const bullet = document.createElement('button');
+                            bullet.type = 'button';
+                            bullet.className = 'rw-explore-swiper-bullet' + (i === 1 ? ' rw-explore-swiper-bullet--active' : '');
+                            bullet.setAttribute('aria-label', `Page ${i}`);
+                            bullet.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                // Scroll to page
+                                const pageWidth = exploreGrid.offsetWidth;
+                                exploreGrid.scrollTo({ left: (i - 1) * pageWidth, behavior: 'smooth' });
+                            });
+                            paginationContainer.appendChild(bullet);
+                        }
+                    }
+                }
+
+                // Update current page on scroll
+                if (exploreGrid && totalPages > 1) {
+                    exploreGrid.addEventListener('scroll', () => {
+                        const pageWidth = exploreGrid.offsetWidth;
+                        const newPage = Math.round(exploreGrid.scrollLeft / pageWidth) + 1;
+                        if (newPage !== currentPage && newPage >= 1 && newPage <= totalPages) {
+                            currentPage = newPage;
+                            if (textEl) {
+                                textEl.textContent = `${currentPage} / ${totalPages}`;
+                            }
+                            // Update active bullet
+                            const bullets = paginationContainer.querySelectorAll('.rw-explore-swiper-bullet');
+                            bullets.forEach((b, idx) => {
+                                if (idx + 1 === currentPage) {
+                                    b.classList.add('rw-explore-swiper-bullet--active');
+                                } else {
+                                    b.classList.remove('rw-explore-swiper-bullet--active');
+                                }
+                            });
+                        }
+                    }, { passive: true });
+                }
+            }
+
+            function populateMobileTabs(cars) {
+                if (!mobileTabContainer) return;
+                
+                const brandsSet = new Set();
+                cars.forEach(car => {
+                    if (car?.brand) brandsSet.add(car.brand);
+                });
+                
+                const brands = Array.from(brandsSet).sort();
+                
+                // Keep All Brands tab
+                const allTab = mobileTabContainer.querySelector('[data-brand-filter="all"]');
+                mobileTabContainer.innerHTML = '';
+                if (allTab) mobileTabContainer.appendChild(allTab);
+                
+                brands.forEach(brand => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'rw-explore-tab-btn';
+                    btn.textContent = brand;
+                    btn.setAttribute('data-brand-filter', brand);
+                    btn.addEventListener('click', () => {
+                        currentPage = 1;
+                        filterByBrand(brand);
+                        updateActiveTab(brand);
+                    });
+                    mobileTabContainer.appendChild(btn);
+                });
+                
+                // All Brands click handler
+                if (allTab) {
+                    allTab.addEventListener('click', () => {
+                        currentPage = 1;
+                        filterByBrand('all');
+                        updateActiveTab('all');
+                    });
+                }
+            }
+
+            function updateActiveTab(brand) {
+                const tabs = document.querySelectorAll('.rw-explore-tab-btn');
+                tabs.forEach(tab => {
+                    if (tab.getAttribute('data-brand-filter') === brand) {
+                        tab.classList.add('rw-explore-tab-btn--active');
+                    } else {
+                        tab.classList.remove('rw-explore-tab-btn--active');
+                    }
+                });
+            }
+
+            function filterByBrand(brand) {
+                exploreSelectedBrand = brand;
+                currentPage = 1;
+
+                // Update active button styling
+                const allBrandBtns = exploreBrandList.querySelectorAll('.rw-explore-brand-btn');
+                allBrandBtns.forEach(btn => {
+                    if (btn.getAttribute('data-brand-filter') === brand) {
+                        btn.classList.add('rw-explore-brand-btn--active');
+                    } else {
+                        btn.classList.remove('rw-explore-brand-btn--active');
+                    }
+                });
+
+                // Filter and render cars
+                let filteredCars = exploreAllCars;
+                console.log(`Total cars in exploreAllCars: ${exploreAllCars.length}`);
+                if (brand !== 'all') {
+                    filteredCars = exploreAllCars.filter(car => car?.brand === brand);
+                    console.log(`Filtered to brand "${brand}": ${filteredCars.length} cars`);
+                } else {
+                    console.log(`Showing all brands: ${filteredCars.length} cars`);
+                    console.log('Car brands:', filteredCars.map(c => c.brand).join(', '));
+                }
+
+                renderExploreCars(filteredCars);
+                updatePagination(filteredCars);
+            }
+
+            async function loadExploreCars() {
+                if (!exploreGrid || exploreCarsLoaded) return;
+                exploreCarsLoaded = true;
+
+                exploreGrid.innerHTML = `<div class="rw-explore-loading" role="status" aria-live="polite">Loading vehicles...</div>`;
+
+                try {
+                    const res = await fetch('/api/cars', { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    exploreAllCars = normalizeCarsPayload(data);
+                    populateBrandList(exploreAllCars);
+                    populateMobileTabs(exploreAllCars);
+                    updatePagination(exploreAllCars);
+                    renderExploreCars(exploreAllCars);
+                } catch (e) {
+                    console.error('Failed to load /api/cars', e);
+                    exploreGrid.innerHTML = `<div class="rw-explore-loading" role="status" aria-live="polite">Failed to load vehicles.</div>`;
+                }
+            }
+
+            // Track last known mobile state for resize handling
+            let lastIsMobile = window.innerWidth <= 640;
+
+            // Re-render cars when resizing between mobile and desktop
+            window.addEventListener('resize', () => {
+                const currentIsMobile = window.innerWidth <= 640;
+                // Only re-render if we crossed the breakpoint and have cars loaded
+                if (currentIsMobile !== lastIsMobile && exploreAllCars.length > 0) {
+                    lastIsMobile = currentIsMobile;
+                    // Re-render with current filtered cars
+                    let filteredCars = exploreAllCars;
+                    if (exploreSelectedBrand !== 'all') {
+                        filteredCars = exploreAllCars.filter(car => car?.brand === exploreSelectedBrand);
+                    }
+                    renderExploreCars(filteredCars);
+                    updatePagination(filteredCars);
+                }
+            });
+
+            function setExploreOpen(open) {
+                if (!exploreDropdown) return;
+
+                if (headerEl) {
+                    const headerH = headerEl.getBoundingClientRect().height || 76;
+                    exploreDropdown.style.setProperty('--rw-header-h', `${headerH}px`);
+                }
+
+                clearNavActive();
+
+                exploreDropdown.setAttribute('data-open', open ? 'true' : 'false');
+                exploreDropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+                exploreToggles.forEach(btn => {
+                    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    if (open) btn.classList.add('is-active');
+                });
+
+                if (!open) {
+                    restoreInitialNavActive();
+                    // Remove focus from any element inside the dropdown to fix aria-hidden warning
+                    const focusedEl = exploreDropdown.querySelector(':focus');
+                    if (focusedEl) focusedEl.blur();
+                }
+
+                if (open) loadExploreCars();
+            }
+
+            exploreToggles.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const isOpen = exploreDropdown && exploreDropdown.getAttribute('data-open') === 'true';
+                    setExploreOpen(!isOpen);
+                    // Close mobile nav if open
+                    if (mobileNav && mobileNav.getAttribute('data-open') === 'true') {
+                        setMobileNavOpen(false);
+                    }
+                });
+            });
+
+            exploreCloseEls.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setExploreOpen(false);
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && exploreDropdown && exploreDropdown.getAttribute('data-open') === 'true') {
+                    setExploreOpen(false);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!exploreDropdown) return;
+                const isOpen = exploreDropdown.getAttribute('data-open') === 'true';
+                if (!isOpen) return;
+
+                const target = e.target;
+                if (!target) return;
+
+                const clickedInside = exploreDropdown.contains(target) || Array.from(exploreToggles).some((t) => t.contains(target));
+                if (!clickedInside) setExploreOpen(false);
             });
         })();
     </script>

@@ -3,72 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login | Ramle Wheels</title>
     {{ encore_entry_link_tags('app') }}
     {{ encore_entry_script_tags('app') }}
+    <style>
+        /* Login page premium styles matching landing aesthetic */
+        .rw-login-shell {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0b1220 0%, #0f172a 50%, #1e293b 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        /* Ambient noise texture */
+        .rw-login-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: 0.04;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+        
+        /* Gradient orbs */
+        .rw-login-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+        .rw-login-orb--1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(179,34,36,0.25) 0%, transparent 70%);
+            top: -200px;
+            left: -100px;
+        }
+        .rw-login-orb--2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(143,28,30,0.2) 0%, transparent 70%);
+            bottom: -150px;
+            right: -100px;
+        }
+        
+        /* Main card */
+        .rw-login-card {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            box-shadow: 0 25px 80px -20px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+        }
+        
+        /* Left panel - Visual */
+        .rw-login-visual {
+            position: relative;
+            background: linear-gradient(180deg, #b32224 0%, #8f1c1e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+        
+        .rw-login-visual::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 10%, rgba(255,255,255,0.1) 0%, transparent 30%),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.12) 0%, transparent 35%);
+        }
+        
+        .rw-login-brand {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .rw-login-brand img {
+            height: 48px;
+            width: auto;
+            filter: brightness(0) invert(1);
+            opacity: 0.95;
+        }
+        
+        .rw-login-tagline {
+            position: relative;
+            z-index: 2;
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 0.75rem;
+        }
+        
+        .rw-login-car {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 0.5rem;
+        }
+        
+        .rw-login-car img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 30px 60px rgba(0,0,0,0.4));
+        }
+        
+        .rw-login-stats {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        .rw-login-stat {
+            text-align: center;
+        }
+        
+        .rw-login-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .rw-login-stat-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.25rem;
+        }
+        
+        /* Right panel - Form */
+        .rw-login-form-panel {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .rw-login-header {
+            margin-bottom: 1.25rem;
+        }
+        
+        .rw-login-kicker {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(148, 163, 184, 0.9);
+            margin-bottom: 0.5rem;
+        }
+        
+        .rw-login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f8fafc;
+            letter-spacing: -0.02em;
+        }
+        
+        .rw-login-subtitle {
+            font-size: 0.9rem;
+            color: rgba(148, 163, 184, 0.9);
+            margin-top: 0.5rem;
+        }
+        
+        /* Form elements */
+        .rw-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
+        }
+        
+        .rw-input-group {
+            position: relative;
+        }
+        
+        .rw-input-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(148, 163, 184, 0.9);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        
+        .rw-input {
+            width: 100%;
+            padding: 0.75rem 0.875rem;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .rw-input::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+        
+        .rw-input:focus {
+            outline: none;
+            border-color: #b32224;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 0 3px rgba(179, 34, 36, 0.15);
+        }
+        
+        .rw-input-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(148, 163, 184, 0.5);
+            font-size: 1rem;
+        }
+        
+        /* Error message */
+        .rw-login-error {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            color: #fca5a5;
+            font-size: 0.875rem;
+        }
+        
+        .rw-login-error::before {
+            content: "⚠";
+            font-size: 1rem;
+        }
+        
+        /* Options row */
+        .rw-login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .rw-remember {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(148, 163, 184, 0.9);
+            cursor: pointer;
+        }
+        
+        .rw-remember input {
+            width: 1rem;
+            height: 1rem;
+            accent-color: #b32224;
+        }
+        
+        .rw-forgot-link {
+            color: #b32224;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .rw-forgot-link:hover {
+            color: #d43d3f;
+            text-decoration: underline;
+        }
+        
+        /* Primary button */
+        .rw-btn-primary {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            background: linear-gradient(180deg, #b32224 0%, #8f1c1e 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px -5px rgba(179, 34, 36, 0.4);
+        }
+        
+        .rw-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px -8px rgba(179, 34, 36, 0.5);
+        }
+        
+        .rw-btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Divider */
+        .rw-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            color: rgba(148, 163, 184, 0.6);
+            font-size: 0.8rem;
+        }
+        
+        .rw-divider::before,
+        .rw-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: rgba(148, 163, 184, 0.2);
+        }
+        
+        /* Google button */
+        .rw-btn-google {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .rw-btn-google:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(148, 163, 184, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .rw-btn-google svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Sign up link */
+        .rw-login-footer {
+            text-align: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            color: rgba(148, 163, 184, 0.9);
+            font-size: 0.85rem;
+        }
+        
+        .rw-login-footer a {
+            color: #b32224;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 0.25rem;
+        }
+        
+        .rw-login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .rw-login-card {
+                grid-template-columns: 1fr;
+                max-width: 420px;
+            }
+            
+            .rw-login-visual {
+                display: none;
+            }
+            
+            .rw-login-form-panel {
+                padding: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .rw-login-shell {
+                padding: 1rem;
+            }
+            
+            .rw-login-form-panel {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-[#b32224]/15 via-[#8f1c1e]/10 to-[#b32224]/20">
-    <div class="min-h-screen flex items-center justify-center px-4 py-10">
-        <div class="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2">
-                <!-- Left: Gradient with car -->
-                <div class="relative overflow-hidden flex items-center justify-center p-8 lg:p-10"
-                     style="background: linear-gradient(180deg, #b32224 0%, #8f1c1e 100%);">
-                    <div class="absolute inset-0 opacity-25 pointer-events-none"
-                         style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.6) 0, rgba(255,255,255,0) 35%), radial-gradient(circle at 80% 10%, rgba(255,255,255,0.4) 0, rgba(255,255,255,0) 30%), radial-gradient(circle at 40% 80%, rgba(255,255,255,0.35) 0, rgba(255,255,255,0) 35%);">
+<body>
+    <div class="rw-login-shell">
+        <!-- Ambient gradient orbs -->
+        <div class="rw-login-orb rw-login-orb--1"></div>
+        <div class="rw-login-orb rw-login-orb--2"></div>
+        
+        <div class="rw-login-card">
+            <!-- Left: Visual Panel -->
+            <div class="rw-login-visual">
+                <div class="rw-login-brand">
+                    <img src="{{ asset('images/rmlogo 2.png') }}" alt="Ramle Wheels">
+                    <div class="rw-login-tagline">Premium Car Dealership</div>
+                </div>
+                
+                <div class="rw-login-car">
+                    <img src="{{ asset('uploads/cars/login.png') }}" alt="Luxury Vehicle">
+                </div>
+                
+                <div class="rw-login-stats">
+                    <div class="rw-login-stat">
+                        <div class="rw-login-stat-value">200+</div>
+                        <div class="rw-login-stat-label">Vehicles</div>
                     </div>
-                    <div class="relative z-10 w-full max-w-xl -mr-10 lg:-mr-1 drop-shadow-2xl">
-                        <img src="{{ asset('uploads/cars/login.png') }}"
-                             alt="Car"
-                             class="w-full h-full object-contain">
+                    <div class="rw-login-stat">
+                        <div class="rw-login-stat-value">10+</div>
+                        <div class="rw-login-stat-label">Years</div>
+                    </div>
+                    <div class="rw-login-stat">
+                        <div class="rw-login-stat-value">5k+</div>
+                        <div class="rw-login-stat-label">Customers</div>
                     </div>
                 </div>
-
-                <!-- Right: Form -->
-                <div class="relative bg-white flex items-center justify-center px-8 py-10 md:px-12">
-                    <form method="post" class="w-full max-w-md space-y-6">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900 text-center">Login your Account</h1>
+            </div>
+            
+            <!-- Right: Form Panel -->
+            <div class="rw-login-form-panel">
+                <div class="rw-login-header">
+                    <div class="rw-login-kicker">Welcome Back</div>
+                    <h1 class="rw-login-title">Sign in to your account</h1>
+                    <p class="rw-login-subtitle">Enter your credentials to access the showroom dashboard.</p>
+                </div>
+                
+                <form method="post" class="rw-login-form">
+                    {% if error %}
+                        <div class="rw-login-error">
+                            {{ error.message|trans({}, 'security')|default(error.message) }}
                         </div>
-
-                        {% if error %}
-                            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                {# Try to translate the message, fallback to message itself #}
-                                {{ error.message|trans({}, 'security')|default(error.message) }}
-                            </div>
-                        {% endif %}
-
-                        <div class="space-y-4">
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1 sr-only">Email</label>
-                                <input type="email" id="email" name="_email" value="{{ last_username }}"
-                                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition"
-                                       placeholder="Email" autocomplete="email" required autofocus>
-                            </div>
-                            <div>
-                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1 sr-only">Password</label>
-                                <input type="password" id="password" name="_password"
-                                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#b32224] focus:border-transparent transition"
-                                       placeholder="Password" autocomplete="current-password" required>
-                            </div>
-                            <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
-                        </div>
-
-                        <div class="space-y-4">
-                            <button type="submit"
-                                    class="w-full inline-flex justify-center items-center px-4 py-3 rounded-lg bg-[#b32224] text-white font-semibold shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-0.5">
-                                Login
-                            </button>
-                        </div>
-
-                        <div class="pt-2 text-sm text-center text-gray-600">
-                            New member?
-                            <a href="{{ path('app_register') }}" class="text-[#b32224] font-semibold hover:underline">Sign Up</a>
-                        </div>
-                    </form>
+                    {% endif %}
+                    
+                    <div class="rw-input-group">
+                        <label for="email" class="rw-input-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="_email" 
+                            value="{{ last_username }}"
+                            class="rw-input" 
+                            placeholder="name@company.com" 
+                            autocomplete="email" 
+                            required 
+                            autofocus
+                        >
+                    </div>
+                    
+                    <div class="rw-input-group">
+                        <label for="password" class="rw-input-label">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="_password"
+                            class="rw-input" 
+                            placeholder="Enter your password" 
+                            autocomplete="current-password" 
+                            required
+                        >
+                    </div>
+                    
+                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+                    
+                    <div class="rw-login-options">
+                        <label class="rw-remember">
+                            <input type="checkbox" name="_remember_me" checked>
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="rw-forgot-link">Forgot password?</a>
+                    </div>
+                    
+                    <button type="submit" class="rw-btn-primary">
+                        <span>Sign In</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                    
+                    <div class="rw-divider">or continue with</div>
+                    
+                    <button type="button" class="rw-btn-google" id="googleLoginBtn">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23.766 12.2764C23.766 11.4607 23.6999 10.6406 23.5588 9.83807H12.24V14.4591H18.7217C18.4528 15.9494 17.5885 17.2678 16.323 18.1056V21.1039H20.19C22.4608 19.0139 23.766 15.9274 23.766 12.2764Z" fill="#4285F4"/>
+                            <path d="M12.2401 24.0008C15.4766 24.0008 18.2059 22.9382 20.1945 21.1039L16.3275 18.1055C15.2517 18.8375 13.8627 19.252 12.2445 19.252C9.11388 19.252 6.45946 17.1399 5.50705 14.3003H1.5166V17.3912C3.55371 21.4434 7.7029 24.0008 12.2401 24.0008Z" fill="#34A853"/>
+                            <path d="M5.50253 14.3003C5.00215 12.8099 5.00215 11.1961 5.50253 9.70575V6.61481H1.5166C-0.18551 10.0056 -0.18551 14.0004 1.5166 17.3912L5.50253 14.3003Z" fill="#FBBC05"/>
+                            <path d="M12.2401 4.74966C13.9509 4.7232 15.6044 5.36697 16.8436 6.54867L20.2695 3.12262C18.1001 1.0855 15.2208 -0.034466 12.2401 0.000808666C7.7029 0.000808666 3.55371 2.55822 1.5166 6.61481L5.50264 9.70575C6.45064 6.86173 9.10947 4.74966 12.2401 4.74966Z" fill="#EA4335"/>
+                        </svg>
+                        <span>Sign in with Google</span>
+                    </button>
+                </form>
+                
+                <div class="rw-login-footer">
+                    Don't have an account?
+                    <a href="{{ path('app_register') }}">Create account</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Google OAuth popup handler
+        document.getElementById('googleLoginBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            openGooglePopup();
+        });
+
+        function openGooglePopup() {
+            const width = 500;
+            const height = 700;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+
+            const popup = window.open(
+                "{{ path('connect_google_start') }}?popup=1",
+                'GoogleLogin',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+            );
+
+            if (!popup) {
+                showError('Popup was blocked. Please check your popup blocker settings.');
+                return;
+            }
+
+            // Check if popup is closed periodically
+            const popupCheckInterval = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(popupCheckInterval);
+                    // Popup was closed without success, user can try again
+                }
+            }, 500);
+
+            // Listen for message from OAuth callback
+            const messageHandler = window.addEventListener('message', function(event) {
+                // Verify origin for security
+                if (event.origin !== window.location.origin) return;
+
+                if (event.data.type === 'OAUTH_SUCCESS') {
+                    clearInterval(popupCheckInterval);
+                    window.removeEventListener('message', messageHandler);
+                    popup.close();
+                    
+                    // Redirect to dashboard or intended page
+                    window.location.href = event.data.redirectUrl || '/dashboard';
+                } else if (event.data.type === 'OAUTH_ERROR') {
+                    clearInterval(popupCheckInterval);
+                    window.removeEventListener('message', messageHandler);
+                    popup.close();
+                    
+                    showError(event.data.message || 'Google authentication failed. Please try again.');
+                }
+            });
+        }
+
+        function showError(message) {
+            // Create error div if it doesn't exist
+            let errorDiv = document.querySelector('.rw-login-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'rw-login-error';
+                errorDiv.style.marginBottom = '1rem';
+                document.querySelector('.rw-login-form').insertBefore(errorDiv, document.querySelector('.rw-input-group'));
+            }
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'flex';
+        }
+    </script>
 </body>
 </html>

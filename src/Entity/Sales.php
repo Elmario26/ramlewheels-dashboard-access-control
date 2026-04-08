@@ -45,6 +45,7 @@ class Sales
     private ?string $notes = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\GreaterThanOrEqual('today', message: 'The sale date cannot be in the past. Please select today or a future date.')]
     private ?\DateTimeInterface $saleDate = null;
 
     #[ORM\Column(length: 20)]

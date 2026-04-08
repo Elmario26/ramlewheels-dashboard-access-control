@@ -2,53 +2,102 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\CarsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: CarsRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => ['car:read']],
+            security: 'true',
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['car:read']],
+            security: 'true',
+        ),
+        new Post(
+            normalizationContext: ['groups' => ['car:read']],
+            denormalizationContext: ['groups' => ['car:write']],
+            security: "is_granted('ROLE_STAFF')",
+        ),
+        new Put(
+            normalizationContext: ['groups' => ['car:read']],
+            denormalizationContext: ['groups' => ['car:write']],
+            security: "is_granted('ROLE_STAFF')",
+        ),
+        new Patch(
+            normalizationContext: ['groups' => ['car:read']],
+            denormalizationContext: ['groups' => ['car:write']],
+            security: "is_granted('ROLE_STAFF')",
+        ),
+        new Delete(security: "is_granted('ROLE_STAFF')"),
+    ],
+)]
 class Cars
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['car:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $brand = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $Year = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $Mileage = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $conditions = null;
 
     #[ORM\Column]
+    #[Groups(['car:read', 'car:write'])]
     private ?float $price = null;
 
     #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private array $images = [];
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $status = 'available';
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $make = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $color = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $plateNumber = null;
 
     #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $engineNumber = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['car:read', 'car:write'])]
     private ?string $damageDescription = null;
 
     #[ORM\OneToMany(mappedBy: 'vehicle', targetEntity: Service::class)]
@@ -266,12 +315,13 @@ class Cars
                 $total += (float)$service->getCost();
             }
         }
+
         return $total;
     }
 
     public function getServiceCount(): int
     {
-        return $this->services->filter(function(Service $service) {
+        return $this->services->filter(function (Service $service) {
             return $service->getStatus() === 'completed';
         })->count();
     }

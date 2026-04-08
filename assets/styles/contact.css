@@ -1,0 +1,165 @@
+/* Contact Page - Form Feedback Styles */
+
+/* Form States */
+.rw-contact-form-shell {
+    position: relative;
+}
+
+.rw-form-feedback {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    animation: slideDown 0.3s ease;
+}
+
+.rw-form-feedback.is-visible {
+    display: flex;
+}
+
+.rw-form-feedback--success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.rw-form-feedback--error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.rw-form-feedback--loading {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+}
+
+.rw-form-feedback__icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.rw-form-feedback__spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Submit Button States */
+.rw-primary-cta.is-loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.rw-primary-cta.is-loading .rw-btn-text {
+    opacity: 0;
+}
+
+.rw-primary-cta.is-loading::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.rw-primary-cta {
+    position: relative;
+}
+
+/* Form Validation States */
+.rw-input.is-error {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.rw-input.is-error:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.rw-input-error {
+    display: none;
+    font-size: 0.8rem;
+    color: #f87171;
+    margin-top: 0.35rem;
+}
+
+.rw-input-error.is-visible {
+    display: block;
+}
+
+/* Success Message Enhancement */
+.rw-success-message {
+    text-align: center;
+    padding: 2rem;
+}
+
+.rw-success-message__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+    border: 2px solid rgba(34, 197, 94, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.rw-success-message__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f9fafb;
+    margin-bottom: 0.5rem;
+}
+
+.rw-success-message__text {
+    color: rgba(209, 213, 219, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Form Hide State (after success) */
+.rw-contact-form.is-submitted .rw-form-fields {
+    display: none;
+}
+
+.rw-contact-form.is-submitted .rw-success-message {
+    display: block;
+}
+
+.rw-success-message {
+    display: none;
+}

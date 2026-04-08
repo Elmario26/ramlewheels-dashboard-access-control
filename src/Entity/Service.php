@@ -48,9 +48,11 @@ class Service
     private ?string $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Assert\GreaterThanOrEqual('today', message: 'The service date cannot be in the past. Please select today or a future date.')]
     private ?\DateTimeInterface $serviceDate = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Assert\GreaterThanOrEqual('today', message: 'The completion date cannot be in the past. Please select today or a future date.')]
     private ?\DateTimeInterface $completionDate = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

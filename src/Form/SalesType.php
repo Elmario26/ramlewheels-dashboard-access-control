@@ -103,10 +103,18 @@ class SalesType extends AbstractType
             ])
             ->add('saleDate', DateType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
                 'attr' => [
-                    'class' => 'form-control'
+                    'class' => 'form-control',
+                    'min' => (new \DateTime())->format('Y-m-d')
                 ],
-                'data' => new \DateTime()
+                'data' => new \DateTime(),
+                'constraints' => [
+                    new Assert\GreaterThanOrEqual([
+                        'value' => 'today',
+                        'message' => 'The sale date cannot be in the past. Please select today or a future date.'
+                    ])
+                ]
             ])
             ->add('status', ChoiceType::class, [
                 'choices' => [

@@ -15,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ServiceType extends AbstractType
 {
@@ -113,16 +114,24 @@ class ServiceType extends AbstractType
             ])
             ->add('serviceDate', DateTimeType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
                 'attr' => [
                     'class' => 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200'
                 ],
                 'label' => 'Service Date',
                 'label_attr' => [
                     'class' => 'block text-sm font-medium text-gray-300 mb-2'
+                ],
+                'constraints' => [
+                    new Assert\GreaterThanOrEqual([
+                        'value' => 'today',
+                        'message' => 'The service date cannot be in the past. Please select today or a future date.'
+                    ])
                 ]
             ])
             ->add('completionDate', DateTimeType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
                 'required' => false,
                 'attr' => [
                     'class' => 'w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-gray-100 focus:ring-2 focus:ring-[#B32224] focus:border-transparent hover:border-[#B32224] hover:bg-gray-600 transition-all duration-200'
@@ -130,6 +139,12 @@ class ServiceType extends AbstractType
                 'label' => 'Completion Date',
                 'label_attr' => [
                     'class' => 'block text-sm font-medium text-gray-300 mb-2'
+                ],
+                'constraints' => [
+                    new Assert\GreaterThanOrEqual([
+                        'value' => 'today',
+                        'message' => 'The completion date cannot be in the past. Please select today or a future date.'
+                    ])
                 ]
             ])
             ->add('assignedMechanic', EntityType::class, [

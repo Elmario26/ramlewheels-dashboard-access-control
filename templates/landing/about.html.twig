@@ -1,85 +1,229 @@
 {% extends 'landing/_layout.html.twig' %}
 
-{% block title %}Ramle Wheels | About Us{% endblock %}
+{% block title %}About Ramle Wheels | Premium Car Dealership{% endblock %}
 
 {% set activeNav = 'about' %}
 
 {% block body %}
-    <section class="rw-section rw-reveal is-visible" aria-labelledby="about-page-heading">
-        <div class="rw-section-header">
-            <div>
-                <div class="rw-section-kicker">About Us</div>
-                <h1 id="about-page-heading" class="rw-section-title" style="font-size:1.8rem;">
-                    A modern dealership built on trust and detail.
-                </h1>
-            </div>
-            <p class="rw-section-subtitle">
-                Our mission is simple: deliver high‑quality vehicles with a premium, transparent experience.
+{{ encore_entry_link_tags('about') }}
+
+<!-- Hero Section -->
+<section class="rw-about-hero rw-reveal is-visible" aria-labelledby="about-hero-heading">
+    <div class="rw-about-hero-bg"></div>
+    <div class="rw-about-hero-pattern"></div>
+    <div class="rw-about-hero-content">
+        <div class="rw-about-hero-kicker">Since 2025</div>
+        <h1 id="about-hero-heading" class="rw-about-hero-title">
+            About <span>Ramle Wheels</span>
+        </h1>
+        <p class="rw-about-hero-subtitle">
+            Your trusted partner in premium vehicles. We combine decades of automotive expertise with a commitment to transparency, quality, and exceptional customer service.
+        </p>
+    </div>
+</section>
+
+<!-- Company Overview Section -->
+<section class="rw-section rw-section-large rw-reveal" aria-labelledby="overview-heading">
+    <div class="rw-overview-grid">
+        <div class="rw-overview-content">
+            <span class="rw-section-kicker">Our Story</span>
+            <h2 id="overview-heading" class="rw-overview-content h2" style="margin-top: 0.5rem;">
+                Built on <span>Trust</span>, Driven by <span>Excellence</span>
+            </h2>
+            <p class="rw-overview-text">
+                Ramle Wheels has been a cornerstone of the automotive industry in the Philippines since 2008. What began as a modest family business has evolved into one of the region's most respected dealerships, serving thousands of satisfied customers across Negros Oriental and beyond.
             </p>
-        </div>
-
-        <div class="rw-about-intro">
-            <div style="color:var(--rw-muted);line-height:1.75;font-size:0.95rem;">
-                <p style="margin:0;">
-                    Ramle Wheels was created for drivers who want more than a transaction. We curate each vehicle, inspect it thoroughly, and present it with the kind of care you’d expect from a premium automotive brand.
-                </p>
-                <p style="margin:0.95rem 0 0;">
-                    With years of combined experience in dealership operations and customer care, our team focuses on clarity — straightforward pricing, honest guidance, and a calm showroom environment where you can choose with confidence.
-                </p>
-                <p style="margin:0.95rem 0 0;">
-                    We’re committed to quality vehicles and long‑term ownership confidence. From first inquiry to after‑sales support, we aim to make every step feel smooth and modern.
-                </p>
-            </div>
-
-            <div class="rw-card" style="padding:1rem;">
-                <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.18em;color:rgba(148,163,184,0.9);">Our standards</div>
-                <div style="margin-top:0.75rem;display:grid;gap:0.6rem;">
-                    <div style="color:#e5e7eb;">• Curated inventory</div>
-                    <div style="color:#e5e7eb;">• Transparent guidance</div>
-                    <div style="color:#e5e7eb;">• Multi‑point inspection</div>
-                    <div style="color:#e5e7eb;">• Customer‑first service</div>
-                </div>
-                <div style="margin-top:1rem;">
-                    <a class="rw-ghost-cta" href="{{ path('app_marketing_contact') }}">Talk to our team</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="rw-section rw-reveal" aria-labelledby="about-stats-heading">
-        <div class="rw-section-header">
-            <div>
-                <div class="rw-section-kicker">Experience</div>
-                <h2 id="about-stats-heading" class="rw-section-title">Built to be premium, designed to be simple.</h2>
-            </div>
-            <p class="rw-section-subtitle">
-                A consistent process that prioritizes vehicle quality and customer clarity.
+            <p class="rw-overview-text">
+                Our mission is simple yet profound: to provide every customer with a vehicle that perfectly matches their needs, backed by honest guidance, transparent pricing, and unwavering support throughout their ownership journey.
             </p>
+            <p class="rw-overview-text">
+                We believe that buying a car should be an exciting, stress-free experience. That's why we've built our entire operation around customer satisfaction — from our meticulously curated inventory to our state-of-the-art service facilities.
+            </p>
+            <div class="rw-overview-stats">
+                <div class="rw-overview-stat">
+                    <span class="rw-overview-stat-value">15<span>+</span></span>
+                    <span class="rw-overview-stat-label">Years Experience</span>
+                </div>
+                <div class="rw-overview-stat">
+                    <span class="rw-overview-stat-value">3K<span>+</span></span>
+                    <span class="rw-overview-stat-label">Vehicles Sold</span>
+                </div>
+                <div class="rw-overview-stat">
+                    <span class="rw-overview-stat-value">98<span>%</span></span>
+                    <span class="rw-overview-stat-label">Satisfaction Rate</span>
+                </div>
+            </div>
         </div>
+        <div class="rw-overview-visual">
+            <img src="{{ asset('images/rmlogo 2.png') }}" alt="Ramle Wheels Logo" loading="lazy" style="object-fit: contain; padding: 2rem; background: linear-gradient(135deg, rgba(15,23,42,0.8), rgba(2,6,23,0.9));">
+        </div>
+    </div>
+</section>
 
-        <div class="rw-about-stats">
-            <article class="rw-card" style="padding:1rem;">
-                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">3K+</div>
-                <div style="margin-top:0.15rem;color:var(--rw-muted);">Vehicles delivered</div>
-                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
-                    Customer handovers with guided walkthroughs and ownership tips.
-                </div>
-            </article>
-            <article class="rw-card" style="padding:1rem;">
-                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">72‑pt</div>
-                <div style="margin-top:0.15rem;color:var(--rw-muted);">Inspection checklist</div>
-                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
-                    Safety, performance, electronics, and cosmetic quality checks.
-                </div>
-            </article>
-            <article class="rw-card" style="padding:1rem;">
-                <div style="font-size:1.55rem;font-weight:600;color:#f9fafb;">15+</div>
-                <div style="margin-top:0.15rem;color:var(--rw-muted);">Years of expertise</div>
-                <div style="margin-top:0.45rem;color:rgba(209,213,219,0.92);line-height:1.6;font-size:0.86rem;">
-                    Combined experience across sales, service coordination, and customer care.
-                </div>
-            </article>
+<!-- Core Values Section -->
+<section class="rw-section rw-section-large rw-reveal" aria-labelledby="values-heading">
+    <div class="rw-section-header">
+        <div>
+            <div class="rw-section-kicker">What We Stand For</div>
+            <h2 id="values-heading" class="rw-section-title" style="margin-top: 0.5rem;">Our Core Values</h2>
         </div>
-    </section>
+        <p class="rw-section-subtitle">
+            The principles that guide every decision we make and every interaction we have with our customers.
+        </p>
+    </div>
+    <div class="rw-values-grid">
+        <div class="rw-value-card">
+            <div class="rw-value-icon">🤝</div>
+            <h3 class="rw-value-title">Trust</h3>
+            <p class="rw-value-desc">We build lasting relationships through honest communication, transparent pricing, and delivering on every promise we make.</p>
+        </div>
+        <div class="rw-value-card">
+            <div class="rw-value-icon">✨</div>
+            <h3 class="rw-value-title">Quality</h3>
+            <p class="rw-value-desc">Every vehicle undergoes rigorous inspection and preparation to ensure it meets our exacting standards before reaching our showroom.</p>
+        </div>
+        <div class="rw-value-card">
+            <div class="rw-value-icon">😊</div>
+            <h3 class="rw-value-title">Customer Satisfaction</h3>
+            <p class="rw-value-desc">Your needs drive everything we do. From first contact to after-sales support, we're committed to exceeding your expectations.</p>
+        </div>
+        <div class="rw-value-card">
+            <div class="rw-value-icon">🛡️</div>
+            <h3 class="rw-value-title">Reliability</h3>
+            <p class="rw-value-desc">We stand behind every vehicle we sell with comprehensive warranties and a dedicated service team ready to assist.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Meet the Team Section -->
+<section class="rw-section rw-section-large rw-reveal" aria-labelledby="team-heading">
+    <div class="rw-section-header">
+        <div>
+            <div class="rw-section-kicker">The People Behind</div>
+            <h2 id="team-heading" class="rw-section-title" style="margin-top: 0.5rem;">Meet Our Team</h2>
+        </div>
+        <p class="rw-section-subtitle">
+            A dedicated group of automotive professionals committed to delivering excellence in every interaction.
+        </p>
+    </div>
+    <div class="rw-team-grid">
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/CEO.jpg') }}" alt="CEO - Chief Executive Officer" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Mr. John Doe</h3>
+                <p class="rw-team-role">CEO</p>
+                <p class="rw-team-desc">Leading our vision and strategy, ensuring Ramle Wheels remains at the forefront of automotive excellence.</p>
+            </div>
+        </div>
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/General Manager.jpg') }}" alt="General Manager" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Mr. Bob Uy</h3>
+                <p class="rw-team-role">General Manager</p>
+                <p class="rw-team-desc">Overseeing daily operations with precision, ensuring seamless coordination across all departments.</p>
+            </div>
+        </div>
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/Sales Manager.jpg') }}" alt="Sales Manager" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Mr. Manuel Duhay</h3>
+                <p class="rw-team-role">Sales Manager</p>
+                <p class="rw-team-desc">Guiding our sales team to deliver personalized service, matching every customer with their perfect vehicle.</p>
+            </div>
+        </div>
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/Service Manager.jpg') }}" alt="Service Manager" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Mr. Stanley Jones</h3>
+                <p class="rw-team-role">Service Manager</p>
+                <p class="rw-team-desc">Leading our certified technicians in maintaining the highest standards of vehicle care and repair.</p>
+            </div>
+        </div>
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/Finance Officer.jpg') }}" alt="Finance Officer" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Ms. KT de Armas</h3>
+                <p class="rw-team-role">Finance Officer</p>
+                <p class="rw-team-desc">Creating flexible financing solutions and ensuring transparent, straightforward transactions for every customer.</p>
+            </div>
+        </div>
+        <div class="rw-team-card">
+            <div class="rw-team-photo">
+                <img src="{{ asset('images/Digital Systems Developer.png') }}" alt="Digital Systems Developer" loading="lazy">
+            </div>
+            <div class="rw-team-info">
+                <h3 class="rw-team-name">Mr. Elmar Lariosa</h3>
+                <p class="rw-team-role">Digital Systems Developer</p>
+                <p class="rw-team-desc">Powering our digital transformation with innovative solutions that enhance the customer experience.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dealership Experience Section -->
+<section class="rw-section rw-section-large rw-reveal" aria-labelledby="experience-heading">
+    <div class="rw-section-header">
+        <div>
+            <div class="rw-section-kicker">What to Expect</div>
+            <h2 id="experience-heading" class="rw-section-title" style="margin-top: 0.5rem;">The Ramle Wheels Experience</h2>
+        </div>
+        <p class="rw-section-subtitle">
+            Every step of your journey with us is designed to be smooth, transparent, and enjoyable.
+        </p>
+    </div>
+    <div class="rw-experience-grid">
+        <div class="rw-experience-block">
+            <span class="rw-experience-number">01</span>
+            <h3 class="rw-experience-title">Smooth Transactions</h3>
+            <p class="rw-experience-text">From browsing to ownership, we've streamlined every process. Our digital-first approach means less paperwork and more time enjoying your new vehicle.</p>
+        </div>
+        <div class="rw-experience-block">
+            <span class="rw-experience-number">02</span>
+            <h3 class="rw-experience-title">Transparent Pricing</h3>
+            <p class="rw-experience-text">No hidden fees, no surprises. We provide clear, upfront pricing on every vehicle, including all applicable taxes and fees, so you can make informed decisions.</p>
+        </div>
+        <div class="rw-experience-block">
+            <span class="rw-experience-number">03</span>
+            <h3 class="rw-experience-title">72-Point Inspection</h3>
+            <p class="rw-experience-text">Every pre-owned vehicle undergoes our comprehensive 72-point inspection, ensuring mechanical reliability, safety compliance, and cosmetic excellence.</p>
+        </div>
+        <div class="rw-experience-block">
+            <span class="rw-experience-number">04</span>
+            <h3 class="rw-experience-title">After-Sales Support</h3>
+            <p class="rw-experience-text">Our relationship doesn't end at purchase. Enjoy comprehensive warranties, scheduled maintenance reminders, and 24/7 roadside assistance.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Call-to-Action Section -->
+<section class="rw-section rw-reveal" aria-labelledby="cta-heading">
+    <div class="rw-about-cta">
+        <div class="rw-about-cta-content">
+            <h2 id="cta-heading" class="rw-about-cta-title">Ready to Find Your Perfect Vehicle?</h2>
+            <p class="rw-about-cta-text">
+                Browse our curated inventory of premium vehicles or get in touch with our team for personalized assistance. Your dream car awaits at Ramle Wheels.
+            </p>
+            <div class="rw-about-cta-actions">
+                <a href="{{ path('app_home') }}#vehicles" class="rw-btn-primary">
+                    <span>Browse Vehicles</span>
+                    <span aria-hidden="true">→</span>
+                </a>
+                <a href="{{ path('app_marketing_contact') }}" class="rw-btn-secondary">
+                    <span>Contact Us</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
-
