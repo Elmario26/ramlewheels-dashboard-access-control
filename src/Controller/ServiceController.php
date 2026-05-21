@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 #[Route('/services')]
 class ServiceController extends AbstractController
@@ -288,4 +289,12 @@ class ServiceController extends AbstractController
 
         return $this->json($data);
     }
+
+    #[Route('/images/cars/{filename}', name: 'car_image', methods: ['GET'])]
+    public function getImage(string $filename): Response
+    {
+        $path = $this->getParameter('kernel.project_dir') . '/public/uploads/cars/' . $filename;
+        return new BinaryFileResponse($path);
+    }
 }
+

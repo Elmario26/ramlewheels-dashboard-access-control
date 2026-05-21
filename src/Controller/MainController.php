@@ -54,6 +54,13 @@ class MainController extends AbstractController
                 'price_min' => null,
                 'price_max' => null
             ],
+            'filterBrand' => $request->query->get('brand'),
+            'filterYear' => $request->query->get('year'),
+            'filterStatus' => $request->query->get('status'),
+            'filterCondition' => $request->query->get('condition'),
+            'filterColor' => $request->query->get('color'),
+            'filterPriceMax' => $request->query->get('priceMax'),
+            'filterMileageMax' => $request->query->get('mileageMax'),
             'form' => $form->createView()
         ]);
     }

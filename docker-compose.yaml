@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     container_name: ramlewheels_mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ramlewheels}
+      MYSQL_USER: ${MYSQL_USER:-ramlewheels}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dimples}
     ports:
       - "3306:3306"
     volumes:
@@ -18,16 +18,17 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
-      PMA_user: ramlewheels
-      PMA_PASSWORD: dimples
+      PMA_USER: ${MYSQL_USER}
+      PMA_PASSWORD: ${MYSQL_PASSWORD}
+      PMA_ABSOLUTE_URI: http://localhost:8080/
     ports:
       - "8080:80"
     depends_on:
       - mysql
     networks:
-      - mynetwork
+      - ramlewheels_network
 volumes:
-  mysql-data:
+  mysql_data:
 networks:
-  mynetwork:
+  ramlewheels_network:
     driver: bridge

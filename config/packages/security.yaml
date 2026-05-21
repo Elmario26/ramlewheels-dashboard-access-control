@@ -24,6 +24,7 @@ security:
         ROLE_ADMIN: ['ROLE_MANAGER', 'ROLE_STAFF', 'ROLE_MECHANIC']
         ROLE_MANAGER: ['ROLE_STAFF']
         ROLE_MECHANIC: []
+        ROLE_CUSTOMER: []
     
     firewalls:
         dev:
@@ -70,6 +71,20 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+
+        # ✅ API rules FIRST (before any catch-all)
+        - { path: "^/api/login$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api/register$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api/cars$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api/docs$", roles: "PUBLIC_ACCESS" }    # Swagger UI page
+        - { path: "^/api/docs.json$", roles: "PUBLIC_ACCESS" } # Swagger JSON
+        - { path: "^/api$", roles: "PUBLIC_ACCESS" }           # API entrypoint
+        - { path: "^/api/me$", roles: "IS_AUTHENTICATED_FULLY" }
+        - { path: "^/api/test-drive-bookings$", roles: "IS_AUTHENTICATED_FULLY" }
+        - { path: "^/api/test-drive-bookings/.*/approve$", roles: "ROLE_STAFF" }
+        - { path: "^/api", roles: "IS_AUTHENTICATED_FULLY" }
+        - { path: "^/images/cars", roles: "PUBLIC_ACCESS" }
+        
         # Public marketing landing page
         - { path: "^/$", roles: "PUBLIC_ACCESS" }
         - { path: "^/showroom/cars$", roles: "PUBLIC_ACCESS" }
@@ -103,10 +118,6 @@ security:
 
         # Services: Mechanics (and higher explicitly)
         - { path: "^/services", roles: [ "ROLE_MECHANIC", "ROLE_ADMIN", "ROLE_MANAGER", "ROLE_STAFF" ] }
-
-        # API Platform + JWT: reachable by anonymous; each operation enforces its own security rules
-        - { path: "^/api/login$", roles: "PUBLIC_ACCESS" }
-        - { path: "^/api", roles: "IS_AUTHENTICATED_FULLY" }
 
         # Everything else requires ROLE_STAFF or higher (Admin/Manager inherit Staff)
         - { path: "^/", roles: "ROLE_STAFF" }
