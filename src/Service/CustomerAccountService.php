@@ -42,7 +42,7 @@ final class CustomerAccountService
         $customer->setFirstName($user->getFirstName() ?? 'Unknown');
         $customer->setLastName($this->normalizeLastName($user->getLastName()));
         $customer->setEmail($user->getEmail());
-        $customer->setPhone($user->getPhone());
+        $customer->setPhone($this->normalizePhone($user->getPhone()));
         $customer->setCreatedAt($user->getCreatedAt() ?? new \DateTime());
         $customer->setNotes('Registered via API / mobile app');
 
@@ -59,19 +59,32 @@ final class CustomerAccountService
     public function syncAllApiCustomers(): int
     {
         $created = 0;
+        $seenEmails = [];
 
-        foreach ($this->userRepository->findCustomerUsers() as $user) {
-            $email = $user->getEmail();
-            if (!$email || $this->customerRepository->findByEmail($email) !== null) {
-                continue;
+        try {
+            foreach ($this->userRepository->findCustomerUsers() as $user) {
+                $email = $user->getEmail();
+                if (!$email || isset($seenEmails[$email])) {
+                    continue;
+                }
+
+                if ($this->customerRepository->findByEmail($email) !== null) {
+                    $seenEmails[$email] = true;
+                    continue;
+                }
+
+                $this->ensureCustomerRecord($user);
+                $seenEmails[$email] = true;
+                ++$created;
             }
 
-            $this->ensureCustomerRecord($user);
-            ++$created;
-        }
-
-        if ($created > 0) {
-            $this->entityManager->flush();
+            if ($created > 0) {
+                $this->entityManager->flush();
+            }
+        } catch (\Throwable $e) {
+            if ($this->entityManager->isOpen()) {
+                $this->entityManager->clear();
+            }
         }
 
         return $created;
@@ -86,5 +99,16 @@ final class CustomerAccountService
         }
 
         return 'Customer';
+    }
+
+    private function normalizePhone(?string $phone): ?string
+    {
+        $phone = trim((string) $phone);
+
+        if ($phone === '') {
+            return null;
+        }
+
+        return preg_match('/^9\d{9}$/', $phone) === 1 ? $phone : null;
     }
 }

@@ -1,0 +1,14 @@
+# Local development overrides (hot-reload PHP/Twig).
+# Usage: docker compose -f docker-compose.yaml -f docker-compose.dev.yml up -d --build
+
+services:
+  app:
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: "1"
+    volumes:
+      - ./src:/app/src
+      - ./templates:/app/templates
+      - ./public:/app/public
+      - ./config:/app/config
+      - app_var:/app/var

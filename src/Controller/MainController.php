@@ -333,7 +333,7 @@ class MainController extends AbstractController
     #[Route('/customers', name: 'app_customers')]
     public function customers(): Response
     {
-        return $this->redirectToRoute('app_customers_index');
+        return $this->redirectToRoute('app_customers_index', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
     #[Route('/repairs', name: 'app_repairs')]

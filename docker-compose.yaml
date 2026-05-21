@@ -1,34 +1,92 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: ramlewheels_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-ramlewheels}
-      MYSQL_USER: ${MYSQL_USER:-ramlewheels}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dimples}
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - ramlewheels_network
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ramlewheels_app
     restart: unless-stopped
-    environment:
-      PMA_HOST: mysql
-      PMA_USER: ${MYSQL_USER}
-      PMA_PASSWORD: ${MYSQL_PASSWORD}
-      PMA_ABSOLUTE_URI: http://localhost:8080/
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8000}:80"
+    env_file:
+      - .env
+    environment:
+      # Always prod in Docker — dev bundles are not installed in the image
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=8.0.32&charset=utf8mb4"
+      DEFAULT_URI: ${DEFAULT_URI:-http://localhost:8000}
+      MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
+      MAILER_DSN: ${MAILER_DSN:-null://null}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      CORS_ALLOW_ORIGIN: ${CORS_ALLOW_ORIGIN:-'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-%kernel.project_dir%/config/jwt/private.pem}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY:-%kernel.project_dir%/config/jwt/public.pem}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-}
+    volumes:
+      # Persist uploads and Symfony var (cache/logs) across restarts
+      - app_var:/app/var
+      - ./public/uploads:/app/public/uploads
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - ramlewheels_network
-volumes:
-  mysql_data:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+#   mysql:
+#     image: mysql:8.0
+#     container_name: ramlewheels_mysql
+#     restart: unless-stopped
+#     env_file:
+#       - .env
+#     environment:
+#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#       MYSQL_DATABASE: ${MYSQL_DATABASE}
+#       MYSQL_USER: ${MYSQL_USER}
+#       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#     ports:
+#       - "${MYSQL_PORT:-3306}:3306"
+#     volumes:
+#       - mysql_data:/var/lib/mysql
+#     networks:
+#       - ramlewheels_network
+#     healthcheck:
+#       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 10
+#       start_period: 40s
+
+#   # Optional: docker compose --profile tools up -d
+#   phpmyadmin:
+#     image: phpmyadmin/phpmyadmin
+#     container_name: ramlewheels_phpmyadmin
+#     profiles: ["tools"]
+#     restart: unless-stopped
+#     environment:
+#       PMA_HOST: mysql
+#       PMA_USER: ${MYSQL_USER}
+#       PMA_PASSWORD: ${MYSQL_PASSWORD}
+#     ports:
+#       - "${PHPMYADMIN_PORT:-8080}:80"
+#     depends_on:
+#       mysql:
+#         condition: service_healthy
+#     networks:
+#       - ramlewheels_network
+
+# volumes:
+#   mysql_data:
+#   app_var:
+
 networks:
   ramlewheels_network:
     driver: bridge

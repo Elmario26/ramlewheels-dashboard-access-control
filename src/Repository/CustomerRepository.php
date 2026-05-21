@@ -43,6 +43,96 @@ class CustomerRepository extends ServiceEntityRepository
     }
 
     /**
+     * Customers for the admin list with purchase stats (avoids N+1 in Twig).
+     *
+     * @return list<array{customer: Customer, purchaseCount: int, totalSpent: float}>
+     */
+    public function findForListing(int $limit = 50): array
+    {
+        $customers = $this->getRecentCustomers($limit);
+
+        if ($customers === []) {
+            return [];
+        }
+
+        $ids = array_map(static fn (Customer $c) => $c->getId(), $customers);
+
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(s.customer) AS customerId, COUNT(s.id) AS purchaseCount, COALESCE(SUM(s.salePrice), 0) AS totalSpent')
+            ->from(\App\Entity\Sales::class, 's')
+            ->where('s.customer IN (:ids)')
+            ->andWhere('s.status = :status')
+            ->setParameter('ids', $ids)
+            ->setParameter('status', 'completed')
+            ->groupBy('s.customer')
+            ->getQuery()
+            ->getArrayResult();
+
+        $statsById = [];
+        foreach ($rows as $row) {
+            $statsById[(int) $row['customerId']] = $row;
+        }
+
+        $listing = [];
+        foreach ($customers as $customer) {
+            $id = $customer->getId();
+            $stats = $statsById[$id] ?? null;
+
+            $listing[] = [
+                'customer' => $customer,
+                'purchaseCount' => (int) ($stats['purchaseCount'] ?? 0),
+                'totalSpent' => (float) ($stats['totalSpent'] ?? 0),
+            ];
+        }
+
+        return $listing;
+    }
+
+    /**
+     * @return list<array{customer: Customer, purchaseCount: int, totalSpent: float}>
+     */
+    public function searchForListing(string $query): array
+    {
+        $customers = $this->searchCustomers($query);
+
+        if ($customers === []) {
+            return [];
+        }
+
+        $ids = array_map(static fn (Customer $c) => $c->getId(), $customers);
+
+        $rows = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(s.customer) AS customerId, COUNT(s.id) AS purchaseCount, COALESCE(SUM(s.salePrice), 0) AS totalSpent')
+            ->from(\App\Entity\Sales::class, 's')
+            ->where('s.customer IN (:ids)')
+            ->andWhere('s.status = :status')
+            ->setParameter('ids', $ids)
+            ->setParameter('status', 'completed')
+            ->groupBy('s.customer')
+            ->getQuery()
+            ->getArrayResult();
+
+        $statsById = [];
+        foreach ($rows as $row) {
+            $statsById[(int) $row['customerId']] = $row;
+        }
+
+        $listing = [];
+        foreach ($customers as $customer) {
+            $id = $customer->getId();
+            $stats = $statsById[$id] ?? null;
+
+            $listing[] = [
+                'customer' => $customer,
+                'purchaseCount' => (int) ($stats['purchaseCount'] ?? 0),
+                'totalSpent' => (float) ($stats['totalSpent'] ?? 0),
+            ];
+        }
+
+        return $listing;
+    }
+
+    /**
      * Get top customers by purchase amount
      */
     public function getTopCustomers(int $limit = 10): array

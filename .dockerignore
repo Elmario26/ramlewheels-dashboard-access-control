@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.test
+var/
+vendor/
+node_modules/
+public/build/
+tests/
+backups/
+*.md
+docker-compose*.yml
+Dockerfile
+.editorconfig
