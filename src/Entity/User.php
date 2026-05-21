@@ -58,7 +58,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\Choice(choices: ['admin', 'manager', 'mechanic', 'staff'], message: 'Please select a valid role')]
+    #[Assert\Choice(choices: ['admin', 'manager', 'mechanic', 'staff', 'customer'], message: 'Please select a valid role')]
     private ?string $role = null;
 
     #[ORM\Column(length: 20)]
@@ -232,6 +232,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             case 'staff':
                 $this->roles = ['ROLE_STAFF'];
                 break;
+            case 'customer':
+                $this->roles = ['ROLE_CUSTOMER'];
+                break;
         }
         
         return $this;
@@ -359,6 +362,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             'manager' => 'Manager',
             'mechanic' => 'Mechanic',
             'staff' => 'Staff',
+            'customer' => 'Customer',
             default => 'Unknown'
         };
     }
@@ -379,11 +383,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private function resolveRole(): string
     {
-        if (in_array($this->role, ['admin', 'manager', 'mechanic', 'staff'], true)) {
+        if (in_array($this->role, ['admin', 'manager', 'mechanic', 'staff', 'customer'], true)) {
             return $this->role;
         }
 
         $roles = $this->roles;
+
+        if (in_array('ROLE_CUSTOMER', $roles, true)) {
+            return 'customer';
+        }
 
         if (in_array('ROLE_ADMIN', $roles, true)) {
             return 'admin';

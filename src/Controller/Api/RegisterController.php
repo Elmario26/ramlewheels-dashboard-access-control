@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Service\CustomerAccountService;
 use App\Service\EmailVerificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,6 +23,7 @@ final class RegisterController extends AbstractController
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         EmailVerificationService $emailVerificationService,
+        CustomerAccountService $customerAccountService,
         LoggerInterface $logger
     ): JsonResponse {
         try {
@@ -69,7 +71,7 @@ final class RegisterController extends AbstractController
             $user->setUsername($data['email']); // Use email as username
             $user->setFirstName($firstName);
             $user->setLastName($lastName);
-            $user->setRoles(['ROLE_CUSTOMER']);
+            $user->setRole('customer');
 
             // Encode password
             $hashedPassword = $userPasswordHasher->hashPassword($user, $data['password']);
@@ -90,8 +92,11 @@ final class RegisterController extends AbstractController
                 return $this->json(['error' => 'Validation failed', 'details' => $errorMessages], 400);
             }
 
-            // Save user
+            // Save user and mirror into CRM customers list
             $entityManager->persist($user);
+            $entityManager->flush();
+
+            $customerAccountService->ensureCustomerRecord($user);
             $entityManager->flush();
 
             $logger->info('New user registered', ['email' => $user->getEmail()]);

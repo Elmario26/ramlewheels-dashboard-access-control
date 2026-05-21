@@ -6,6 +6,7 @@ use App\Entity\Customer;
 use App\Form\CustomerType;
 use App\Repository\CustomerRepository;
 use App\Service\ActivityLoggerService;
+use App\Service\CustomerAccountService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,12 +17,14 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CustomerController extends AbstractController
 {
     public function __construct(
-        private ActivityLoggerService $activityLogger
+        private ActivityLoggerService $activityLogger,
+        private CustomerAccountService $customerAccountService,
     ) {}
     #[Route('/', name: 'app_customers_index', methods: ['GET'])]
     public function index(CustomerRepository $customerRepository): Response
     {
         try {
+            $this->customerAccountService->syncAllApiCustomers();
             $customers = $customerRepository->getRecentCustomers(50);
             $statistics = $customerRepository->getCustomerStatistics();
 
@@ -88,6 +91,7 @@ final class CustomerController extends AbstractController
     public function search(Request $request, CustomerRepository $customerRepository): Response
     {
         try {
+            $this->customerAccountService->syncAllApiCustomers();
             $query = trim($request->query->get('q', ''));
             $customers = [];
             $error = null;

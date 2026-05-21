@@ -51,6 +51,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
+     * Users registered via API / app with customer access.
+     */
+    public function findCustomerUsers(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.role = :role OR u.roles LIKE :roleCustomer')
+            ->setParameter('role', 'customer')
+            ->setParameter('roleCustomer', '%ROLE_CUSTOMER%')
+            ->orderBy('u.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Find users by role
      */
     public function findByRole(string $role): array
