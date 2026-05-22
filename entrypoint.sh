@@ -65,6 +65,11 @@ echo "Database is ready."
 echo "Running database migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
+if [ "${IMPORT_RAILWAY_SEED:-}" = "1" ]; then
+  echo "Importing railway_seed.json (free tier data copy)..."
+  php bin/console app:import-railway-seed --no-interaction 2>/dev/null || true
+fi
+
 echo "Provisioning admin user (if configured)..."
 php bin/console app:provision-admin --no-interaction 2>/dev/null || true
 

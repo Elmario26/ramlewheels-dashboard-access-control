@@ -30,3 +30,19 @@ services:
     App\Controller\Api\ContactController:
         arguments:
             $brevoApiKey: '%brevo_api_key%'
+
+    App\Service\RailwayDatabaseSyncService:
+        arguments:
+            $railwayDatabaseUrl: '%env(default::RAILWAY_DATABASE_URL)%'
+
+    App\Controller\Dev\RailwaySyncController:
+        arguments:
+            $syncSecret: '%env(default::SYNC_SECRET)%'
+
+    App\Command\BuildRailwaySeedCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Command\ImportRailwaySeedCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
