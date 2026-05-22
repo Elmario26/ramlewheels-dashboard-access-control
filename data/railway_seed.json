@@ -1,114 +1,544 @@
 {
-    "exportedAt": "2026-05-22T04:06:49+02:00",
-    "users": [
-        {
-            "username": "Elmar",
-            "email": "ramlelariosa26@gmail.com",
-            "roles": [
-                "ROLE_ADMIN"
-            ],
-            "password": "$2y$13$EwP4PR21XzLlQkhLAgeQyukrjD6QmHwxcpx7KIh\/cJ\/ctNAYTMUVW",
-            "firstName": "Elmar",
-            "lastName": "Lariosa",
-            "phone": null,
-            "role": "admin",
-            "status": "active",
-            "notes": null,
-            "isVerified": true,
-            "verificationToken": null,
-            "createdAt": "2026-05-21 06:39:02"
-        },
-        {
-            "username": "john@example.com",
-            "email": "john@example.com",
-            "roles": [
-                "ROLE_USER"
-            ],
-            "password": "$2y$13$Xvgy1XvcEb5kuunc8MW2vOzu\/\/a.cZsuaKfWdjTR4GQfjbB9FhCFu",
-            "firstName": "John",
-            "lastName": "Doe",
-            "phone": null,
-            "role": "staff",
-            "status": "active",
-            "notes": null,
-            "isVerified": false,
-            "verificationToken": "674ed5b7330feb891ed119b404a37395cb66d072869200b9c8954306fb453142",
-            "createdAt": "2026-05-21 15:00:25"
-        },
-        {
-            "username": "jane@example.com",
-            "email": "jane@example.com",
-            "roles": [
-                "ROLE_CUSTOMER"
-            ],
-            "password": "$2y$13$v02FIoMUBDxEOrhfeTGVAe80lQsHUfaggIVK3Rly09nKDRogvYduO",
-            "firstName": "Jane",
-            "lastName": "Smith",
-            "phone": null,
-            "role": "staff",
-            "status": "active",
-            "notes": null,
-            "isVerified": false,
-            "verificationToken": "b67e69fc8740c641041c72398dc227f3b4f09e9f9123bda4fb59beb5746f767c",
-            "createdAt": "2026-05-21 15:03:34"
-        },
-        {
-            "username": "ramle@gmail.com",
-            "email": "ramle@gmail.com",
-            "roles": [
-                "ROLE_CUSTOMER"
-            ],
-            "password": "$2y$13$e1KJ\/F6r4y5Z024c.24x5O5BwX9E9cSA\/u\/NTSJ9J8kwq2NKPgPWO",
-            "firstName": "elmar",
-            "lastName": "lariosa",
-            "phone": null,
-            "role": "staff",
-            "status": "active",
-            "notes": null,
-            "isVerified": false,
-            "verificationToken": "c44531f51602b63a30e6c7749eb5a488b1dd4c48d27de5126067025e7a0903f9",
-            "createdAt": "2026-05-21 15:20:12"
-        },
-        {
-            "username": "testuser@example.com",
-            "email": "testuser@example.com",
-            "roles": [
-                "ROLE_STAFF"
-            ],
-            "password": "$2y$13$ZS\/oz9rxGHTmZNDvCp4eFOIOcuKq6dUM3s5gCPTFULgru\/dyhW0ge",
-            "firstName": "Test",
-            "lastName": "User",
-            "phone": null,
-            "role": "staff",
-            "status": "active",
-            "notes": null,
-            "isVerified": false,
-            "verificationToken": "5e93c329c1182cfe39a4ec18c00ce4d8398b08e0c470e4e294dbe6e2d1d0fbfb",
-            "createdAt": "2026-05-21 16:55:44"
-        }
-    ],
-    "customers": [
-        {
-            "firstName": "elmar",
-            "lastName": "lariosa",
-            "email": "ramle@gmail.com",
-            "phone": null,
-            "address": null,
-            "city": null,
-            "zipCode": null,
-            "notes": "Registered via API \/ mobile app",
-            "createdAt": "2026-05-21 15:20:12"
-        },
-        {
-            "firstName": "Jane",
-            "lastName": "Smith",
-            "email": "jane@example.com",
-            "phone": null,
-            "address": null,
-            "city": null,
-            "zipCode": null,
-            "notes": "Registered via API \/ mobile app",
-            "createdAt": "2026-05-21 15:03:34"
-        }
-    ]
+    "version": 2,
+    "exportedAt": "2026-05-22T04:18:23+02:00",
+    "tables": {
+        "users": [
+            {
+                "id": 1,
+                "email": "ramlelariosa26@gmail.com",
+                "roles": "[\"ROLE_ADMIN\"]",
+                "password": "$2y$13$EwP4PR21XzLlQkhLAgeQyukrjD6QmHwxcpx7KIh\/cJ\/ctNAYTMUVW",
+                "first_name": "Elmar",
+                "last_name": "Lariosa",
+                "phone": null,
+                "role": "admin",
+                "status": "active",
+                "notes": null,
+                "created_at": "2026-05-21 06:39:02",
+                "updated_at": "2026-05-21 08:47:59",
+                "last_login_at": "2026-05-22 02:05:06",
+                "username": "Elmar",
+                "is_verified": 1,
+                "verification_token": null
+            },
+            {
+                "id": 2,
+                "email": "john@example.com",
+                "roles": "[\"ROLE_USER\"]",
+                "password": "$2y$13$Xvgy1XvcEb5kuunc8MW2vOzu\/\/a.cZsuaKfWdjTR4GQfjbB9FhCFu",
+                "first_name": "John",
+                "last_name": "Doe",
+                "phone": null,
+                "role": "staff",
+                "status": "active",
+                "notes": null,
+                "created_at": "2026-05-21 15:00:25",
+                "updated_at": null,
+                "last_login_at": null,
+                "username": "john@example.com",
+                "is_verified": 0,
+                "verification_token": "674ed5b7330feb891ed119b404a37395cb66d072869200b9c8954306fb453142"
+            },
+            {
+                "id": 3,
+                "email": "jane@example.com",
+                "roles": "[\"ROLE_CUSTOMER\"]",
+                "password": "$2y$13$v02FIoMUBDxEOrhfeTGVAe80lQsHUfaggIVK3Rly09nKDRogvYduO",
+                "first_name": "Jane",
+                "last_name": "Smith",
+                "phone": null,
+                "role": "staff",
+                "status": "active",
+                "notes": null,
+                "created_at": "2026-05-21 15:03:34",
+                "updated_at": null,
+                "last_login_at": null,
+                "username": "jane@example.com",
+                "is_verified": 0,
+                "verification_token": "b67e69fc8740c641041c72398dc227f3b4f09e9f9123bda4fb59beb5746f767c"
+            },
+            {
+                "id": 4,
+                "email": "ramle@gmail.com",
+                "roles": "[\"ROLE_CUSTOMER\"]",
+                "password": "$2y$13$e1KJ\/F6r4y5Z024c.24x5O5BwX9E9cSA\/u\/NTSJ9J8kwq2NKPgPWO",
+                "first_name": "elmar",
+                "last_name": "lariosa",
+                "phone": null,
+                "role": "staff",
+                "status": "active",
+                "notes": null,
+                "created_at": "2026-05-21 15:20:12",
+                "updated_at": null,
+                "last_login_at": "2026-05-21 15:21:45",
+                "username": "ramle@gmail.com",
+                "is_verified": 0,
+                "verification_token": "c44531f51602b63a30e6c7749eb5a488b1dd4c48d27de5126067025e7a0903f9"
+            },
+            {
+                "id": 5,
+                "email": "testuser@example.com",
+                "roles": "[\"ROLE_STAFF\"]",
+                "password": "$2y$13$ZS\/oz9rxGHTmZNDvCp4eFOIOcuKq6dUM3s5gCPTFULgru\/dyhW0ge",
+                "first_name": "Test",
+                "last_name": "User",
+                "phone": null,
+                "role": "staff",
+                "status": "active",
+                "notes": null,
+                "created_at": "2026-05-21 16:55:44",
+                "updated_at": null,
+                "last_login_at": null,
+                "username": "testuser@example.com",
+                "is_verified": 0,
+                "verification_token": "5e93c329c1182cfe39a4ec18c00ce4d8398b08e0c470e4e294dbe6e2d1d0fbfb"
+            }
+        ],
+        "user_verifications": [],
+        "customer": [
+            {
+                "id": 1,
+                "first_name": "elmar",
+                "last_name": "lariosa",
+                "email": "ramle@gmail.com",
+                "phone": null,
+                "address": null,
+                "city": null,
+                "zip_code": null,
+                "notes": "Registered via API \/ mobile app",
+                "created_at": "2026-05-21 15:20:12",
+                "updated_at": null
+            },
+            {
+                "id": 2,
+                "first_name": "Jane",
+                "last_name": "Smith",
+                "email": "jane@example.com",
+                "phone": null,
+                "address": null,
+                "city": null,
+                "zip_code": null,
+                "notes": "Registered via API \/ mobile app",
+                "created_at": "2026-05-21 15:03:34",
+                "updated_at": null
+            }
+        ],
+        "cars": [
+            {
+                "id": 1,
+                "brand": "Hyundai",
+                "year": "2019",
+                "mileage": "10000",
+                "conditions": "Good as new",
+                "price": 350000,
+                "images": "[\"accent1-6a0eae73c4323.jpg\", \"accent2-6a0eae73c5edb.jpg\", \"accent3-6a0eae73c6f43.jpg\", \"accent4-6a0eae73c8024.jpg\"]",
+                "status": "available",
+                "make": "Accent",
+                "color": "White",
+                "plate_number": "GAC5456",
+                "engine_number": "12345678912365487",
+                "damage_description": null
+            },
+            {
+                "id": 2,
+                "brand": "Toyota",
+                "year": "2017",
+                "mileage": "100004",
+                "conditions": "Good",
+                "price": 500000,
+                "images": "[\"blackvios1-6a0f484c25f2b.jpg\", \"blackvios2-6a0f484c26697.jpg\", \"blackvios3-6a0f484c26c86.jpg\", \"blackvios4-6a0f484c2798e.jpg\"]",
+                "status": "available",
+                "make": "Vios",
+                "color": "Black",
+                "plate_number": "AFF1142",
+                "engine_number": "1234567892",
+                "damage_description": null
+            },
+            {
+                "id": 3,
+                "brand": "Toyota",
+                "year": "2022",
+                "mileage": "10000",
+                "conditions": "Good as new",
+                "price": 15,
+                "images": "[\"vios1-6a0f48a02bb7b.jpg\", \"vios2-6a0f48a02c963.jpg\", \"vios3-6a0f48a02d89c.jpg\", \"vios4-6a0f48a02ebb6.jpg\"]",
+                "status": "available",
+                "make": "Vios",
+                "color": "White",
+                "plate_number": "ABC124",
+                "engine_number": "1234567892",
+                "damage_description": null
+            },
+            {
+                "id": 4,
+                "brand": "Toyota",
+                "year": "2017",
+                "mileage": "1212414",
+                "conditions": "Good as new",
+                "price": 500000,
+                "images": "[\"wigo1-6a0f495385146.jpg\", \"wigo2-6a0f495385cf2.jpg\", \"wigo3-6a0f49538637c.jpg\", \"wigo4-6a0f49538686f.jpg\"]",
+                "status": "available",
+                "make": "Wigo",
+                "color": "Silver",
+                "plate_number": "GAC5456",
+                "engine_number": "123456789112346548712323",
+                "damage_description": null
+            }
+        ],
+        "doctrine_migration_versions": [
+            {
+                "version": "DoctrineMigrations\\Version20250930092636",
+                "executed_at": "2026-05-21 08:29:30",
+                "execution_time": 118
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251007093520",
+                "executed_at": "2026-05-21 08:29:30",
+                "execution_time": 190
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251007133412",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 100
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251007141134",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 68
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251007150527",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 78
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251009113748",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 358
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251009141836",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 276
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251009154753",
+                "executed_at": "2026-05-21 08:29:31",
+                "execution_time": 84
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251013040353",
+                "executed_at": "2026-05-21 08:29:32",
+                "execution_time": 67
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251014050028",
+                "executed_at": "2026-05-21 08:29:32",
+                "execution_time": 271
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251014054047",
+                "executed_at": "2026-05-21 08:29:32",
+                "execution_time": 272
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210043448",
+                "executed_at": "2026-05-21 08:29:32",
+                "execution_time": 40
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210045350",
+                "executed_at": "2026-05-21 08:29:32",
+                "execution_time": 771
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210063000",
+                "executed_at": "2026-05-21 08:29:33",
+                "execution_time": 271
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210100914",
+                "executed_at": "2026-05-21 08:29:33",
+                "execution_time": 100
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210160140",
+                "executed_at": "2026-05-21 08:29:33",
+                "execution_time": 192
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251210162344",
+                "executed_at": "2026-05-21 08:29:34",
+                "execution_time": 102
+            },
+            {
+                "version": "DoctrineMigrations\\Version20251212003831",
+                "executed_at": "2026-05-21 08:29:34",
+                "execution_time": 230
+            },
+            {
+                "version": "DoctrineMigrations\\Version20260330040905",
+                "executed_at": "2026-05-21 08:29:34",
+                "execution_time": 67
+            },
+            {
+                "version": "DoctrineMigrations\\Version20260521140100",
+                "executed_at": "2026-05-21 16:01:10",
+                "execution_time": 920
+            }
+        ],
+        "sales": [],
+        "services": [],
+        "documents": [],
+        "document_activity_logs": [],
+        "activity_logs": [
+            {
+                "id": 1,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 08:47:04",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 2,
+                "user_id": 1,
+                "action": "update",
+                "entity_type": "User",
+                "entity_id": 1,
+                "description": "Updated user: Elmar Lariosa (Elmar)",
+                "affected_data": "{\"username\": {\"after\": \"Elmar\", \"before\": \"ramlÃ©_admin\"}, \"firstName\": {\"after\": \"Elmar\", \"before\": \"RamlÃ©\"}}",
+                "created_at": "2026-05-21 08:47:59",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 3,
+                "user_id": 1,
+                "action": "create",
+                "entity_type": "Vehicle",
+                "entity_id": 1,
+                "description": "Created vehicle: Hyundai 2019",
+                "affected_data": "{\"year\": {\"after\": \"2019\"}, \"brand\": {\"after\": \"Hyundai\"}, \"price\": {\"after\": 350000.0}, \"mileage\": {\"after\": \"10000\"}}",
+                "created_at": "2026-05-21 09:04:19",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 4,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 10:58:47",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 5,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 14:27:07",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 6,
+                "user_id": 1,
+                "action": "logout",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged out",
+                "affected_data": null,
+                "created_at": "2026-05-21 15:21:30",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 7,
+                "user_id": 4,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 15:21:45",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 8,
+                "user_id": 4,
+                "action": "logout",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged out",
+                "affected_data": null,
+                "created_at": "2026-05-21 15:22:55",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 9,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 15:54:31",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 10,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 18:01:38",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 11,
+                "user_id": 1,
+                "action": "create",
+                "entity_type": "Vehicle",
+                "entity_id": 2,
+                "description": "Created vehicle: Toyota 2017",
+                "affected_data": "{\"year\": {\"after\": \"2017\"}, \"brand\": {\"after\": \"Toyota\"}, \"price\": {\"after\": 500000.0}, \"mileage\": {\"after\": \"100004\"}}",
+                "created_at": "2026-05-21 20:00:44",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 12,
+                "user_id": 1,
+                "action": "create",
+                "entity_type": "Vehicle",
+                "entity_id": 3,
+                "description": "Created vehicle: Toyota 2022",
+                "affected_data": "{\"year\": {\"after\": \"2022\"}, \"brand\": {\"after\": \"Toyota\"}, \"price\": {\"after\": 15.0}, \"mileage\": {\"after\": \"10000\"}}",
+                "created_at": "2026-05-21 20:02:08",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 13,
+                "user_id": 1,
+                "action": "create",
+                "entity_type": "Vehicle",
+                "entity_id": 4,
+                "description": "Created vehicle: Toyota 2017",
+                "affected_data": "{\"year\": {\"after\": \"2017\"}, \"brand\": {\"after\": \"Toyota\"}, \"price\": {\"after\": 500000.0}, \"mileage\": {\"after\": \"1212414\"}}",
+                "created_at": "2026-05-21 20:05:07",
+                "ip_address": "127.0.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 14,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 20:20:51",
+                "ip_address": "172.29.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 15,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-21 20:51:53",
+                "ip_address": "172.29.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            },
+            {
+                "id": 16,
+                "user_id": 1,
+                "action": "login",
+                "entity_type": null,
+                "entity_id": null,
+                "description": "User logged in",
+                "affected_data": null,
+                "created_at": "2026-05-22 02:05:06",
+                "ip_address": "172.29.0.1",
+                "user_agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/148.0.0.0 Safari\/537.36"
+            }
+        ],
+        "test_drive_booking": [
+            {
+                "id": 1,
+                "customer_id": 3,
+                "car_id": 1,
+                "approved_by_id": null,
+                "requested_date_time": "2026-05-25 10:00:00",
+                "status": "pending",
+                "notes": "Interested in test drive",
+                "staff_remarks": null,
+                "approved_at": null,
+                "created_at": "2026-05-21 16:02:13",
+                "updated_at": "2026-05-21 16:02:13"
+            },
+            {
+                "id": 2,
+                "customer_id": 4,
+                "car_id": 1,
+                "approved_by_id": 1,
+                "requested_date_time": "2026-05-22 12:00:00",
+                "status": "approved",
+                "notes": "test",
+                "staff_remarks": "See you soon!",
+                "approved_at": "2026-05-21 18:20:09",
+                "created_at": "2026-05-21 16:42:04",
+                "updated_at": "2026-05-21 18:20:09"
+            },
+            {
+                "id": 3,
+                "customer_id": 5,
+                "car_id": 1,
+                "approved_by_id": null,
+                "requested_date_time": "2026-05-25 10:00:00",
+                "status": "pending",
+                "notes": "Test drive booking",
+                "staff_remarks": null,
+                "approved_at": null,
+                "created_at": "2026-05-21 16:56:03",
+                "updated_at": "2026-05-21 16:56:03"
+            },
+            {
+                "id": 4,
+                "customer_id": 4,
+                "car_id": 1,
+                "approved_by_id": 1,
+                "requested_date_time": "2026-05-23 12:30:00",
+                "status": "rejected",
+                "notes": null,
+                "staff_remarks": "Test reject",
+                "approved_at": "2026-05-21 20:18:43",
+                "created_at": "2026-05-21 18:34:18",
+                "updated_at": "2026-05-21 20:18:43"
+            }
+        ],
+        "messenger_messages": []
+    }
 }
