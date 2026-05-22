@@ -1,0 +1,114 @@
+{
+    "exportedAt": "2026-05-22T04:06:49+02:00",
+    "users": [
+        {
+            "username": "Elmar",
+            "email": "ramlelariosa26@gmail.com",
+            "roles": [
+                "ROLE_ADMIN"
+            ],
+            "password": "$2y$13$EwP4PR21XzLlQkhLAgeQyukrjD6QmHwxcpx7KIh\/cJ\/ctNAYTMUVW",
+            "firstName": "Elmar",
+            "lastName": "Lariosa",
+            "phone": null,
+            "role": "admin",
+            "status": "active",
+            "notes": null,
+            "isVerified": true,
+            "verificationToken": null,
+            "createdAt": "2026-05-21 06:39:02"
+        },
+        {
+            "username": "john@example.com",
+            "email": "john@example.com",
+            "roles": [
+                "ROLE_USER"
+            ],
+            "password": "$2y$13$Xvgy1XvcEb5kuunc8MW2vOzu\/\/a.cZsuaKfWdjTR4GQfjbB9FhCFu",
+            "firstName": "John",
+            "lastName": "Doe",
+            "phone": null,
+            "role": "staff",
+            "status": "active",
+            "notes": null,
+            "isVerified": false,
+            "verificationToken": "674ed5b7330feb891ed119b404a37395cb66d072869200b9c8954306fb453142",
+            "createdAt": "2026-05-21 15:00:25"
+        },
+        {
+            "username": "jane@example.com",
+            "email": "jane@example.com",
+            "roles": [
+                "ROLE_CUSTOMER"
+            ],
+            "password": "$2y$13$v02FIoMUBDxEOrhfeTGVAe80lQsHUfaggIVK3Rly09nKDRogvYduO",
+            "firstName": "Jane",
+            "lastName": "Smith",
+            "phone": null,
+            "role": "staff",
+            "status": "active",
+            "notes": null,
+            "isVerified": false,
+            "verificationToken": "b67e69fc8740c641041c72398dc227f3b4f09e9f9123bda4fb59beb5746f767c",
+            "createdAt": "2026-05-21 15:03:34"
+        },
+        {
+            "username": "ramle@gmail.com",
+            "email": "ramle@gmail.com",
+            "roles": [
+                "ROLE_CUSTOMER"
+            ],
+            "password": "$2y$13$e1KJ\/F6r4y5Z024c.24x5O5BwX9E9cSA\/u\/NTSJ9J8kwq2NKPgPWO",
+            "firstName": "elmar",
+            "lastName": "lariosa",
+            "phone": null,
+            "role": "staff",
+            "status": "active",
+            "notes": null,
+            "isVerified": false,
+            "verificationToken": "c44531f51602b63a30e6c7749eb5a488b1dd4c48d27de5126067025e7a0903f9",
+            "createdAt": "2026-05-21 15:20:12"
+        },
+        {
+            "username": "testuser@example.com",
+            "email": "testuser@example.com",
+            "roles": [
+                "ROLE_STAFF"
+            ],
+            "password": "$2y$13$ZS\/oz9rxGHTmZNDvCp4eFOIOcuKq6dUM3s5gCPTFULgru\/dyhW0ge",
+            "firstName": "Test",
+            "lastName": "User",
+            "phone": null,
+            "role": "staff",
+            "status": "active",
+            "notes": null,
+            "isVerified": false,
+            "verificationToken": "5e93c329c1182cfe39a4ec18c00ce4d8398b08e0c470e4e294dbe6e2d1d0fbfb",
+            "createdAt": "2026-05-21 16:55:44"
+        }
+    ],
+    "customers": [
+        {
+            "firstName": "elmar",
+            "lastName": "lariosa",
+            "email": "ramle@gmail.com",
+            "phone": null,
+            "address": null,
+            "city": null,
+            "zipCode": null,
+            "notes": "Registered via API \/ mobile app",
+            "createdAt": "2026-05-21 15:20:12"
+        },
+        {
+            "firstName": "Jane",
+            "lastName": "Smith",
+            "email": "jane@example.com",
+            "phone": null,
+            "address": null,
+            "city": null,
+            "zipCode": null,
+            "notes": "Registered via API \/ mobile app",
+            "createdAt": "2026-05-21 15:03:34"
+        }
+    ]
+}
