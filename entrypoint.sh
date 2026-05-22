@@ -42,8 +42,8 @@ ensure_database_url
 if [ ! -f config/jwt/private.pem ]; then
   echo "Generating JWT keys..."
   mkdir -p config/jwt
-  openssl genpkey -algorithm RSA -out config/jwt/private.pem -pkeyopt rsa_keygen_bits:2048
-  openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
+  openssl genpkey -algorithm RSA -out config/jwt/private.pem -pkeyopt rsa_keygen_bits:2048 2>/dev/null
+  openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem 2>/dev/null
   chown -R www-data:www-data config/jwt
 fi
 
@@ -64,6 +64,9 @@ echo "Database is ready."
 
 echo "Running database migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+
+echo "Provisioning admin user (if configured)..."
+php bin/console app:provision-admin --no-interaction 2>/dev/null || true
 
 echo "Installing assets..."
 php bin/console importmap:install --no-interaction 2>/dev/null || true
