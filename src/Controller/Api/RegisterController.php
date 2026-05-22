@@ -96,8 +96,15 @@ final class RegisterController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $customerAccountService->ensureCustomerRecord($user);
-            $entityManager->flush();
+            try {
+                $customerAccountService->ensureCustomerRecord($user);
+                $entityManager->flush();
+            } catch (\Throwable $crmError) {
+                $logger->warning('Customer CRM sync skipped after registration', [
+                    'email' => $user->getEmail(),
+                    'error' => $crmError->getMessage(),
+                ]);
+            }
 
             $logger->info('New user registered', ['email' => $user->getEmail()]);
 

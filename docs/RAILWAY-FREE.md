@@ -19,22 +19,24 @@ Redeploy → log in on Railway with **ADMIN_USERNAME** + **ADMIN_PASSWORD**.
 
 ---
 
-## B) Copy your local logins (recommended, still free)
+## B) Copy **all** local data (cars, sales, customers, users, …) — recommended
 
-### 1. On XAMPP (once)
+**Do not put data in migration files** — migrations are for schema only. Use the seed file instead.
+
+### 1. On XAMPP (with `.env.local` pointing to `127.0.0.1`)
 
 ```powershell
 cd c:\xampp\htdocs\ramlewheels\ramlewheels
 php bin/console app:build-railway-seed
 ```
 
-Creates `data/railway_seed.json` (users + customers, passwords stay hashed).
+Creates `data/railway_seed.json` with **every table** (users, cars, sales, services, documents, bookings, etc.).
 
 ### 2. Commit and push
 
 ```powershell
 git add data/railway_seed.json
-git commit -m "Add Railway seed data"
+git commit -m "Full Railway seed from local DB"
 git push
 ```
 
@@ -44,23 +46,23 @@ git push
 DATABASE_URL=${{MySQL.MYSQL_URL}}
 APP_SECRET=...
 DEFAULT_URI=https://YOUR-APP.up.railway.app
-IMPORT_RAILWAY_SEED=1
+IMPORT_RAILWAY_SEED=force
 ```
 
-Redeploy once. Check logs for: `Imported X users`.
+Use **`force`** if you already deployed once (replaces Railway data with your local copy).
+
+Redeploy once. Logs should show `Imported N rows` per table.
 
 ### 4. After it works
 
-Remove `IMPORT_RAILWAY_SEED` (so redeploys do not try again).
+Remove `IMPORT_RAILWAY_SEED` from Railway variables.
 
-Log in with your **same local username/password**.
+Log in with your **same local username/password**. All inventory/sales should match local.
 
 ---
 
 ## Cost tips
 
 - Use **only** App + MySQL (no Redis, no extra services).
-- Remove `IMPORT_RAILWAY_SEED` after first import.
-- Skip `/dev/sync-railway` unless you need a full DB clone (dev only).
-
-Cars/inventory are not in the seed file; add them again in the UI or extend the seed later.
+- Remove `IMPORT_RAILWAY_SEED` after import.
+- Uploaded images in `public/uploads/` are **not** in the seed — copy that folder separately if needed.

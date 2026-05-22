@@ -38,6 +38,11 @@ ensure_database_url() {
 
 ensure_database_url
 
+# JWT paths required by Lexik (docker/app.env); keys generated below if absent
+export JWT_SECRET_KEY="${JWT_SECRET_KEY:-%kernel.project_dir%/config/jwt/private.pem}"
+export JWT_PUBLIC_KEY="${JWT_PUBLIC_KEY:-%kernel.project_dir%/config/jwt/public.pem}"
+export JWT_PASSPHRASE="${JWT_PASSPHRASE:-}"
+
 # Generate JWT keys on first run if missing (not committed to git)
 if [ ! -f config/jwt/private.pem ]; then
   echo "Generating JWT keys..."
@@ -65,9 +70,13 @@ echo "Database is ready."
 echo "Running database migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-if [ "${IMPORT_RAILWAY_SEED:-}" = "1" ]; then
-  echo "Importing railway_seed.json (free tier data copy)..."
-  php bin/console app:import-railway-seed --no-interaction 2>/dev/null || true
+if [ "${IMPORT_RAILWAY_SEED:-}" = "1" ] || [ "${IMPORT_RAILWAY_SEED:-}" = "force" ]; then
+  echo "Importing railway_seed.json..."
+  IMPORT_FORCE=""
+  if [ "${IMPORT_RAILWAY_SEED}" = "force" ]; then
+    IMPORT_FORCE="--force"
+  fi
+  php bin/console app:import-railway-seed --no-interaction ${IMPORT_FORCE} 2>/dev/null || true
 fi
 
 echo "Provisioning admin user (if configured)..."

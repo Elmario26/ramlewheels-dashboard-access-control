@@ -11,21 +11,8 @@ use Doctrine\DBAL\DriverManager;
  */
 final class RailwayDatabaseSyncService
 {
-    /** Tables in FK-safe order (parents before children). */
-    private const TABLE_ORDER = [
-        'users',
-        'user_verifications',
-        'customer',
-        'cars',
-        'doctrine_migration_versions',
-        'sales',
-        'services',
-        'documents',
-        'document_activity_logs',
-        'activity_logs',
-        'test_drive_booking',
-        'messenger_messages',
-    ];
+    /** @see RailwaySeedTables::ORDER */
+    private const TABLE_ORDER = RailwaySeedTables::ORDER;
 
     public function __construct(
         private Connection $localConnection,
