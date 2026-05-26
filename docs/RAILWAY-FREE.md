@@ -61,8 +61,21 @@ Log in with your **same local username/password**. All inventory/sales should ma
 
 ---
 
+## Car images (no Railway Volume required)
+
+Railway’s **premium volume is not required** for inventory photos if you commit them to git.
+
+1. Car photos live in `public/uploads/cars/` (already in this repo).
+2. Each **deploy** bakes those files into the Docker image (free).
+3. After deploy, test: `https://YOUR-APP.up.railway.app/uploads/cars/vios1-6a0f48a02bb7b.jpg`  
+   If that returns **404**, push your latest git commit and redeploy.
+
+**New uploads** (added in the admin UI) are saved on the container disk. They work until the next **redeploy**, then only git-committed images remain. To keep new photos long-term without a volume: commit new files under `public/uploads/cars/` and redeploy, or add Cloudinary later.
+
+**Multiple image upload (413 error):** fixed via `client_max_body_size` and PHP `post_max_size` in the Dockerfile — redeploy to apply.
+
 ## Cost tips
 
 - Use **only** App + MySQL (no Redis, no extra services).
 - Remove `IMPORT_RAILWAY_SEED` after import.
-- Uploaded images in `public/uploads/` are **not** in the seed — copy that folder separately if needed.
+- **No paid Railway volume** needed for seeded car images in git.

@@ -82,6 +82,11 @@ fi
 echo "Provisioning admin user (if configured)..."
 php bin/console app:provision-admin --no-interaction 2>/dev/null || true
 
+echo "Ensuring upload directories..."
+mkdir -p /app/public/uploads/cars /app/public/uploads/documents
+chown -R www-data:www-data /app/public/uploads
+chmod -R 775 /app/public/uploads
+
 echo "Installing assets..."
 php bin/console importmap:install --no-interaction 2>/dev/null || true
 php bin/console assets:install public --no-interaction

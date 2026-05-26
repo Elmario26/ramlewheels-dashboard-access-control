@@ -38,13 +38,15 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_mysql intl \
     && rm -rf /var/lib/apt/lists/*
 
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/99-uploads.ini
+
 COPY --from=builder /app /app
 
 # Symfony requires .env to exist; secrets/DB URL come from docker-compose at runtime
 COPY docker/app.env /app/.env
 RUN rm -f /app/.env.local /app/.env.*.local 2>/dev/null || true
 
-RUN mkdir -p /app/var /app/public/uploads /app/config/jwt && \
+RUN mkdir -p /app/var /app/public/uploads/cars /app/public/uploads/documents /app/config/jwt && \
     chown -R www-data:www-data /app && \
     chmod -R 755 /app && \
     chmod -R 775 /app/var /app/public/uploads
