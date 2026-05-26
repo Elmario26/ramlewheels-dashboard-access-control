@@ -17,6 +17,7 @@ final class RailwaySeedTables
         'document_activity_logs',
         'activity_logs',
         'test_drive_booking',
+        'service_booking',
         'messenger_messages',
     ];
 }

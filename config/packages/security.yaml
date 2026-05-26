@@ -82,6 +82,8 @@ security:
         - { path: "^/api/me$", roles: "IS_AUTHENTICATED_FULLY" }
         - { path: "^/api/test-drive-bookings$", roles: "IS_AUTHENTICATED_FULLY" }
         - { path: "^/api/test-drive-bookings/.*/approve$", roles: "ROLE_STAFF" }
+        - { path: "^/api/service-bookings$", roles: "IS_AUTHENTICATED_FULLY" }
+        - { path: "^/api/service-bookings/.*/approve$", roles: "ROLE_STAFF" }
         - { path: "^/api", roles: "IS_AUTHENTICATED_FULLY" }
         - { path: "^/images/cars", roles: "PUBLIC_ACCESS" }
         
