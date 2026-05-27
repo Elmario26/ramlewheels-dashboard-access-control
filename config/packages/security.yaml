@@ -76,6 +76,7 @@ security:
         - { path: "^/api/login$", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/register$", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/cars$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api/car-images/", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/docs$", roles: "PUBLIC_ACCESS" }    # Swagger UI page
         - { path: "^/api/docs.json$", roles: "PUBLIC_ACCESS" } # Swagger JSON
         - { path: "^/api$", roles: "PUBLIC_ACCESS" }           # API entrypoint

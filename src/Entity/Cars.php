@@ -178,6 +178,20 @@ class Cars
         return $this->images;
     }
 
+    /**
+     * Relative URLs for the mobile app (prepend API host).
+     *
+     * @return string[]
+     */
+    #[Groups(['car:read'])]
+    public function getImageUrls(): array
+    {
+        return array_map(
+            static fn (string $file): string => '/api/car-images/' . basename($file),
+            $this->images ?? []
+        );
+    }
+
     public function setImages(array $images): static
     {
         $this->images = $images;
