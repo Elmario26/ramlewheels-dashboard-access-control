@@ -74,6 +74,7 @@ security:
 
         # ✅ API rules FIRST (before any catch-all)
         - { path: "^/api/login$", roles: "PUBLIC_ACCESS" }
+        - { path: "^/api/login/google$", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/register$", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/cars$", roles: "PUBLIC_ACCESS" }
         - { path: "^/api/car-images/", roles: "PUBLIC_ACCESS" }

@@ -9,6 +9,7 @@ parameters:
     brevo_api_key: '%env(default::BREVO_API_KEY)%'
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
+    env(GOOGLE_ANDROID_CLIENT_ID): ''
 
 services:
     # default configuration for services in *this* file
@@ -46,3 +47,8 @@ services:
     App\Command\ImportRailwaySeedCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    App\Service\GoogleIdTokenVerifier:
+        arguments:
+            $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
+            $googleAndroidClientId: '%env(GOOGLE_ANDROID_CLIENT_ID)%'
