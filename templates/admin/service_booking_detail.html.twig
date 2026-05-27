@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Service Booking #{{ booking.id }}{% endblock %}
+
+{% block body %}
+    <div class="mb-8">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-100">Service booking #{{ booking.id }}</h1>
+                <p class="text-sm text-gray-400 mt-1">Review and update customer service request.</p>
+            </div>
+            <a href="{{ path('app_service_bookings', {status: booking.status}) }}"
+               class="inline-flex items-center px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 hover:bg-gray-700">
+                Back
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <div class="flex items-center justify-between gap-4 mb-4">
+                    <h2 class="text-lg font-semibold text-white">{{ booking.serviceName }}</h2>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                        {% if booking.status == 'pending' %}bg-amber-500/20 text-amber-300 border border-amber-500/40
+                        {% elseif booking.status == 'approved' %}bg-green-500/20 text-green-300 border border-green-500/40
+                        {% elseif booking.status == 'rejected' %}bg-red-500/20 text-red-300 border border-red-500/40
+                        {% else %}bg-indigo-500/20 text-indigo-300 border border-indigo-500/40{% endif %}">
+                        {{ booking.status|capitalize }}
+                    </span>
+                </div>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <dt class="text-gray-500">Service ID</dt>
+                        <dd class="text-gray-100 font-medium">{{ booking.serviceId }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-gray-500">Requested schedule</dt>
+                        <dd class="text-gray-100 font-medium">{{ booking.requestedDateTime|date('M d, Y g:i A') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-gray-500">Phone</dt>
+                        <dd class="text-gray-100 font-medium">{{ booking.phone }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-gray-500">Created</dt>
+                        <dd class="text-gray-100 font-medium">{{ booking.createdAt|date('M d, Y g:i A') }}</dd>
+                    </div>
+                </dl>
+                <div class="mt-4">
+                    <p class="text-gray-500 text-sm">Vehicle description</p>
+                    <p class="text-gray-100 mt-1">{{ booking.vehicleDescription }}</p>
+                </div>
+                {% if booking.notes %}
+                    <div class="mt-4">
+                        <p class="text-gray-500 text-sm">Customer notes</p>
+                        <p class="text-gray-100 mt-1">{{ booking.notes }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                <h3 class="text-lg text-white font-semibold mb-3">Customer</h3>
+                <p class="text-gray-100 font-medium">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</p>
+                <p class="text-gray-400 text-sm">{{ booking.customer.email }}</p>
+                <p class="text-gray-400 text-sm mt-1">
+                    {% if booking.customer.phone %}+63 {{ booking.customer.phone }}{% else %}No account phone{% endif %}
+                </p>
+            </div>
+
+            {% if booking.status == 'pending' %}
+                <div class="bg-gray-800 rounded-xl border border-amber-500/30 p-6 space-y-3">
+                    <h3 class="text-lg text-amber-200 font-semibold">Action required</h3>
+                    <form method="post" action="{{ path('app_service_booking_approve', {id: booking.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ booking.id) }}">
+                        <textarea name="staffRemarks" rows="3" class="w-full mb-2 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-gray-100" placeholder="Remarks for approval (optional)"></textarea>
+                        <button type="submit" class="w-full px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Approve</button>
+                    </form>
+                    <form method="post" action="{{ path('app_service_booking_reject', {id: booking.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ booking.id) }}">
+                        <textarea name="staffRemarks" rows="3" class="w-full mb-2 px-3 py-2 rounded bg-gray-700 border border-gray-600 text-gray-100" placeholder="Remarks for rejection (optional)"></textarea>
+                        <button type="submit" class="w-full px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Reject</button>
+                    </form>
+                </div>
+            {% elseif booking.status == 'approved' %}
+                <div class="bg-gray-800 rounded-xl border border-green-500/30 p-6">
+                    <h3 class="text-lg text-green-200 font-semibold mb-3">Approved</h3>
+                    <form method="post" action="{{ path('app_service_booking_complete', {id: booking.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
+                        <button type="submit" class="w-full px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Mark completed</button>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if booking.staffRemarks %}
+                <div class="bg-gray-800 rounded-xl border border-gray-700 p-6">
+                    <h3 class="text-lg text-white font-semibold mb-2">Staff remarks</h3>
+                    <p class="text-gray-300">{{ booking.staffRemarks }}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
