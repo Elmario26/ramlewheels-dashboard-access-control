@@ -9,11 +9,32 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class GoogleIdTokenVerifier
 {
+    /** Web client ID — must match React Native GoogleSignin.configure({ webClientId }) */
+    private const DEFAULT_WEB_CLIENT_ID = '220287836624-tm0ep198jig2bvdt2mtv4fom64uksqa5.apps.googleusercontent.com';
+
+    /** Android client ID — from google-services.json (idToken azp) */
+    private const DEFAULT_ANDROID_CLIENT_ID = '220287836624-0lf7m4ip4nomci3dl7hjrkertklcasqt.apps.googleusercontent.com';
+
     public function __construct(
         private HttpClientInterface $httpClient,
-        private string $googleClientId,
+        private string $googleClientId = '',
         private string $googleAndroidClientId = '',
     ) {
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function allowedClientIds(): array
+    {
+        $web = trim($this->googleClientId) !== ''
+            ? trim($this->googleClientId)
+            : self::DEFAULT_WEB_CLIENT_ID;
+        $android = trim($this->googleAndroidClientId) !== ''
+            ? trim($this->googleAndroidClientId)
+            : self::DEFAULT_ANDROID_CLIENT_ID;
+
+        return array_values(array_unique([$web, $android]));
     }
 
     /**
@@ -37,14 +58,7 @@ final class GoogleIdTokenVerifier
         /** @var array<string, mixed> $payload */
         $payload = $response->toArray();
 
-        $allowed = array_values(array_filter([
-            $this->googleClientId,
-            $this->googleAndroidClientId,
-        ]));
-
-        if ($allowed === []) {
-            throw new \RuntimeException('Google OAuth client IDs are not configured on the server');
-        }
+        $allowed = $this->allowedClientIds();
 
         $aud = (string) ($payload['aud'] ?? '');
         $azp = (string) ($payload['azp'] ?? '');

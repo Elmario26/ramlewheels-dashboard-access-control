@@ -10,6 +10,9 @@ parameters:
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
     env(GOOGLE_ANDROID_CLIENT_ID): ''
+    # Fallbacks for mobile Google Sign-In when Railway env vars are unset (public OAuth client IDs)
+    google.oauth.web_client_id: '220287836624-tm0ep198jig2bvdt2mtv4fom64uksqa5.apps.googleusercontent.com'
+    google.oauth.android_client_id: '220287836624-0lf7m4ip4nomci3dl7hjrkertklcasqt.apps.googleusercontent.com'
 
 services:
     # default configuration for services in *this* file
@@ -50,5 +53,5 @@ services:
 
     App\Service\GoogleIdTokenVerifier:
         arguments:
-            $googleClientId: '%env(GOOGLE_CLIENT_ID)%'
-            $googleAndroidClientId: '%env(GOOGLE_ANDROID_CLIENT_ID)%'
+            $googleClientId: '%env(default:google.oauth.web_client_id:GOOGLE_CLIENT_ID)%'
+            $googleAndroidClientId: '%env(default:google.oauth.android_client_id:GOOGLE_ANDROID_CLIENT_ID)%'
