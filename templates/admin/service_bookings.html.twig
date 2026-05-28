@@ -123,3 +123,104 @@
         {% endif %}
     </div>
 {% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+    const configuredGatewayUrl = "{{ app.request.server.get('WS_GATEWAY_URL') ? app.request.server.get('WS_GATEWAY_URL') : '' }}";
+    const socketBaseUrl = configuredGatewayUrl || window.location.origin;
+    const pollIntervalMs = 5000;
+    let baselineSignature = null;
+    let reloadQueued = false;
+
+    function queueReload() {
+        if (reloadQueued) {
+            return;
+        }
+        reloadQueued = true;
+        window.setTimeout(() => window.location.reload(), 150);
+    }
+
+    function buildSignature(payload) {
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        const count = Number(payload?.count ?? rows.length);
+        const ids = rows
+            .map((row) => Number(row?.id))
+            .filter((id) => Number.isFinite(id))
+            .sort((a, b) => b - a)
+            .slice(0, 15)
+            .join(',');
+
+        return `${count}:${ids}`;
+    }
+
+    async function fetchBookingsSignature() {
+        const query = new URLSearchParams(window.location.search);
+        const status = query.get('status');
+        const url = status && status !== 'all'
+            ? `/api/service-bookings?status=${encodeURIComponent(status)}`
+            : '/api/service-bookings';
+
+        const response = await fetch(url, {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+            cache: 'no-store',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch bookings: ${response.status}`);
+        }
+
+        return buildSignature(await response.json());
+    }
+
+    function connectRealtimeSocket() {
+        if (typeof window.io !== 'function') {
+            return;
+        }
+
+        try {
+            const socket = window.io(socketBaseUrl, {
+                transports: ['websocket', 'polling'],
+                auth: { userId: 'dashboard' },
+            });
+
+            socket.on('connect', () => {
+                ['dashboard', 'staff', 'admin'].forEach((audience) => {
+                    socket.emit('subscribe.user', { userId: audience });
+                });
+            });
+
+            socket.on('service.updated', () => {
+                queueReload();
+            });
+        } catch (error) {
+            console.debug('Realtime socket unavailable, using polling fallback:', error);
+        }
+    }
+
+    async function checkForUpdates() {
+        try {
+            const nextSignature = await fetchBookingsSignature();
+            if (baselineSignature === null) {
+                baselineSignature = nextSignature;
+                return;
+            }
+
+            if (baselineSignature !== nextSignature) {
+                window.location.reload();
+            }
+        } catch (error) {
+            // Keep the page functional even if polling fails temporarily.
+            console.debug('Realtime service poll skipped:', error);
+        }
+    }
+
+    connectRealtimeSocket();
+    checkForUpdates();
+    window.setInterval(checkForUpdates, pollIntervalMs);
+})();
+</script>
+{% endblock %}

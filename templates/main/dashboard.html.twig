@@ -358,6 +358,7 @@
 
 {% block javascripts %}
 {{ parent() }}
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
 <script>
     // Pass data to Stimulus controller
     document.addEventListener('DOMContentLoaded', function() {
@@ -370,5 +371,111 @@
             topBrands: {{ topBrands is defined ? topBrands|json_encode|raw : 'null' }}
         };
     });
+
+    (() => {
+        const configuredGatewayUrl = "{{ app.request.server.get('WS_GATEWAY_URL') ? app.request.server.get('WS_GATEWAY_URL') : '' }}";
+        const socketBaseUrl = configuredGatewayUrl || window.location.origin;
+        const pollIntervalMs = 5000;
+        let baselineSignature = null;
+        let reloadQueued = false;
+
+        function queueReload() {
+            if (reloadQueued) {
+                return;
+            }
+            reloadQueued = true;
+            window.setTimeout(() => window.location.reload(), 150);
+        }
+
+        function pendingCount(payload) {
+            const rows = Array.isArray(payload?.data) ? payload.data : [];
+            return rows.filter((row) => row?.status === 'pending').length;
+        }
+
+        function buildSignature(testDrivePayload, servicePayload) {
+            const testPending = pendingCount(testDrivePayload);
+            const servicePending = pendingCount(servicePayload);
+            const testCount = Number(testDrivePayload?.count ?? 0);
+            const serviceCount = Number(servicePayload?.count ?? 0);
+
+            return `${testPending}:${servicePending}:${testCount}:${serviceCount}`;
+        }
+
+        async function fetchDashboardSignature() {
+            const [testDriveResponse, serviceResponse] = await Promise.all([
+                fetch('/api/test-drive-bookings', {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store',
+                }),
+                fetch('/api/service-bookings', {
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                    cache: 'no-store',
+                }),
+            ]);
+
+            if (!testDriveResponse.ok || !serviceResponse.ok) {
+                throw new Error('Failed to poll dashboard booking metrics');
+            }
+
+            const [testDrivePayload, servicePayload] = await Promise.all([
+                testDriveResponse.json(),
+                serviceResponse.json(),
+            ]);
+
+            return buildSignature(testDrivePayload, servicePayload);
+        }
+
+        function connectRealtimeSocket() {
+            if (typeof window.io !== 'function') {
+                return;
+            }
+
+            try {
+                const socket = window.io(socketBaseUrl, {
+                    transports: ['websocket', 'polling'],
+                    auth: { userId: 'dashboard' },
+                });
+
+                socket.on('connect', () => {
+                    ['dashboard', 'staff', 'admin'].forEach((audience) => {
+                        socket.emit('subscribe.user', { userId: audience });
+                    });
+                });
+
+                socket.on('booking.updated', () => {
+                    queueReload();
+                });
+
+                socket.on('service.updated', () => {
+                    queueReload();
+                });
+            } catch (error) {
+                console.debug('Realtime dashboard socket unavailable, using polling fallback:', error);
+            }
+        }
+
+        async function checkForDashboardUpdates() {
+            try {
+                const nextSignature = await fetchDashboardSignature();
+                if (baselineSignature === null) {
+                    baselineSignature = nextSignature;
+                    return;
+                }
+
+                if (baselineSignature !== nextSignature) {
+                    window.location.reload();
+                }
+            } catch (error) {
+                // Non-blocking fallback: ignore transient polling failures.
+                console.debug('Realtime dashboard poll skipped:', error);
+            }
+        }
+
+        connectRealtimeSocket();
+        checkForDashboardUpdates();
+        window.setInterval(checkForDashboardUpdates, pollIntervalMs);
+    })();
 </script>
 {% endblock %}
