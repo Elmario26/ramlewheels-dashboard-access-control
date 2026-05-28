@@ -1,5 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        ws_gateway_url: '%env(default::WS_GATEWAY_URL)%'
 
 when@test:
     twig:

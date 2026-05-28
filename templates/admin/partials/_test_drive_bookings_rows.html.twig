@@ -1,0 +1,67 @@
+{% for booking in bookings %}
+    <tr class="hover:bg-gray-700/40 transition-colors duration-150" data-booking-id="{{ booking.id }}">
+        <td class="px-6 py-4 whitespace-nowrap">
+            <span class="text-sm font-semibold text-[#B32224]">#{{ booking.id }}</span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#B32224] to-red-800 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    {{ booking.customer.firstName|first|upper }}{{ booking.customer.lastName|first|upper }}
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-100">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</div>
+                    <div class="text-xs text-gray-500">{{ booking.customer.email }}</div>
+                </div>
+            </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-100">{{ booking.car.brand }} {{ booking.car.make }}</div>
+            <div class="text-xs text-gray-500">{{ booking.car.year }} · {{ booking.car.color }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+            <div class="flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                {{ booking.requestedDateTime|date('M d, Y') }}
+                <span class="text-gray-500">{{ booking.requestedDateTime|date('g:i A') }}</span>
+            </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                {% if booking.status == 'pending' %}bg-amber-500/20 text-amber-300 border border-amber-500/40
+                {% elseif booking.status == 'approved' %}bg-green-500/20 text-green-300 border border-green-500/40
+                {% elseif booking.status == 'rejected' %}bg-red-500/20 text-red-300 border border-red-500/40
+                {% else %}bg-blue-500/20 text-blue-300 border border-blue-500/40{% endif %}">
+                {{ booking.status|capitalize }}
+            </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+            {{ booking.createdAt|date('M d, Y') }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-right">
+            <div class="flex items-center justify-end gap-2">
+                <a href="{{ path('app_test_drive_booking_view', {id: booking.id}) }}"
+                   class="p-2 rounded-lg text-gray-400 hover:text-gray-100 hover:bg-gray-700 transition-colors duration-200"
+                   title="View booking"
+                   aria-label="View booking #{{ booking.id }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    </svg>
+                </a>
+                {% if booking.status == 'pending' %}
+                    <button type="button"
+                            onclick="showApprovalModal({{ booking.id }}, '{{ booking.customer.firstName|e('js') }} {{ booking.customer.lastName|e('js') }}', '{{ csrf_token('approve' ~ booking.id) }}')"
+                            class="p-2 rounded-lg text-green-400 hover:text-green-300 hover:bg-green-500/10 transition-colors duration-200"
+                            title="Approve booking"
+                            aria-label="Approve booking #{{ booking.id }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </button>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+{% endfor %}

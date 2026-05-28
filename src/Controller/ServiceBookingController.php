@@ -6,6 +6,7 @@ use App\Entity\ServiceBooking;
 use App\Repository\ServiceBookingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,28 +19,42 @@ final class ServiceBookingController extends AbstractController
     #[IsGranted('ROLE_STAFF')]
     public function index(ServiceBookingRepository $repository, Request $request): Response
     {
-        $statusFilter = $request->query->get('status', 'pending');
+        $context = $this->buildIndexContext($repository, (string) $request->query->get('status', 'pending'));
 
-        if ($statusFilter === 'all') {
-            $bookings = $repository->findAll();
-        } else {
-            $bookings = $repository->findByStatus($statusFilter);
-        }
+        return $this->render('admin/service_bookings.html.twig', $context);
+    }
 
-        $totalBookings = count($repository->findAll());
-        $pendingBookings = count($repository->findByStatus('pending'));
-        $approvedBookings = count($repository->findByStatus('approved'));
-        $rejectedBookings = count($repository->findByStatus('rejected'));
-        $completedBookings = count($repository->findByStatus('completed'));
+    #[Route('/live-data', name: 'app_service_bookings_live', methods: ['GET'])]
+    #[IsGranted('ROLE_STAFF')]
+    public function liveData(
+        ServiceBookingRepository $repository,
+        Request $request
+    ): JsonResponse {
+        $context = $this->buildIndexContext($repository, (string) $request->query->get('status', 'pending'));
+        /** @var list<ServiceBooking> $bookings */
+        $bookings = $context['bookings'];
 
-        return $this->render('admin/service_bookings.html.twig', [
-            'bookings' => $bookings,
-            'currentFilter' => $statusFilter,
-            'totalBookings' => $totalBookings,
-            'pendingBookings' => $pendingBookings,
-            'approvedBookings' => $approvedBookings,
-            'rejectedBookings' => $rejectedBookings,
-            'completedBookings' => $completedBookings,
+        return $this->json([
+            'signature' => $this->buildSignature($bookings),
+            'hasRows' => \count($bookings) > 0,
+            'bookingIds' => array_map(static fn (ServiceBooking $b) => $b->getId(), $bookings),
+            'stats' => [
+                'total' => $context['totalBookings'],
+                'pending' => $context['pendingBookings'],
+                'approved' => $context['approvedBookings'],
+                'rejected' => $context['rejectedBookings'],
+                'completed' => $context['completedBookings'],
+            ],
+            'filterCounts' => [
+                'pending' => $context['pendingBookings'],
+                'approved' => $context['approvedBookings'],
+                'rejected' => $context['rejectedBookings'],
+                'completed' => $context['completedBookings'],
+                'all' => $context['totalBookings'],
+            ],
+            'rowsHtml' => $this->renderView('admin/partials/_service_bookings_rows.html.twig', [
+                'bookings' => $bookings,
+            ]),
         ]);
     }
 
@@ -107,5 +122,53 @@ final class ServiceBookingController extends AbstractController
         }
 
         return $this->redirectToRoute('app_service_bookings', ['status' => 'approved']);
+    }
+
+    /**
+     * @return array{
+     *     bookings: list<ServiceBooking>,
+     *     currentFilter: string,
+     *     totalBookings: int,
+     *     pendingBookings: int,
+     *     approvedBookings: int,
+     *     rejectedBookings: int,
+     *     completedBookings: int
+     * }
+     */
+    private function buildIndexContext(ServiceBookingRepository $repository, string $statusFilter): array
+    {
+        if ($statusFilter === 'all') {
+            $bookings = $repository->findAll();
+        } else {
+            $bookings = $repository->findByStatus($statusFilter);
+        }
+
+        $totalBookings = \count($repository->findAll());
+        $pendingBookings = \count($repository->findByStatus('pending'));
+        $approvedBookings = \count($repository->findByStatus('approved'));
+        $rejectedBookings = \count($repository->findByStatus('rejected'));
+        $completedBookings = \count($repository->findByStatus('completed'));
+
+        return [
+            'bookings' => $bookings,
+            'currentFilter' => $statusFilter,
+            'totalBookings' => $totalBookings,
+            'pendingBookings' => $pendingBookings,
+            'approvedBookings' => $approvedBookings,
+            'rejectedBookings' => $rejectedBookings,
+            'completedBookings' => $completedBookings,
+        ];
+    }
+
+    /**
+     * @param list<ServiceBooking> $bookings
+     */
+    private function buildSignature(array $bookings): string
+    {
+        $ids = array_map(static fn (ServiceBooking $booking) => (int) $booking->getId(), $bookings);
+        rsort($ids);
+        $ids = \array_slice($ids, 0, 15);
+
+        return \count($bookings).':'.implode(',', $ids);
     }
 }

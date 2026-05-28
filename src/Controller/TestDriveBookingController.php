@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Repository\TestDriveBookingRepository;
 use App\Entity\TestDriveBooking;
+use App\Repository\TestDriveBookingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,29 +21,40 @@ final class TestDriveBookingController extends AbstractController
         TestDriveBookingRepository $repository,
         Request $request
     ): Response {
-        // Get status filter from query parameter
-        $statusFilter = $request->query->get('status', 'pending');
-        
-        // Get bookings based on filter
-        if ($statusFilter === 'all') {
-            $bookings = $repository->findAll();
-        } else {
-            $bookings = $repository->findByStatus($statusFilter);
-        }
-        
-        // Get statistics
-        $totalBookings = count($repository->findAll());
-        $pendingBookings = count($repository->findByStatus('pending'));
-        $approvedBookings = count($repository->findByStatus('approved'));
-        $rejectedBookings = count($repository->findByStatus('rejected'));
-        
-        return $this->render('admin/test_drive_bookings.html.twig', [
-            'bookings' => $bookings,
-            'currentFilter' => $statusFilter,
-            'totalBookings' => $totalBookings,
-            'pendingBookings' => $pendingBookings,
-            'approvedBookings' => $approvedBookings,
-            'rejectedBookings' => $rejectedBookings,
+        $context = $this->buildIndexContext($repository, (string) $request->query->get('status', 'pending'));
+
+        return $this->render('admin/test_drive_bookings.html.twig', $context);
+    }
+
+    #[Route('/live-data', name: 'app_test_drive_bookings_live', methods: ['GET'])]
+    #[IsGranted('ROLE_STAFF')]
+    public function liveData(
+        TestDriveBookingRepository $repository,
+        Request $request
+    ): JsonResponse {
+        $context = $this->buildIndexContext($repository, (string) $request->query->get('status', 'pending'));
+        /** @var list<TestDriveBooking> $bookings */
+        $bookings = $context['bookings'];
+
+        return $this->json([
+            'signature' => $this->buildSignature($bookings),
+            'hasRows' => \count($bookings) > 0,
+            'bookingIds' => array_map(static fn (TestDriveBooking $b) => $b->getId(), $bookings),
+            'stats' => [
+                'total' => $context['totalBookings'],
+                'pending' => $context['pendingBookings'],
+                'approved' => $context['approvedBookings'],
+                'rejected' => $context['rejectedBookings'],
+            ],
+            'filterCounts' => [
+                'pending' => $context['pendingBookings'],
+                'approved' => $context['approvedBookings'],
+                'rejected' => $context['rejectedBookings'],
+                'all' => $context['totalBookings'],
+            ],
+            'rowsHtml' => $this->renderView('admin/partials/_test_drive_bookings_rows.html.twig', [
+                'bookings' => $bookings,
+            ]),
         ]);
     }
 
@@ -120,5 +132,50 @@ final class TestDriveBookingController extends AbstractController
         }
         
         return $this->redirectToRoute('app_test_drive_bookings', ['status' => 'approved']);
+    }
+
+    /**
+     * @return array{
+     *     bookings: list<TestDriveBooking>,
+     *     currentFilter: string,
+     *     totalBookings: int,
+     *     pendingBookings: int,
+     *     approvedBookings: int,
+     *     rejectedBookings: int
+     * }
+     */
+    private function buildIndexContext(TestDriveBookingRepository $repository, string $statusFilter): array
+    {
+        if ($statusFilter === 'all') {
+            $bookings = $repository->findAll();
+        } else {
+            $bookings = $repository->findByStatus($statusFilter);
+        }
+
+        $totalBookings = \count($repository->findAll());
+        $pendingBookings = \count($repository->findByStatus('pending'));
+        $approvedBookings = \count($repository->findByStatus('approved'));
+        $rejectedBookings = \count($repository->findByStatus('rejected'));
+
+        return [
+            'bookings' => $bookings,
+            'currentFilter' => $statusFilter,
+            'totalBookings' => $totalBookings,
+            'pendingBookings' => $pendingBookings,
+            'approvedBookings' => $approvedBookings,
+            'rejectedBookings' => $rejectedBookings,
+        ];
+    }
+
+    /**
+     * @param list<TestDriveBooking> $bookings
+     */
+    private function buildSignature(array $bookings): string
+    {
+        $ids = array_map(static fn (TestDriveBooking $booking) => (int) $booking->getId(), $bookings);
+        rsort($ids);
+        $ids = \array_slice($ids, 0, 15);
+
+        return \count($bookings).':'.implode(',', $ids);
     }
 }

@@ -3,48 +3,53 @@
 {% block title %}Service Bookings{% endblock %}
 
 {% block body %}
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-100">Service Bookings</h1>
-        <p class="mt-1 text-sm text-gray-500">Review and manage customer service appointment requests</p>
-    </div>
+    <div id="bookingsLiveRoot"
+         data-live-url="{{ path('app_service_bookings_live') }}"
+         data-socket-event="service.updated"
+         data-toast-label="Service bookings"
+         data-ws-gateway="{{ ws_gateway_url|default('') }}">
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        {% set cards = [
-            {'label': 'Total', 'value': totalBookings, 'color': 'blue'},
-            {'label': 'Pending', 'value': pendingBookings, 'color': 'amber'},
-            {'label': 'Approved', 'value': approvedBookings, 'color': 'green'},
-            {'label': 'Rejected', 'value': rejectedBookings, 'color': 'red'},
-            {'label': 'Completed', 'value': completedBookings, 'color': 'indigo'}
-        ] %}
-        {% for c in cards %}
-            <div class="bg-gray-800 rounded-xl shadow-lg p-5 border border-gray-700">
-                <p class="text-gray-400 text-sm font-medium">{{ c.label }}</p>
-                <p class="text-2xl font-bold text-white mt-1">{{ c.value }}</p>
-            </div>
-        {% endfor %}
-    </div>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-100">Service Bookings</h1>
+            <p class="mt-1 text-sm text-gray-500">Review and manage customer service appointment requests</p>
+        </div>
 
-    <div class="mb-6 flex flex-wrap gap-2">
-        {% set filters = {
-            'pending': { label: 'Pending', count: pendingBookings, active: 'bg-amber-600/30 border-amber-500 text-amber-200' },
-            'approved': { label: 'Approved', count: approvedBookings, active: 'bg-green-600/30 border-green-500 text-green-200' },
-            'rejected': { label: 'Rejected', count: rejectedBookings, active: 'bg-red-600/30 border-red-500 text-red-200' },
-            'completed': { label: 'Completed', count: completedBookings, active: 'bg-indigo-600/30 border-indigo-500 text-indigo-200' },
-            'all': { label: 'All', count: totalBookings, active: 'bg-[#B32224]/30 border-[#B32224] text-red-200' }
-        } %}
-        {% for key, f in filters %}
-            <a href="{{ path('app_service_bookings', {status: key}) }}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200
-                      {% if currentFilter == key %}{{ f.active }}{% else %}bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200{% endif %}">
-                {{ f.label }}
-                <span class="px-2 py-0.5 rounded-full text-xs {% if currentFilter == key %}bg-black/20{% else %}bg-gray-700{% endif %}">{{ f.count }}</span>
-            </a>
-        {% endfor %}
-    </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            {% set cards = [
+                {'key': 'total', 'label': 'Total', 'value': totalBookings},
+                {'key': 'pending', 'label': 'Pending', 'value': pendingBookings},
+                {'key': 'approved', 'label': 'Approved', 'value': approvedBookings},
+                {'key': 'rejected', 'label': 'Rejected', 'value': rejectedBookings},
+                {'key': 'completed', 'label': 'Completed', 'value': completedBookings}
+            ] %}
+            {% for c in cards %}
+                <div class="bg-gray-800 rounded-xl shadow-lg p-5 border border-gray-700">
+                    <p class="text-gray-400 text-sm font-medium">{{ c.label }}</p>
+                    <p class="text-2xl font-bold text-white mt-1" data-stat="{{ c.key }}">{{ c.value }}</p>
+                </div>
+            {% endfor %}
+        </div>
 
-    <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
-        {% if bookings|length > 0 %}
-            <div class="overflow-x-auto">
+        <div class="mb-6 flex flex-wrap gap-2">
+            {% set filters = {
+                'pending': { label: 'Pending', count: pendingBookings, active: 'bg-amber-600/30 border-amber-500 text-amber-200' },
+                'approved': { label: 'Approved', count: approvedBookings, active: 'bg-green-600/30 border-green-500 text-green-200' },
+                'rejected': { label: 'Rejected', count: rejectedBookings, active: 'bg-red-600/30 border-red-500 text-red-200' },
+                'completed': { label: 'Completed', count: completedBookings, active: 'bg-indigo-600/30 border-indigo-500 text-indigo-200' },
+                'all': { label: 'All', count: totalBookings, active: 'bg-[#B32224]/30 border-[#B32224] text-red-200' }
+            } %}
+            {% for key, f in filters %}
+                <a href="{{ path('app_service_bookings', {status: key}) }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-200
+                          {% if currentFilter == key %}{{ f.active }}{% else %}bg-gray-800 border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-200{% endif %}">
+                    {{ f.label }}
+                    <span class="px-2 py-0.5 rounded-full text-xs {% if currentFilter == key %}bg-black/20{% else %}bg-gray-700{% endif %}" data-filter-count="{{ key }}">{{ f.count }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
+            <div id="bookingsLiveTableWrap" class="overflow-x-auto {% if bookings|length == 0 %}hidden{% endif %}">
                 <table class="min-w-full divide-y divide-gray-700">
                     <thead class="bg-gray-900/50">
                         <tr>
@@ -56,162 +61,19 @@
                             <th class="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-700">
-                        {% for booking in bookings %}
-                            <tr class="hover:bg-gray-700/40 transition-colors duration-150">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#B32224]">#{{ booking.id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-100">{{ booking.customer.firstName }} {{ booking.customer.lastName }}</div>
-                                    <div class="text-xs text-gray-500">{{ booking.phone }}</div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-100">{{ booking.serviceName }}</div>
-                                    <div class="text-xs text-gray-500">{{ booking.vehicleDescription }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                    {{ booking.requestedDateTime|date('M d, Y') }}
-                                    <span class="text-gray-500">{{ booking.requestedDateTime|date('g:i A') }}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                                        {% if booking.status == 'pending' %}bg-amber-500/20 text-amber-300 border border-amber-500/40
-                                        {% elseif booking.status == 'approved' %}bg-green-500/20 text-green-300 border border-green-500/40
-                                        {% elseif booking.status == 'rejected' %}bg-red-500/20 text-red-300 border border-red-500/40
-                                        {% else %}bg-indigo-500/20 text-indigo-300 border border-indigo-500/40{% endif %}">
-                                        {{ booking.status|capitalize }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ path('app_service_booking_view', {id: booking.id}) }}"
-                                           class="px-2 py-1 rounded bg-gray-700 text-gray-200 hover:bg-gray-600 text-xs">View</a>
-                                        {% if booking.status == 'pending' %}
-                                            <form method="post" action="{{ path('app_service_booking_approve', {id: booking.id}) }}" class="inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ booking.id) }}">
-                                                <button type="submit" class="px-2 py-1 rounded bg-green-600 text-white hover:bg-green-700 text-xs">Approve</button>
-                                            </form>
-                                            <form method="post" action="{{ path('app_service_booking_reject', {id: booking.id}) }}" class="inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ booking.id) }}">
-                                                <button type="submit" class="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 text-xs">Reject</button>
-                                            </form>
-                                        {% elseif booking.status == 'approved' %}
-                                            <form method="post" action="{{ path('app_service_booking_complete', {id: booking.id}) }}" class="inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('complete' ~ booking.id) }}">
-                                                <button type="submit" class="px-2 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 text-xs">Complete</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                    <tbody id="bookingsLiveBody" class="divide-y divide-gray-700">
+                        {% include 'admin/partials/_service_bookings_rows.html.twig' %}
                     </tbody>
                 </table>
             </div>
-        {% else %}
-            <div class="py-16 px-6 text-center text-gray-400">
+            <div id="bookingsLiveEmpty" class="py-16 px-6 text-center text-gray-400 {% if bookings|length > 0 %}hidden{% endif %}">
                 No service booking requests for this filter.
             </div>
-        {% endif %}
+        </div>
     </div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
-<script>
-(() => {
-    const configuredGatewayUrl = "{{ app.request.server.get('WS_GATEWAY_URL') ? app.request.server.get('WS_GATEWAY_URL') : '' }}";
-    const socketBaseUrl = configuredGatewayUrl || window.location.origin;
-    const pollIntervalMs = 5000;
-    let baselineSignature = null;
-    let reloadQueued = false;
-
-    function queueReload() {
-        if (reloadQueued) {
-            return;
-        }
-        reloadQueued = true;
-        window.setTimeout(() => window.location.reload(), 150);
-    }
-
-    function buildSignature(payload) {
-        const rows = Array.isArray(payload?.data) ? payload.data : [];
-        const count = Number(payload?.count ?? rows.length);
-        const ids = rows
-            .map((row) => Number(row?.id))
-            .filter((id) => Number.isFinite(id))
-            .sort((a, b) => b - a)
-            .slice(0, 15)
-            .join(',');
-
-        return `${count}:${ids}`;
-    }
-
-    async function fetchBookingsSignature() {
-        const query = new URLSearchParams(window.location.search);
-        const status = query.get('status');
-        const url = status && status !== 'all'
-            ? `/api/service-bookings?status=${encodeURIComponent(status)}`
-            : '/api/service-bookings';
-
-        const response = await fetch(url, {
-            credentials: 'same-origin',
-            headers: { Accept: 'application/json' },
-            cache: 'no-store',
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch bookings: ${response.status}`);
-        }
-
-        return buildSignature(await response.json());
-    }
-
-    function connectRealtimeSocket() {
-        if (typeof window.io !== 'function') {
-            return;
-        }
-
-        try {
-            const socket = window.io(socketBaseUrl, {
-                transports: ['websocket', 'polling'],
-                auth: { userId: 'dashboard' },
-            });
-
-            socket.on('connect', () => {
-                ['dashboard', 'staff', 'admin'].forEach((audience) => {
-                    socket.emit('subscribe.user', { userId: audience });
-                });
-            });
-
-            socket.on('service.updated', () => {
-                queueReload();
-            });
-        } catch (error) {
-            console.debug('Realtime socket unavailable, using polling fallback:', error);
-        }
-    }
-
-    async function checkForUpdates() {
-        try {
-            const nextSignature = await fetchBookingsSignature();
-            if (baselineSignature === null) {
-                baselineSignature = nextSignature;
-                return;
-            }
-
-            if (baselineSignature !== nextSignature) {
-                window.location.reload();
-            }
-        } catch (error) {
-            // Keep the page functional even if polling fails temporarily.
-            console.debug('Realtime service poll skipped:', error);
-        }
-    }
-
-    connectRealtimeSocket();
-    checkForUpdates();
-    window.setInterval(checkForUpdates, pollIntervalMs);
-})();
-</script>
+{% include 'admin/partials/_bookings_live_script.html.twig' %}
 {% endblock %}

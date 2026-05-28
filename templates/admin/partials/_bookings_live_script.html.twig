@@ -1,0 +1,155 @@
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+    const root = document.getElementById('bookingsLiveRoot');
+    if (!root) return;
+
+    const liveUrl = root.dataset.liveUrl;
+    const socketEvent = root.dataset.socketEvent || '';
+    const toastLabel = root.dataset.toastLabel || 'Bookings';
+    const configuredGatewayUrl = root.dataset.wsGateway || '';
+    const socketBaseUrl = configuredGatewayUrl || window.location.origin;
+    const pollIntervalMs = 8000;
+
+    let baselineSignature = null;
+    let refreshInFlight = false;
+
+    function currentStatusFilter() {
+        const query = new URLSearchParams(window.location.search);
+        return query.get('status') || 'pending';
+    }
+
+    function liveDataUrl() {
+        const status = currentStatusFilter();
+        return `${liveUrl}?status=${encodeURIComponent(status)}`;
+    }
+
+    function updateStat(key, value) {
+        root.querySelectorAll(`[data-stat="${key}"]`).forEach((el) => {
+            el.textContent = String(value);
+        });
+    }
+
+    function updateFilterCounts(counts) {
+        if (!counts) return;
+        Object.entries(counts).forEach(([key, value]) => {
+            root.querySelectorAll(`[data-filter-count="${key}"]`).forEach((el) => {
+                el.textContent = String(value);
+            });
+        });
+    }
+
+    function highlightNewRows(previousIds) {
+        root.querySelectorAll('[data-booking-id]').forEach((row) => {
+            const id = Number(row.getAttribute('data-booking-id'));
+            if (!previousIds.has(id)) {
+                row.classList.add('bg-[#B32224]/10', 'ring-1', 'ring-[#B32224]/40');
+                window.setTimeout(() => {
+                    row.classList.remove('bg-[#B32224]/10', 'ring-1', 'ring-[#B32224]/40');
+                }, 2800);
+            }
+        });
+    }
+
+    function collectRowIds() {
+        const ids = new Set();
+        root.querySelectorAll('[data-booking-id]').forEach((row) => {
+            const id = Number(row.getAttribute('data-booking-id'));
+            if (Number.isFinite(id)) ids.add(id);
+        });
+        return ids;
+    }
+
+    function applyLiveData(data, notify) {
+        const stats = data.stats || {};
+        const filterCounts = data.filterCounts || {};
+        const previousIds = collectRowIds();
+        const previousCount = previousIds.size;
+
+        updateStat('total', stats.total ?? 0);
+        updateStat('pending', stats.pending ?? 0);
+        updateStat('approved', stats.approved ?? 0);
+        updateStat('rejected', stats.rejected ?? 0);
+        if (stats.completed !== undefined) {
+            updateStat('completed', stats.completed);
+        }
+        updateFilterCounts(filterCounts);
+
+        const tbody = document.getElementById('bookingsLiveBody');
+        const tableWrap = document.getElementById('bookingsLiveTableWrap');
+        const emptyState = document.getElementById('bookingsLiveEmpty');
+
+        if (tbody) {
+            tbody.innerHTML = data.rowsHtml || '';
+        }
+
+        const hasRows = Boolean(data.hasRows);
+        if (tableWrap) tableWrap.classList.toggle('hidden', !hasRows);
+        if (emptyState) emptyState.classList.toggle('hidden', hasRows);
+
+        if (notify && typeof window.showModernToast === 'function') {
+            const newCount = (data.bookingIds || []).length;
+            if (newCount > previousCount) {
+                window.showModernToast('info', 'New request', `${toastLabel}: a new booking appeared in the list.`);
+            } else if (newCount < previousCount && baselineSignature !== null) {
+                window.showModernToast('deleted', 'Booking removed', `${toastLabel}: a booking was removed from this list.`);
+            }
+        }
+
+        highlightNewRows(previousIds);
+        baselineSignature = data.signature || null;
+    }
+
+    async function refreshLiveTable(notify = false) {
+        if (refreshInFlight) return;
+        refreshInFlight = true;
+
+        try {
+            const response = await fetch(liveDataUrl(), {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json' },
+                cache: 'no-store',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Live data failed: ${response.status}`);
+            }
+
+            applyLiveData(await response.json(), notify);
+        } catch (error) {
+            console.debug('Live table refresh skipped:', error);
+        } finally {
+            refreshInFlight = false;
+        }
+    }
+
+    function connectRealtimeSocket() {
+        if (!socketEvent || typeof window.io !== 'function') {
+            return;
+        }
+
+        try {
+            const socket = window.io(socketBaseUrl, {
+                transports: ['websocket', 'polling'],
+                auth: { userId: 'dashboard' },
+            });
+
+            socket.on('connect', () => {
+                ['dashboard', 'staff', 'admin'].forEach((audience) => {
+                    socket.emit('subscribe.user', { userId: audience });
+                });
+            });
+
+            socket.on(socketEvent, () => {
+                refreshLiveTable(true);
+            });
+        } catch (error) {
+            console.debug('Realtime socket unavailable:', error);
+        }
+    }
+
+    connectRealtimeSocket();
+    refreshLiveTable(false);
+    window.setInterval(() => refreshLiveTable(false), pollIntervalMs);
+})();
+</script>
