@@ -55,3 +55,8 @@ services:
         arguments:
             $googleClientId: '%env(default:google.oauth.web_client_id:GOOGLE_CLIENT_ID)%'
             $googleAndroidClientId: '%env(default:google.oauth.android_client_id:GOOGLE_ANDROID_CLIENT_ID)%'
+
+    App\Service\WebsocketEmitter:
+        arguments:
+            $gatewayUrl: '%env(default::WS_GATEWAY_URL)%'
+            $internalToken: '%env(default::WS_INTERNAL_TOKEN)%'

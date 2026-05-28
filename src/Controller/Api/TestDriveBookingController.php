@@ -6,6 +6,7 @@ use App\Entity\TestDriveBooking;
 use App\Entity\Cars;
 use App\Repository\TestDriveBookingRepository;
 use App\Repository\CarsRepository;
+use App\Service\WebsocketEmitter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -283,6 +284,7 @@ final class TestDriveBookingController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         TestDriveBookingRepository $repository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -324,6 +326,11 @@ final class TestDriveBookingController extends AbstractController
                 'approvedBy' => $user->getId(),
                 'status' => $status,
             ]);
+
+            $customerId = $booking->getCustomer()?->getId();
+            if ($customerId !== null) {
+                $websocketEmitter->emitBookingUpdated($customerId, $this->formatBooking($booking));
+            }
 
             return $this->json([
                 'success' => true,

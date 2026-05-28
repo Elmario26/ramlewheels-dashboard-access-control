@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\ServiceBooking;
 use App\Repository\ServiceBookingRepository;
+use App\Service\WebsocketEmitter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -206,6 +207,7 @@ final class ServiceBookingController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         ServiceBookingRepository $repository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -242,6 +244,11 @@ final class ServiceBookingController extends AbstractController
                 'bookingId' => $booking->getId(),
                 'approvedBy' => $user->getId(),
             ]);
+
+            $customerId = $booking->getCustomer()?->getId();
+            if ($customerId !== null) {
+                $websocketEmitter->emitServiceUpdated($customerId, $this->formatBooking($booking));
+            }
 
             return $this->json([
                 'success' => true,
