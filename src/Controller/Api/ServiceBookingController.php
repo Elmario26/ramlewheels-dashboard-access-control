@@ -19,6 +19,7 @@ final class ServiceBookingController extends AbstractController
     public function create(
         Request $request,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -84,6 +85,7 @@ final class ServiceBookingController extends AbstractController
             ]);
 
             $formatted = $this->formatBooking($booking);
+            $this->emitServiceRealtimeUpdate($websocketEmitter, $booking);
 
             return $this->json([
                 'success' => true,
@@ -164,6 +166,7 @@ final class ServiceBookingController extends AbstractController
         int $id,
         EntityManagerInterface $entityManager,
         ServiceBookingRepository $repository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -185,10 +188,17 @@ final class ServiceBookingController extends AbstractController
                 return $this->json(['error' => 'Only pending bookings can be cancelled'], 400);
             }
 
+            $customerId = $booking->getCustomer()?->getId();
+            $deletedPayload = $this->formatBooking($booking);
+            $deletedPayload['deleted'] = true;
+
             $entityManager->remove($booking);
             $entityManager->flush();
 
             $logger->info('Service booking deleted', ['bookingId' => $id]);
+            if ($customerId !== null) {
+                $websocketEmitter->emitServiceUpdated($customerId, $deletedPayload);
+            }
 
             return $this->json([
                 'success' => true,
@@ -312,5 +322,15 @@ final class ServiceBookingController extends AbstractController
             'createdAt' => $booking->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $booking->getUpdatedAt()?->format('Y-m-d H:i:s'),
         ];
+    }
+
+    private function emitServiceRealtimeUpdate(WebsocketEmitter $websocketEmitter, ServiceBooking $booking): void
+    {
+        $customerId = $booking->getCustomer()?->getId();
+        if ($customerId === null) {
+            return;
+        }
+
+        $websocketEmitter->emitServiceUpdated($customerId, $this->formatBooking($booking));
     }
 }

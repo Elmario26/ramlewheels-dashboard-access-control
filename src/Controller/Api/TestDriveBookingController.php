@@ -22,6 +22,7 @@ final class TestDriveBookingController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         CarsRepository $carsRepository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -85,6 +86,8 @@ final class TestDriveBookingController extends AbstractController
                 'customerId' => $user->getId(),
                 'carId' => $car->getId(),
             ]);
+
+            $this->emitBookingRealtimeUpdate($websocketEmitter, $booking);
 
             return $this->json([
                 'success' => true,
@@ -175,6 +178,7 @@ final class TestDriveBookingController extends AbstractController
         EntityManagerInterface $entityManager,
         TestDriveBookingRepository $repository,
         CarsRepository $carsRepository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -225,6 +229,7 @@ final class TestDriveBookingController extends AbstractController
             $entityManager->flush();
 
             $logger->info('Test drive booking updated', ['bookingId' => $booking->getId()]);
+            $this->emitBookingRealtimeUpdate($websocketEmitter, $booking);
 
             return $this->json([
                 'success' => true,
@@ -242,6 +247,7 @@ final class TestDriveBookingController extends AbstractController
         int $id,
         EntityManagerInterface $entityManager,
         TestDriveBookingRepository $repository,
+        WebsocketEmitter $websocketEmitter,
         LoggerInterface $logger,
         #[CurrentUser] ?\App\Entity\User $user
     ): JsonResponse {
@@ -263,10 +269,17 @@ final class TestDriveBookingController extends AbstractController
                 return $this->json(['error' => 'Only pending bookings can be cancelled'], 400);
             }
 
+            $customerId = $booking->getCustomer()?->getId();
+            $deletedPayload = $this->formatBooking($booking);
+            $deletedPayload['deleted'] = true;
+
             $entityManager->remove($booking);
             $entityManager->flush();
 
             $logger->info('Test drive booking deleted', ['bookingId' => $id]);
+            if ($customerId !== null) {
+                $websocketEmitter->emitBookingUpdated($customerId, $deletedPayload);
+            }
 
             return $this->json([
                 'success' => true,
@@ -389,5 +402,15 @@ final class TestDriveBookingController extends AbstractController
             'createdAt' => $booking->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $booking->getUpdatedAt()?->format('Y-m-d H:i:s'),
         ];
+    }
+
+    private function emitBookingRealtimeUpdate(WebsocketEmitter $websocketEmitter, TestDriveBooking $booking): void
+    {
+        $customerId = $booking->getCustomer()?->getId();
+        if ($customerId === null) {
+            return;
+        }
+
+        $websocketEmitter->emitBookingUpdated($customerId, $this->formatBooking($booking));
     }
 }
