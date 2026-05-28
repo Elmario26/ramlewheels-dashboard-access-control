@@ -360,17 +360,29 @@
                         }, 500);
                     }
                     
-                    // Check for flash messages in DOM (Symfony flash messages)
-                    const flashMessages = document.querySelectorAll('.alert, .flash-message');
-                    flashMessages.forEach(function(message) {
+                    // Legacy flash banners (non-booking pages)
+                    const legacyFlashMessages = document.querySelectorAll('.alert.flash-message, .flash-message:not([data-flash-type])');
+                    legacyFlashMessages.forEach(function(message) {
                         if (message && message.textContent) {
                             const text = message.textContent.trim();
                             if (text.includes('successfully') || text.includes('created') || text.includes('updated') || text.includes('added') || text.includes('recorded')) {
-                                showGlobalResultModal('success', 'Success!', text);
+                                if (typeof window.showModernToast === 'function') {
+                                    window.showModernToast('success', 'Success', text);
+                                } else {
+                                    showGlobalResultModal('success', 'Success!', text);
+                                }
                             } else if (text.includes('error') || text.includes('failed') || text.includes('occurred')) {
-                                showGlobalResultModal('error', 'Error!', text);
+                                if (typeof window.showModernToast === 'function') {
+                                    window.showModernToast('error', 'Error', text);
+                                } else {
+                                    showGlobalResultModal('error', 'Error!', text);
+                                }
                             } else if (text.includes('warning')) {
-                                showGlobalResultModal('warning', 'Warning!', text);
+                                if (typeof window.showModernToast === 'function') {
+                                    window.showModernToast('warning', 'Notice', text);
+                                } else {
+                                    showGlobalResultModal('warning', 'Warning!', text);
+                                }
                             }
                         }
                     });
@@ -426,12 +438,12 @@
                 {% include 'partials/_topbar.html.twig' %}
             </div>
             <div class="flex-1 p-8">
-                {# Flash messages (consumed by JS modal and visible fallback) #}
+                {# Flash messages consumed by modern toast (hidden) #}
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
-                        <div class="flash-message {{ label }} mb-4 px-4 py-3 rounded {{ label == 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white' }}">
-                            {{ message }}
-                        </div>
+                        <div class="hidden"
+                             data-flash-type="{{ label }}"
+                             data-flash-message="{{ message|e('html_attr') }}"></div>
                     {% endfor %}
                 {% endfor %}
                 {% block body %}{% endblock %}
@@ -462,5 +474,7 @@
                 </div>
             </div>
         </div>
+
+        {% include 'partials/_modern_toast.html.twig' %}
     </body>
 </html>

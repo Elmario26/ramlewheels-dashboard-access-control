@@ -66,7 +66,7 @@ final class ServiceBookingController extends AbstractController
             $booking->setStaffRemarks($request->request->get('staffRemarks'));
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
-            $this->addFlash('success', 'Service request approved.');
+            $this->addFlash('approved', sprintf('Service booking #%d has been approved.', $booking->getId()));
         }
 
         return $this->redirectToRoute('app_service_bookings', ['status' => 'pending']);
@@ -86,7 +86,7 @@ final class ServiceBookingController extends AbstractController
             $booking->setStaffRemarks($request->request->get('staffRemarks'));
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
-            $this->addFlash('warning', 'Service request rejected.');
+            $this->addFlash('rejected', sprintf('Service booking #%d was rejected.', $booking->getId()));
         }
 
         return $this->redirectToRoute('app_service_bookings', ['status' => 'pending']);
@@ -103,7 +103,7 @@ final class ServiceBookingController extends AbstractController
             $booking->setStatus('completed');
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
-            $this->addFlash('success', 'Service request marked as completed.');
+            $this->addFlash('completed', sprintf('Service booking #%d is marked as completed.', $booking->getId()));
         }
 
         return $this->redirectToRoute('app_service_bookings', ['status' => 'approved']);

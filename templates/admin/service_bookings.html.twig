@@ -4,17 +4,8 @@
 
 {% block body %}
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-100">Bookings</h1>
-        <div class="mt-3 inline-flex rounded-lg border border-gray-700 bg-gray-800 p-1">
-            <a href="{{ path('app_test_drive_bookings') }}"
-               class="px-3 py-1.5 rounded-md text-sm font-medium {% if app.request.get('_route') starts with 'app_test_drive_booking' %}bg-[#B32224] text-white{% else %}text-gray-300 hover:text-white{% endif %}">
-                Test Drive
-            </a>
-            <a href="{{ path('app_service_bookings') }}"
-               class="px-3 py-1.5 rounded-md text-sm font-medium {% if app.request.get('_route') starts with 'app_service_booking' %}bg-[#B32224] text-white{% else %}text-gray-300 hover:text-white{% endif %}">
-                Services
-            </a>
-        </div>
+        <h1 class="text-3xl font-bold text-gray-100">Service Bookings</h1>
+        <p class="mt-1 text-sm text-gray-500">Review and manage customer service appointment requests</p>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">

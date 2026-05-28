@@ -73,7 +73,7 @@ final class TestDriveBookingController extends AbstractController
             
             $entityManager->flush();
             
-            $this->addFlash('success', 'Booking approved successfully!');
+            $this->addFlash('approved', sprintf('Test drive booking #%d has been approved.', $booking->getId()));
         }
         
         return $this->redirectToRoute('app_test_drive_bookings', ['status' => 'pending']);
@@ -97,7 +97,7 @@ final class TestDriveBookingController extends AbstractController
             
             $entityManager->flush();
             
-            $this->addFlash('warning', 'Booking rejected!');
+            $this->addFlash('rejected', sprintf('Test drive booking #%d was rejected.', $booking->getId()));
         }
         
         return $this->redirectToRoute('app_test_drive_bookings', ['status' => 'pending']);
@@ -116,7 +116,7 @@ final class TestDriveBookingController extends AbstractController
             
             $entityManager->flush();
             
-            $this->addFlash('success', 'Booking marked as completed!');
+            $this->addFlash('completed', sprintf('Test drive booking #%d is marked as completed.', $booking->getId()));
         }
         
         return $this->redirectToRoute('app_test_drive_bookings', ['status' => 'approved']);
