@@ -23,12 +23,26 @@ final class WebsocketEmitter
         ]);
     }
 
+    public function emitBookingUpdatedForStaff(array $booking): void
+    {
+        foreach (['staff', 'admin', 'dashboard'] as $audience) {
+            $this->emitBookingUpdated($audience, $booking);
+        }
+    }
+
     public function emitServiceUpdated(int|string $userId, array $booking): void
     {
         $this->postEvent('/events/service-updated', [
             'userId' => $userId,
             'booking' => $booking,
         ]);
+    }
+
+    public function emitServiceUpdatedForStaff(array $booking): void
+    {
+        foreach (['staff', 'admin', 'dashboard'] as $audience) {
+            $this->emitServiceUpdated($audience, $booking);
+        }
     }
 
     private function postEvent(string $path, array $payload): void

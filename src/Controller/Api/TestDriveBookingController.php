@@ -280,6 +280,7 @@ final class TestDriveBookingController extends AbstractController
             if ($customerId !== null) {
                 $websocketEmitter->emitBookingUpdated($customerId, $deletedPayload);
             }
+            $websocketEmitter->emitBookingUpdatedForStaff($deletedPayload);
 
             return $this->json([
                 'success' => true,
@@ -344,6 +345,7 @@ final class TestDriveBookingController extends AbstractController
             if ($customerId !== null) {
                 $websocketEmitter->emitBookingUpdated($customerId, $this->formatBooking($booking));
             }
+            $websocketEmitter->emitBookingUpdatedForStaff($this->formatBooking($booking));
 
             return $this->json([
                 'success' => true,
@@ -407,10 +409,12 @@ final class TestDriveBookingController extends AbstractController
     private function emitBookingRealtimeUpdate(WebsocketEmitter $websocketEmitter, TestDriveBooking $booking): void
     {
         $customerId = $booking->getCustomer()?->getId();
-        if ($customerId === null) {
-            return;
+        $payload = $this->formatBooking($booking);
+
+        if ($customerId !== null) {
+            $websocketEmitter->emitBookingUpdated($customerId, $payload);
         }
 
-        $websocketEmitter->emitBookingUpdated($customerId, $this->formatBooking($booking));
+        $websocketEmitter->emitBookingUpdatedForStaff($payload);
     }
 }

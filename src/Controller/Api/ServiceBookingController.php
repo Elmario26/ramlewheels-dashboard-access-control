@@ -199,6 +199,7 @@ final class ServiceBookingController extends AbstractController
             if ($customerId !== null) {
                 $websocketEmitter->emitServiceUpdated($customerId, $deletedPayload);
             }
+            $websocketEmitter->emitServiceUpdatedForStaff($deletedPayload);
 
             return $this->json([
                 'success' => true,
@@ -259,6 +260,7 @@ final class ServiceBookingController extends AbstractController
             if ($customerId !== null) {
                 $websocketEmitter->emitServiceUpdated($customerId, $this->formatBooking($booking));
             }
+            $websocketEmitter->emitServiceUpdatedForStaff($this->formatBooking($booking));
 
             return $this->json([
                 'success' => true,
@@ -327,10 +329,12 @@ final class ServiceBookingController extends AbstractController
     private function emitServiceRealtimeUpdate(WebsocketEmitter $websocketEmitter, ServiceBooking $booking): void
     {
         $customerId = $booking->getCustomer()?->getId();
-        if ($customerId === null) {
-            return;
+        $payload = $this->formatBooking($booking);
+
+        if ($customerId !== null) {
+            $websocketEmitter->emitServiceUpdated($customerId, $payload);
         }
 
-        $websocketEmitter->emitServiceUpdated($customerId, $this->formatBooking($booking));
+        $websocketEmitter->emitServiceUpdatedForStaff($payload);
     }
 }
