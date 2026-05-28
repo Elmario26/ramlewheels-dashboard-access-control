@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\TestDriveBooking;
 use App\Repository\TestDriveBookingRepository;
+use App\Service\WebsocketEmitter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -72,6 +73,7 @@ final class TestDriveBookingController extends AbstractController
     public function approve(
         TestDriveBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('approve' . $booking->getId(), $request->request->get('_token'))) {
@@ -84,6 +86,7 @@ final class TestDriveBookingController extends AbstractController
             $booking->setUpdatedAt(new \DateTime());
             
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             
             $this->addFlash('approved', sprintf('Test drive booking #%d has been approved.', $booking->getId()));
         }
@@ -96,6 +99,7 @@ final class TestDriveBookingController extends AbstractController
     public function reject(
         TestDriveBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('reject' . $booking->getId(), $request->request->get('_token'))) {
@@ -108,6 +112,7 @@ final class TestDriveBookingController extends AbstractController
             $booking->setUpdatedAt(new \DateTime());
             
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             
             $this->addFlash('rejected', sprintf('Test drive booking #%d was rejected.', $booking->getId()));
         }
@@ -120,6 +125,7 @@ final class TestDriveBookingController extends AbstractController
     public function complete(
         TestDriveBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('complete' . $booking->getId(), $request->request->get('_token'))) {
@@ -127,6 +133,7 @@ final class TestDriveBookingController extends AbstractController
             $booking->setUpdatedAt(new \DateTime());
             
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             
             $this->addFlash('completed', sprintf('Test drive booking #%d is marked as completed.', $booking->getId()));
         }
@@ -177,5 +184,14 @@ final class TestDriveBookingController extends AbstractController
         $ids = \array_slice($ids, 0, 15);
 
         return \count($bookings).':'.implode(',', $ids);
+    }
+
+    private function emitStaffBookingUpdate(WebsocketEmitter $websocketEmitter, TestDriveBooking $booking): void
+    {
+        $websocketEmitter->emitBookingUpdatedForStaff([
+            'id' => $booking->getId(),
+            'status' => $booking->getStatus(),
+            'updatedAt' => $booking->getUpdatedAt()?->format('Y-m-d H:i:s'),
+        ]);
     }
 }

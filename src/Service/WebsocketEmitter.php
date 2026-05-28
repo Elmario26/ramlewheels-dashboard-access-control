@@ -25,9 +25,7 @@ final class WebsocketEmitter
 
     public function emitBookingUpdatedForStaff(array $booking): void
     {
-        foreach (['staff', 'admin', 'dashboard'] as $audience) {
-            $this->emitBookingUpdated($audience, $booking);
-        }
+        $this->emitBookingUpdated('dashboard', $booking);
     }
 
     public function emitServiceUpdated(int|string $userId, array $booking): void
@@ -40,9 +38,7 @@ final class WebsocketEmitter
 
     public function emitServiceUpdatedForStaff(array $booking): void
     {
-        foreach (['staff', 'admin', 'dashboard'] as $audience) {
-            $this->emitServiceUpdated($audience, $booking);
-        }
+        $this->emitServiceUpdated('dashboard', $booking);
     }
 
     private function postEvent(string $path, array $payload): void

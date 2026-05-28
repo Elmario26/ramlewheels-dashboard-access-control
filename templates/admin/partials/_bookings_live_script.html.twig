@@ -1,18 +1,25 @@
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
 <script>
-(() => {
+function initBookingsLiveTable() {
     const root = document.getElementById('bookingsLiveRoot');
-    if (!root) return;
+    if (!root || root.dataset.liveInitialized === '1') {
+        return;
+    }
+    root.dataset.liveInitialized = '1';
 
     const liveUrl = root.dataset.liveUrl;
     const socketEvent = root.dataset.socketEvent || '';
     const toastLabel = root.dataset.toastLabel || 'Bookings';
-    const configuredGatewayUrl = root.dataset.wsGateway || '';
+    const configuredGatewayUrl = (root.dataset.wsGateway || '').trim();
     const socketBaseUrl = configuredGatewayUrl || window.location.origin;
-    const pollIntervalMs = 8000;
+    const pollIntervalMs = 5000;
 
     let baselineSignature = null;
     let refreshInFlight = false;
+    let pendingRefresh = false;
+    let pendingNotify = false;
+    let pollTimer = null;
+    let socketRefreshTimer = null;
 
     function currentStatusFilter() {
         const query = new URLSearchParams(window.location.search);
@@ -61,6 +68,11 @@
     }
 
     function applyLiveData(data, notify) {
+        const signature = data.signature || '';
+        if (baselineSignature !== null && signature === baselineSignature) {
+            return false;
+        }
+
         const stats = data.stats || {};
         const filterCounts = data.filterCounts || {};
         const previousIds = collectRowIds();
@@ -91,23 +103,31 @@
             const newCount = (data.bookingIds || []).length;
             if (newCount > previousCount) {
                 window.showModernToast('info', 'New request', `${toastLabel}: a new booking appeared in the list.`);
-            } else if (newCount < previousCount && baselineSignature !== null) {
+            } else if (newCount < previousCount) {
                 window.showModernToast('deleted', 'Booking removed', `${toastLabel}: a booking was removed from this list.`);
             }
         }
 
         highlightNewRows(previousIds);
-        baselineSignature = data.signature || null;
+        baselineSignature = signature;
+        return true;
     }
 
     async function refreshLiveTable(notify = false) {
-        if (refreshInFlight) return;
+        if (refreshInFlight) {
+            pendingRefresh = true;
+            pendingNotify = pendingNotify || notify;
+            return;
+        }
         refreshInFlight = true;
 
         try {
             const response = await fetch(liveDataUrl(), {
                 credentials: 'same-origin',
-                headers: { Accept: 'application/json' },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
                 cache: 'no-store',
             });
 
@@ -117,14 +137,35 @@
 
             applyLiveData(await response.json(), notify);
         } catch (error) {
-            console.debug('Live table refresh skipped:', error);
+            console.warn('Live table refresh failed:', error);
         } finally {
             refreshInFlight = false;
+            if (pendingRefresh) {
+                const shouldNotify = pendingNotify;
+                pendingRefresh = false;
+                pendingNotify = false;
+                refreshLiveTable(shouldNotify);
+            }
         }
+    }
+
+    function scheduleSocketRefresh() {
+        if (socketRefreshTimer) {
+            window.clearTimeout(socketRefreshTimer);
+        }
+        socketRefreshTimer = window.setTimeout(() => {
+            socketRefreshTimer = null;
+            refreshLiveTable(true);
+        }, 250);
     }
 
     function connectRealtimeSocket() {
         if (!socketEvent || typeof window.io !== 'function') {
+            return;
+        }
+
+        if (!configuredGatewayUrl) {
+            console.info('WS_GATEWAY_URL is not set; using polling-only live updates.');
             return;
         }
 
@@ -140,16 +181,31 @@
                 });
             });
 
-            socket.on(socketEvent, () => {
-                refreshLiveTable(true);
+            socket.on(socketEvent, scheduleSocketRefresh);
+
+            socket.on('connect_error', (error) => {
+                console.warn('Realtime socket connection error:', error?.message || error);
             });
         } catch (error) {
-            console.debug('Realtime socket unavailable:', error);
+            console.warn('Realtime socket unavailable:', error);
         }
     }
 
     connectRealtimeSocket();
     refreshLiveTable(false);
-    window.setInterval(() => refreshLiveTable(false), pollIntervalMs);
-})();
+    pollTimer = window.setInterval(() => refreshLiveTable(false), pollIntervalMs);
+
+    window.addEventListener('beforeunload', () => {
+        if (pollTimer) window.clearInterval(pollTimer);
+        if (socketRefreshTimer) window.clearTimeout(socketRefreshTimer);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBookingsLiveTable);
+} else {
+    initBookingsLiveTable();
+}
+
+document.addEventListener('turbo:load', initBookingsLiveTable);
 </script>

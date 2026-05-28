@@ -196,9 +196,10 @@
         if (e.key === 'Escape') closeApprovalModal();
     });
     </script>
+
+    {% include 'admin/partials/_bookings_live_script.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
-{% include 'admin/partials/_bookings_live_script.html.twig' %}
 {% endblock %}

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\ServiceBooking;
 use App\Repository\ServiceBookingRepository;
+use App\Service\WebsocketEmitter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -72,6 +73,7 @@ final class ServiceBookingController extends AbstractController
     public function approve(
         ServiceBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('approve' . $booking->getId(), $request->request->get('_token'))) {
@@ -81,6 +83,7 @@ final class ServiceBookingController extends AbstractController
             $booking->setStaffRemarks($request->request->get('staffRemarks'));
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             $this->addFlash('approved', sprintf('Service booking #%d has been approved.', $booking->getId()));
         }
 
@@ -92,6 +95,7 @@ final class ServiceBookingController extends AbstractController
     public function reject(
         ServiceBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('reject' . $booking->getId(), $request->request->get('_token'))) {
@@ -101,6 +105,7 @@ final class ServiceBookingController extends AbstractController
             $booking->setStaffRemarks($request->request->get('staffRemarks'));
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             $this->addFlash('rejected', sprintf('Service booking #%d was rejected.', $booking->getId()));
         }
 
@@ -112,12 +117,14 @@ final class ServiceBookingController extends AbstractController
     public function complete(
         ServiceBooking $booking,
         EntityManagerInterface $entityManager,
+        WebsocketEmitter $websocketEmitter,
         Request $request
     ): Response {
         if ($this->isCsrfTokenValid('complete' . $booking->getId(), $request->request->get('_token'))) {
             $booking->setStatus('completed');
             $booking->setUpdatedAt(new \DateTime());
             $entityManager->flush();
+            $this->emitStaffBookingUpdate($websocketEmitter, $booking);
             $this->addFlash('completed', sprintf('Service booking #%d is marked as completed.', $booking->getId()));
         }
 
@@ -170,5 +177,15 @@ final class ServiceBookingController extends AbstractController
         $ids = \array_slice($ids, 0, 15);
 
         return \count($bookings).':'.implode(',', $ids);
+    }
+
+    private function emitStaffBookingUpdate(WebsocketEmitter $websocketEmitter, ServiceBooking $booking): void
+    {
+        $websocketEmitter->emitServiceUpdatedForStaff([
+            'id' => $booking->getId(),
+            'status' => $booking->getStatus(),
+            'serviceName' => $booking->getServiceName(),
+            'updatedAt' => $booking->getUpdatedAt()?->format('Y-m-d H:i:s'),
+        ]);
     }
 }
